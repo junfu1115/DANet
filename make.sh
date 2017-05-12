@@ -6,5 +6,5 @@ mkdir -p build && cd build
 cmake ..
 make install
 
-cd ..
+cd ../..
 python setup.py install
