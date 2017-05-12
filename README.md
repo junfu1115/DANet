@@ -1,6 +1,7 @@
 # PyTorch-Encoding-Layer
 
-:x: **In progress** This repo is a PyTorch implementation of Encoding Layer as described in the paper:
+:x: **In progress, please visit our [Torch Implementation](https://github.com/zhanghang1989/Deep-Encoding).**
+This repo is a PyTorch implementation of Encoding Layer as described in the paper:
 
 **Deep TEN: Texture Encoding Network** [[arXiv]](https://arxiv.org/pdf/1612.02844.pdf)  
   [Hang Zhang](http://hangzh.com/), [Jia Xue](http://jiaxueweb.com/), [Kristin Dana](http://eceweb1.rutgers.edu/vision/dana.html)
