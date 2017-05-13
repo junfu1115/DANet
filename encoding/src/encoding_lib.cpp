@@ -9,7 +9,7 @@
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 #include <THC/THC.h>
-#include "thc_encoding.h"
+#include <thc_encoding.h>
 
 extern THCState *state;
 

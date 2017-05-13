@@ -12,8 +12,8 @@
 FILE(GLOB TORCH_LIB_HINTS 
 	"/anaconda/lib/python3.6/site-packages/torch/lib" 
 	"/anaconda2/lib/python3.6/site-packages/torch/lib" 
-	"${HOME}/anaconda/lib/python2.7/site-packages/torch/lib"
-	"${HOME}/anaconda2/lib/python2.7/site-packages/torch/lib"
+	"$ENV{HOME}/anaconda/lib/python2.7/site-packages/torch/lib"
+	"$ENV{HOME}/anaconda2/lib/python2.7/site-packages/torch/lib"
 )
 FIND_PATH(TORCH_BUILD_DIR
 	NAMES "THNN.h"
