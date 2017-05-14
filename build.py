@@ -31,19 +31,22 @@ else:
 	ENCODING_LIB = os.path.join(package_base, 'lib/libENCODING.so')
 
 def make_relative_rpath(path):
-    if platform.system() == 'Darwin':
-        return '-Wl,-rpath,' + path
-    else:
-        return '-Wl,-rpath,' + path
+	if platform.system() == 'Darwin':
+		return '-Wl,-rpath,' + path
+	else:
+		return '-Wl,-rpath,' + path
+
+extra_link_args = []
+
 
 ffi = create_extension(
-    'encoding._ext.encoding_lib',
-    package=True,
-    headers=headers,
-    sources=sources,
-    define_macros=defines,
-    relative_to=__file__,
-    with_cuda=with_cuda,
+	'encoding._ext.encoding_lib',
+	package=True,
+	headers=headers,
+	sources=sources,
+	define_macros=defines,
+	relative_to=__file__,
+	with_cuda=with_cuda,
 		include_dirs = include_path,
 		extra_link_args = [
 			make_relative_rpath(os.path.join(package_base, 'lib')),

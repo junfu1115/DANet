@@ -10,6 +10,7 @@
 
 import torch
 from torch.nn.modules.module import Module
+from torch.autograd import Function
 from ._ext import encoding_lib
 
 class aggregate(Function):

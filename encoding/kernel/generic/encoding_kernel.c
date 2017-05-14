@@ -9,8 +9,9 @@
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 #ifndef THC_GENERIC_FILE
-#define THC_GENERIC_FILE "kernel/generic/encoding_kernel.c"
+#define THC_GENERIC_FILE "generic/encoding_kernel.c"
 #else
+/*
 template <int Dim>
 THCDeviceTensor<float, Dim> devicetensor(THCState *state, THCTensor *t) {
   if (!t) {
@@ -36,7 +37,7 @@ THCDeviceTensor<float, Dim> devicetensor(THCState *state, THCTensor *t) {
   }
   return THCDeviceTensor<float, Dim>(THCTensor_(data)(state, t), size);
 }
-
+*/
 __global__ void Encoding_(Aggregate_Forward_kernel) (
 	THCDeviceTensor<real, 3> E,
 	THCDeviceTensor<real, 3> A,
@@ -71,7 +72,7 @@ void Encoding_(Aggregate_Forward)(THCState *state, THCTensor *E_, THCTensor *A_,
 	if (THCTensor_(nDimension)(state, E_) != 3 ||
 			THCTensor_(nDimension)(state, A_) != 3 ||
 			THCTensor_(nDimension)(state, R_) != 4)
-		perror("Encoding: incorrect input dims. \n");
+		THError("Encoding: incorrect input dims. \n");
 	/* Device tensors */
 	THCDeviceTensor<real, 3> E = devicetensor<3>(state, E_);
 	THCDeviceTensor<real, 3> A = devicetensor<3>(state, A_);

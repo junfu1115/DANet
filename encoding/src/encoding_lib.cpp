@@ -13,5 +13,13 @@
 
 extern THCState *state;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "generic/encoding_generic.c"
 #include "THC/THCGenerateFloatType.h"
+
+#ifdef __cplusplus
+}
+#endif
