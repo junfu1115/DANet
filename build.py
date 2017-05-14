@@ -11,7 +11,18 @@
 import os
 import torch
 import platform
+import subprocess
 from torch.utils.ffi import create_extension
+
+# build kernel library
+build_all_cmd = ['bash', 'encoding/make.sh']
+if subprocess.call(build_all_cmd) != 0:
+	sys.exit(1)
+
+sources = ['encoding/src/encoding_lib.cpp']
+headers = ['encoding/src/encoding_lib.h']
+defines = [('WITH_CUDA', None)]
+with_cuda = True 
 
 package_base = os.path.dirname(torch.__file__)
 this_file = os.path.dirname(os.path.realpath(__file__))
@@ -19,11 +30,6 @@ this_file = os.path.dirname(os.path.realpath(__file__))
 include_path = [os.path.join(os.environ['HOME'],'pytorch/torch/lib/THC'), 
 								os.path.join(package_base,'lib/include/ENCODING'), 
 								os.path.join(this_file,'encoding/src/')]
-
-sources = ['encoding/src/encoding_lib.cpp']
-headers = ['encoding/src/encoding_lib.h']
-defines = [('WITH_CUDA', None)]
-with_cuda = True 
 
 if platform.system() == 'Darwin':
 	ENCODING_LIB = os.path.join(package_base, 'lib/libENCODING.dylib')
@@ -35,9 +41,6 @@ def make_relative_rpath(path):
 		return '-Wl,-rpath,' + path
 	else:
 		return '-Wl,-rpath,' + path
-
-extra_link_args = []
-
 
 ffi = create_extension(
 	'encoding._ext.encoding_lib',

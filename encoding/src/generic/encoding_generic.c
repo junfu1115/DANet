@@ -12,18 +12,24 @@
 #define THC_GENERIC_FILE "generic/encoding_generic.c"
 #else
 
-int Encoding_Float_aggregate_forward(THCudaTensor *E, THCudaTensor *A,
+int Encoding_(aggregate_forward)(THCudaTensor *E, THCudaTensor *A,
 			THCudaTensor *R)
 /*
  * Aggregate operation
  */
 {
-	if (THCTensor_(nDimension)(state, E) != 3 ||
-			THCTensor_(nDimension)(state, A) != 3 ||
-			THCTensor_(nDimension)(state, R) != 4)
-		perror("Encoding: incorrect input dims. \n");
-
 	Encoding_(Aggregate_Forward)(state, E, A, R);
+	/* C function return number of the outputs */
+	return 0;
+}
+
+int Encoding_(aggregate_backward)(THCudaTensor *E, THCudaTensor *A,
+			THCudaTensor *R)
+/*
+ * Aggregate operation
+ */
+{
+	Encoding_(Aggregate_Backward)(state, E, A, R);
 	/* C function return number of the outputs */
 	return 0;
 }

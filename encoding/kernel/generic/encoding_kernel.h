@@ -12,6 +12,8 @@
 #define THC_GENERIC_FILE "generic/encoding_kernel.h"
 #else
 
-void Encoding_(Aggregate_Forward)(THCState *state, THCTensor *E_, THCTensor *A_,
-							THCTensor *R_);
+void Encoding_(Aggregate_Forward)(THCState *state, THCTensor *E_, 
+							THCTensor *A_, THCTensor *R_);
+void Encoding_(Aggregate_Backward)(THCState *state, THCTensor *G_, 
+							THCTensor *L_, THCTensor *R_);
 #endif

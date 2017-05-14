@@ -18,6 +18,12 @@ This repo is a PyTorch implementation of Encoding Layer as described in the pape
 - Dependencies
 	* Install PyTorch from source
 - Installing package
-```bash
-bash make.sh
-```
+
+	* On Linux
+	```bash
+	python setup.py install
+	```
+	* On OSX
+	```bash
+	MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
+	```
