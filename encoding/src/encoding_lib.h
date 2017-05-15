@@ -22,5 +22,5 @@
 
 int Encoding_Float_aggregate_forward(THCudaTensor *E, THCudaTensor *A,
 			THCudaTensor *R);
-int Encoding_Float_aggregate_backward(THCudaTensor *G, THCudaTensor *L,
-			THCudaTensor *R);
+int  Encoding_Float_aggregate_backward(THCudaTensor *GA, THCudaTensor *GR, 
+		THCudaTensor *L, THCudaTensor *A, THCudaTensor *R);

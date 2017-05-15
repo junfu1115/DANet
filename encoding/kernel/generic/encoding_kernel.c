@@ -17,7 +17,7 @@ __global__ void Encoding_(Aggregate_Forward_kernel) (
 	THCDeviceTensor<real, 3> A,
 	THCDeviceTensor<real, 4> R)
 /*
- * aggregating kernel function
+ * aggregating forward kernel function
  */
 {
   /* declarations of the variables */
@@ -41,7 +41,7 @@ __global__ void Encoding_(Aggregate_Forward_kernel) (
 void Encoding_(Aggregate_Forward)(THCState *state, THCTensor *E_, 
 							THCTensor *A_, THCTensor *R_)
 /*
- * aggregating the residuals with assignment weights
+ * aggregating forward the residuals with assignment weights
  */
 {
 	/* Check the GPU index and tensor dims*/
@@ -63,12 +63,16 @@ void Encoding_(Aggregate_Forward)(THCState *state, THCTensor *E_,
 	THCudaCheck(cudaGetLastError());
 }
 
+/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 __global__ void Encoding_(Aggregate_Backward_kernel) (
-	THCDeviceTensor<real, 3> G,
+	THCDeviceTensor<real, 3> GA,
+	THCDeviceTensor<real, 4> GR,
 	THCDeviceTensor<real, 3> L,
+	THCDeviceTensor<real, 3> A,
 	THCDeviceTensor<real, 4> R)
 /*
  * aggregating backward kernel function
+ * G (dl/dR), L (dl/dE), A
  */
 {
   /* declarations of the variables */
@@ -76,42 +80,49 @@ __global__ void Encoding_(Aggregate_Backward_kernel) (
 	real sum;
   /* Get the index and channels */ 
   b = blockIdx.z;
-  k = blockIdx.x * blockDim.x + threadIdx.x;
   i = blockIdx.y * blockDim.y + threadIdx.y;
+  k = blockIdx.x * blockDim.x + threadIdx.x;
 	D = L.getSize(2);
-	/* boundary check for output */
-	if (k >= G.getSize(2) || i >= G.getSize(1))	return;
+	/* boundary check for output G \in R^{BxNxKxD} */
+	if (k >= GR.getSize(2) || i >= GR.getSize(1))	return;
 	/* main operation */
 	sum = 0;
 	for(d=0; d<D; d++) {
+		//sum += L[b][k][d].ldg() * R[b][i][k][d].ldg();
+		GR[b][i][k][d] = L[b][k][d] * A[b][i][k];
 		sum += L[b][k][d].ldg() * R[b][i][k][d].ldg();
 	}
-	G[b][i][k] = sum;
+	GA[b][i][k] = sum;
 }
 
-void Encoding_(Aggregate_Backward)(THCState *state, THCTensor *G_, 
-							THCTensor *L_, THCTensor *R_)
+void Encoding_(Aggregate_Backward)(THCState *state, THCTensor *GA_, 
+ 	THCTensor *GR_, THCTensor *L_, THCTensor *A_, THCTensor *R_)
 /*
  * aggregate backward to assignment weights
+ * G (dl/dR), L (dl/dE), A
  */
 {
 	/* Check the GPU index and tensor dims*/
-	THCTensor_(checkGPU)(state, 3, G_, L_, R_);
-	if (THCTensor_(nDimension)(state, G_) != 3 ||
-			THCTensor_(nDimension)(state, L_) != 3 ||
-			THCTensor_(nDimension)(state, R_) != 4)
+	THCTensor_(checkGPU)(state, 5, GA_, GR_, L_, A_, R_);
+	if (THCTensor_(nDimension)(state, GA_) != 3 ||
+			THCTensor_(nDimension)(state, GR_) != 4 ||
+			THCTensor_(nDimension)(state, L_)  != 3 ||
+			THCTensor_(nDimension)(state, A_)  != 3 ||
+			THCTensor_(nDimension)(state, R_)  != 4)
 		THError("Encoding: incorrect input dims. \n");
 	/* Device tensors */
-	THCDeviceTensor<real, 3> G = devicetensor<3>(state, G_);
+	THCDeviceTensor<real, 3> GA = devicetensor<3>(state, GA_);
+	THCDeviceTensor<real, 4> GR = devicetensor<4>(state, GR_);
 	THCDeviceTensor<real, 3> L = devicetensor<3>(state, L_);
+	THCDeviceTensor<real, 3> A = devicetensor<3>(state, A_);
 	THCDeviceTensor<real, 4> R = devicetensor<4>(state, R_);
 	/* kernel function */
 	cudaStream_t stream = THCState_getCurrentStream(state);
 	dim3 threads(16, 16);
-	dim3 blocks(G.getSize(2)/16+1, G.getSize(1)/16+1, 
-							G.getSize(0));
-	Encoding_(Aggregate_Backward_kernel)<<<blocks, threads, 0, stream>>>(G, L, R);
+	dim3 blocks(GA.getSize(2)/16+1, GA.getSize(1)/16+1, 
+							GA.getSize(0));
+	Encoding_(Aggregate_Backward_kernel)<<<blocks, threads, 0, stream>>>(GA,
+					GR, L, A, R);
 	THCudaCheck(cudaGetLastError());
 }
-
 #endif

@@ -12,13 +12,15 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from encoding import Aggregate
+from torch.autograd import gradcheck
 
-model = Aggregate()
-
+# declare dims and variables 
 B, N, K, D = 1, 2, 3, 4
-# TODO cpu test
-A = Variable(torch.ones(B,N,K).cuda())
-R = Variable(torch.ones(B,N,K,D).cuda())
+A = Variable(torch.randn(B,N,K).cuda(), requires_grad=True)
+R = Variable(torch.randn(B,N,K,D).cuda(), requires_grad=True)
 
-E = model(A, R)
-print(E)
+# check Aggregate operation
+test = gradcheck(Aggregate(),(A, R), eps=1e-4, atol=1e-3)
+print('Gradcheck of Aggreate() returns ', test)
+
+

@@ -23,15 +23,15 @@ int Encoding_(aggregate_forward)(THCudaTensor *E, THCudaTensor *A,
 	return 0;
 }
 
-int Encoding_(aggregate_backward)(THCudaTensor *E, THCudaTensor *A,
-			THCudaTensor *R)
+int Encoding_(aggregate_backward)(THCudaTensor *GA, THCudaTensor *GR, 
+		THCudaTensor *L, THCudaTensor *A, THCudaTensor *R)
 /*
- * Aggregate operation
+ * Aggregate backward operation to A
+ * G (dl/dR), L (dl/dE), A (assignments)
  */
 {
-	Encoding_(Aggregate_Backward)(state, E, A, R);
+	Encoding_(Aggregate_Backward)(state, GA, GR, L, A, R);
 	/* C function return number of the outputs */
 	return 0;
 }
-
 #endif
