@@ -16,7 +16,7 @@ If you would like to reproduce the texture recognition benchmark in the paper, p
 - Install PyTorch from source
 	* Install PyTorch from source to the `$HOME` directory, you can follow the [PyTorch tutorial](https://github.com/pytorch/pytorch#install-pytorch). 
 
-- Installing package
+- Install the package
 	* Clone the repo
 	```bash
 	git clone git@github.com:zhanghang1989/PyTorch-Encoding-Layer.git && cd PyTorch-Encoding-Layer
