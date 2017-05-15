@@ -35,7 +35,7 @@ setup(
 	setup_requires=["cffi>=1.0.0"],
 	# Exclude the build files.
 	packages=find_packages(exclude=["build"]),
-		extra_compile_args=extra_compile_args,
+	extra_compile_args=extra_compile_args,
 	# Package where to put the extensions. Has to be a prefix of build.py.
 	ext_package="",
 	# Extensions to compile.
