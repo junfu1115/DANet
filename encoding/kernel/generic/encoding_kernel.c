@@ -89,7 +89,7 @@ __global__ void Encoding_(Aggregate_Backward_kernel) (
 	sum = 0;
 	for(d=0; d<D; d++) {
 		//sum += L[b][k][d].ldg() * R[b][i][k][d].ldg();
-		GR[b][i][k][d] = L[b][k][d] * A[b][i][k];
+		GR[b][i][k][d] = L[b][k][d].ldg() * A[b][i][k].ldg();
 		sum += L[b][k][d].ldg() * R[b][i][k][d].ldg();
 	}
 	GA[b][i][k] = sum;

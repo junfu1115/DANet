@@ -25,8 +25,8 @@ class aggregate(Function):
 
 	def backward(self, gradE):
 		A, R = self.saved_tensors
-		gradA = A.clone()
-		gradR = R.clone()
+		gradA = A.new().resize_as_(A)
+		gradR = R.new().resize_as_(R)
 		encoding_lib.Encoding_Float_aggregate_backward(gradA, gradR, gradE, 
 						A, R)
 		return gradA, gradR
@@ -35,6 +35,7 @@ class aggregate(Function):
 class Aggregate(nn.Module):
 	def forward(self, A, R):
 		return aggregate()(A, R)
+
 
 class Encoding(nn.Module):
 	def __init__(self, D, K):
@@ -47,13 +48,19 @@ class Encoding(nn.Module):
 		self.reset_params()
 		
 	def reset_params(self):
-		self.codewords.data.uniform_(0.0, 0.02)
-		self.scale.data.uniform_(0.0, 0.02)
+		std1 = 1./((self.K*self.D)**(1/2))
+		std2 = 1./((self.K)**(1/2))
+		self.codewords.data.uniform_(-std1, std1)
+		self.scale.data.uniform_(-std2, std2)
 
 	def forward(self, X):
 		# input X is a 4D tensor
-		assert(X.dim()==4, "Encoding Layer requries 4D featuremaps!")
 		assert(X.size(1)==self.D,"Encoding Layer incompatible input channels!")
+		unpacked = False
+		if X.dim() == 3:
+			unpacked = True
+			X = X.unsqueeze(0)
+
 		B, N, K, D = X.size(0), X.size(2)*X.size(3), self.K, self.D
 		# reshape input
 		X = X.view(B,D,-1).transpose(1,2)
@@ -67,6 +74,9 @@ class Encoding(nn.Module):
 		A = self.softmax(A.view(B*N,K)).view(B,N,K)
 		# aggregate
 		E = aggregate()(A, R)
+
+		if unpacked:
+			E = E.squeeze(0)
 		return E
 
 	def __repr__(self):

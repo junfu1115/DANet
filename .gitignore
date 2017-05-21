@@ -2,4 +2,4 @@
 *.swp
 *.pyc
 build/
-encoding/build/
+data/

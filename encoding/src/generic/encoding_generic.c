@@ -12,8 +12,8 @@
 #define THC_GENERIC_FILE "generic/encoding_generic.c"
 #else
 
-int Encoding_(aggregate_forward)(THCudaTensor *E, THCudaTensor *A,
-			THCudaTensor *R)
+int Encoding_(aggregate_forward)(THCTensor *E, THCTensor *A,
+			THCTensor *R)
 /*
  * Aggregate operation
  */
@@ -23,8 +23,8 @@ int Encoding_(aggregate_forward)(THCudaTensor *E, THCudaTensor *A,
 	return 0;
 }
 
-int Encoding_(aggregate_backward)(THCudaTensor *GA, THCudaTensor *GR, 
-		THCudaTensor *L, THCudaTensor *A, THCudaTensor *R)
+int Encoding_(aggregate_backward)(THCTensor *GA, THCTensor *GR, 
+		THCTensor *L, THCTensor *A, THCTensor *R)
 /*
  * Aggregate backward operation to A
  * G (dl/dR), L (dl/dE), A (assignments)
