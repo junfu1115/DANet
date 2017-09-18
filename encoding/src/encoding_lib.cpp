@@ -20,6 +20,9 @@ extern "C" {
 #include "generic/encoding_generic.c"
 #include "THC/THCGenerateFloatType.h"
 
+#include "generic/encoding_generic.c"
+#include "THC/THCGenerateDoubleType.h"
+
 #ifdef __cplusplus
 }
 #endif

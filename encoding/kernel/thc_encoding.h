@@ -26,6 +26,9 @@ extern "C" {
 #include "generic/encoding_kernel.h"
 #include "THC/THCGenerateFloatType.h"
 
+#include "generic/encoding_kernel.h"
+#include "THC/THCGenerateDoubleType.h"
+
 #ifdef __cplusplus
 }
 #endif

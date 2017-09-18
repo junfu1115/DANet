@@ -12,13 +12,13 @@
 #define THC_GENERIC_FILE "generic/device_tensor.h"
 #else
 template <int Dim>
-THCDeviceTensor<float, Dim> devicetensor(THCState *state, THCTensor *t) {
+THCDeviceTensor<real, Dim> devicetensor(THCState *state, THCTensor *t) {
   if (!t) {
-    return THCDeviceTensor<float, Dim>();
+    return THCDeviceTensor<real, Dim>();
   }
   int inDim = THCTensor_(nDimension)(state, t);
   if (inDim == Dim) {
-    return toDeviceTensor<float, Dim>(state, t);
+    return toDeviceTensor<real, Dim>(state, t);
   }
   // View in which the last dimensions are collapsed or expanded as needed
   THAssert(THCTensor_(isContiguous)(state, t));
@@ -32,6 +32,6 @@ THCDeviceTensor<float, Dim> devicetensor(THCState *state, THCTensor *t) {
       size[Dim - 1] *= t->size[i];
     }
   }
-  return THCDeviceTensor<float, Dim>(THCTensor_(data)(state, t), size);
+  return THCDeviceTensor<real, Dim>(THCTensor_(data)(state, t), size);
 }
 #endif

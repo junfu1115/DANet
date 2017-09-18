@@ -9,9 +9,13 @@
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
 #include "thc_encoding.h"
+#include "common.h"
 
 #include "generic/device_tensor.h"
 #include "THC/THCGenerateFloatType.h"
+
+#include "generic/device_tensor.h"
+#include "THC/THCGenerateDoubleType.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,6 +23,9 @@ extern "C" {
 
 #include "generic/encoding_kernel.c"
 #include "THC/THCGenerateFloatType.h"
+
+#include "generic/encoding_kernel.c"
+#include "THC/THCGenerateDoubleType.h"
 
 #ifdef __cplusplus
 }

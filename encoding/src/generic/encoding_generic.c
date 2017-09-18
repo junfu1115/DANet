@@ -34,4 +34,56 @@ int Encoding_(aggregate_backward)(THCTensor *GA, THCTensor *GR,
 	/* C function return number of the outputs */
 	return 0;
 }
+
+int Encoding_(batchnorm_Forward)(THCTensor *output_, THCTensor *input_, 
+        THCTensor *mean_, THCTensor *invstd_,
+        THCTensor *gamma_, THCTensor *beta_)
+/*
+ * 
+ */
+{
+    Encoding_(BatchNorm_Forward)(state, output_, input_, 
+        mean_, invstd_, gamma_, beta_);
+	/* C function return number of the outputs */
+	return 0;
+}
+
+int Encoding_(batchnorm_Backward)(THCTensor *gradoutput_, 
+        THCTensor *input_, THCTensor *gradinput_, 
+        THCTensor *gradgamma_, THCTensor *gradbeta_, THCTensor *mean_, 
+        THCTensor *invstd_, THCTensor *gamma_, THCTensor *beta_, 
+        THCTensor *gradMean_, THCTensor *gradStd_, int train)
+/*
+ */
+{
+    Encoding_(BatchNorm_Backward)(state, gradoutput_, input_, gradinput_, 
+        gradgamma_, gradbeta_, mean_, invstd_, gamma_, beta_, gradMean_, gradStd_,
+        train);
+	/* C function return number of the outputs */
+	return 0;
+}
+
+
+int Encoding_(sum_square_Forward)(THCTensor *input_, 
+        THCTensor *sum_, THCTensor *square_)
+/*
+ */
+{
+    Encoding_(Sum_Square_Forward)(state, input_, sum_, square_);
+	/* C function return number of the outputs */
+	return 0;
+}
+
+
+int Encoding_(sum_square_Backward)(
+        THCTensor *gradInput, THCTensor *input_, 
+        THCTensor *gradSum_, THCTensor *gradSquare_)
+/*
+ */
+{
+    Encoding_(Sum_Square_Backward)(state, gradInput, input_, gradSum_, 
+                                   gradSquare_);
+	/* C function return number of the outputs */
+	return 0;
+}
 #endif
