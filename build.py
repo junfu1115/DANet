@@ -28,9 +28,11 @@ else:
     os.environ['THC_LIBRARIES'] = os.path.join(lib_path,'libTHC.so.1')
     ENCODING_LIB = os.path.join(lib_path, 'libENCODING.so')
 
+clean_cmd = ['bash', 'clean.sh']
+subprocess.check_call(clean_cmd)
+
 build_all_cmd = ['bash', 'encoding/make.sh']
-if subprocess.call(build_all_cmd, env=dict(os.environ)) != 0:
-    sys.exit(1)
+subprocess.check_call(build_all_cmd, env=dict(os.environ))
 
 sources = ['encoding/src/encoding_lib.cpp']
 headers = ['encoding/src/encoding_lib.h']
