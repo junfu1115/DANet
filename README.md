@@ -10,6 +10,8 @@
   year={2016}
 }
 ```
-If you would like to reproduce the texture recognition benchmark in the paper, please visit our original [Torch implementation](https://github.com/zhanghang1989/Deep-Encoding).
 
-Please visit the [Docs](http://hangzh.com/PyTorch-Encoding/) for detail installation instructions and usage examples.
+## [Documentation](http://hangzh.com/PyTorch-Encoding/)
+Please visit the [**Docs**](http://hangzh.com/PyTorch-Encoding/) for detail instructions of installation and usage.
+
+(If you would like to reproduce the texture recognition benchmark in the paper, please visit our original [Torch implementation](https://github.com/zhanghang1989/Deep-Encoding).)
