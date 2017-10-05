@@ -6,7 +6,7 @@
 :github_url: https://github.com/zhanghang1989/PyTorch-Encoding
 
 Encoding documentation
-===================================
+======================
 
 PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding Layer, Synchronized Batch Normalization.
 
@@ -18,7 +18,7 @@ PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding L
    notes/*
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Package Reference
 
    encoding

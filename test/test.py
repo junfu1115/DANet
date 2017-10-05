@@ -13,18 +13,18 @@ import torch
 import torch.nn.functional as F
 from torch.autograd import Variable, gradcheck
 
-def test_aggregate():
+def test_aggregateP():
     B,N,K,D = 2,3,4,5
     A = Variable(torch.cuda.DoubleTensor(B,N,K).uniform_(-0.5,0.5), 
         requires_grad=True)
     R = Variable(torch.cuda.DoubleTensor(B,N,K,D).uniform_(-0.5,0.5), 
         requires_grad=True)
     input = (A, R)
-    test = gradcheck(encoding.aggregate(), input, eps=1e-6, atol=1e-4)
+    test = gradcheck(encoding.aggregateP(), input, eps=1e-6, atol=1e-4)
     print('Testing aggregate(): {}'.format(test))
 
 
-def test_aggregateE():
+def test_aggregate():
     B,N,K,D = 2,3,4,5
     A = Variable(torch.cuda.DoubleTensor(B,N,K).uniform_(-0.5,0.5), 
         requires_grad=True)
@@ -33,8 +33,8 @@ def test_aggregateE():
     C = Variable(torch.cuda.DoubleTensor(K,D).uniform_(-0.5,0.5), 
         requires_grad=True)
     input = (A, X, C)
-    test = gradcheck(encoding.aggregateE(), input, eps=1e-6, atol=1e-4)
-    print('Testing aggregateE(): {}'.format(test))
+    test = gradcheck(encoding.aggregate(), input, eps=1e-6, atol=1e-4)
+    print('Testing aggregate(): {}'.format(test))
 
 
 def test_ScaledL2():
@@ -61,10 +61,10 @@ def test_assign():
 
     R = encoding.residual()(X, C)
     A1 = encoding.assign(R, S)
-    E1 = encoding.aggregate()(A1, R)
+    E1 = encoding.aggregateP()(A1, R)
 
     A2 = F.softmax(encoding.ScaledL2()(X,C,S))
-    E2 = encoding.aggregateE()(A2, X, C)
+    E2 = encoding.aggregate()(A2, X, C)
 
     print('E1', E1)
     print('E2', E2)
@@ -120,7 +120,7 @@ def test_sum_square():
 
 
 if __name__ == '__main__':
-    test_aggregateE()
+    test_aggregateP()
     test_ScaledL2()
     test_encoding() 
     test_aggregate()
@@ -129,3 +129,4 @@ if __name__ == '__main__':
     test_square_squeeze()
     test_encodingP()
     test_sum_square()
+

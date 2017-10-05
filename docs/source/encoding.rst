@@ -1,19 +1,36 @@
+.. role:: hidden
+    :class: hidden-section
+
 encoding
 ========
+
 .. automodule:: encoding
 
 
 Modules
 -------
 
-.. automodule:: encoding.modules
-.. currentmodule:: encoding.modules
+.. currentmodule:: encoding
 
+:hidden:`Encoding`
+~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: Encoding
     :members:
 
-.. automodule:: encoding.functions
+:hidden:`Aggregate`
+~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: encoding.syncbn
+.. autoclass:: Aggregate
+    :members:
+
+Functions
+---------
+
+:hidden:`aggregate`
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: aggregate
+    :members:
+
 
