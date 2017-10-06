@@ -1,8 +1,8 @@
 .. role:: hidden
     :class: hidden-section
 
-encoding
-========
+Encoding Layer
+==============
 
 .. automodule:: encoding
 
@@ -31,6 +31,18 @@ Functions
 ~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: aggregate
+    :members:
+
+:hidden:`scaledL2`
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: scaledL2
+    :members:
+
+:hidden:`residual`
+~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: residual
     :members:
 
 

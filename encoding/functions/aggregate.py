@@ -28,6 +28,14 @@ class aggregate(Function):
         - Input: :math:`A\in\mathcal{R}^{B\times N\times K}` :math:`X\in\mathcal{R}^{B\times N\times D}` :math:`C\in\mathcal{R}^{K\times D}`  (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)
         - Output: :math:`E\in\mathcal{R}^{B\times K\times D}`
 
+    Examples:
+        >>> B,N,K,D = 2,3,4,5
+        >>> A = Variable(torch.cuda.DoubleTensor(B,N,K).uniform_(-0.5,0.5), requires_grad=True)
+        >>> X = Variable(torch.cuda.DoubleTensor(B,N,D).uniform_(-0.5,0.5), requires_grad=True)
+        >>> C = Variable(torch.cuda.DoubleTensor(K,D).uniform_(-0.5,0.5), requires_grad=True)
+        >>> func = encoding.aggregate()
+        >>> E = func(A, X, C)
+
     """
     def forward(self, A, X, C):
         # A \in(BxNxK) R \in(BxNxKxD) => E \in(BxNxD)
@@ -67,7 +75,18 @@ class aggregate(Function):
         return gradA, gradX, gradC
 
 
-class ScaledL2(Function):
+class scaledL2(Function):
+    r"""
+    scaledL2 distance
+
+    .. math::
+        sl_{ik} = s_k \|x_i-c_k\|^2
+
+    Shape:
+        - Input: :math:`X\in\mathcal{R}^{B\times N\times D}` :math:`C\in\mathcal{R}^{K\times D}` :math:`S\in \mathcal{R}^K` (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)
+        - Output: :math:`E\in\mathcal{R}^{B\times N\times K}`
+
+    """
     def forward(self, X, C, S):
         B,N,D = X.size()
         K = C.size(0)
@@ -140,6 +159,17 @@ class aggregateP(Function):
 
 
 class residual(Function):
+    r"""
+    Calculate residuals over a mini-batch
+    
+    .. math::
+        r_{ik} = x_i - c_k
+
+    Shape:
+        - Input: :math:`X\in\mathcal{R}^{B\times N\times D}` :math:`C\in\mathcal{R}^{K\times D}` (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)
+        - Output: :math:`R\in\mathcal{R}^{B\times N\times K\times D}`
+
+    """
     def forward(self, X, C):
         # X \in(BxNxD) D \in(KxD) R \in(BxNxKxD) 
         B, N, D = X.size()

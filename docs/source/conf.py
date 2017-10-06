@@ -72,8 +72,7 @@ author = 'Hang Zhang'
 # built documents.
 #
 # The short X.Y version.
-# TODO: change to [:2] at v1.0
-version = '0.0.1'
+version = 'master (0.0.1)'
 # The full version, including alpha/beta/rc tags.
 # TODO: verify this works as expected
 release = 'master'
@@ -115,7 +114,7 @@ html_theme_options = {
     'logo_only': True,
 }
 
-html_logo = '_static/img/favicon.png'
+html_logo = '_static/img/icon.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

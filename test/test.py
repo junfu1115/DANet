@@ -37,7 +37,7 @@ def test_aggregate():
     print('Testing aggregate(): {}'.format(test))
 
 
-def test_ScaledL2():
+def test_scaledL2():
     B,N,K,D = 2,3,4,5
     X = Variable(torch.cuda.DoubleTensor(B,N,D).uniform_(-0.5,0.5), 
         requires_grad=True)
@@ -46,8 +46,8 @@ def test_ScaledL2():
     S = Variable(torch.cuda.DoubleTensor(K).uniform_(-0.5,0.5), 
         requires_grad=True)
     input = (X, C, S)
-    test = gradcheck(encoding.ScaledL2(), input, eps=1e-6, atol=1e-4)
-    print('Testing ScaledL2(): {}'.format(test))
+    test = gradcheck(encoding.scaledL2(), input, eps=1e-6, atol=1e-4)
+    print('Testing scaledL2(): {}'.format(test))
 
 
 def test_assign():
@@ -63,7 +63,7 @@ def test_assign():
     A1 = encoding.assign(R, S)
     E1 = encoding.aggregateP()(A1, R)
 
-    A2 = F.softmax(encoding.ScaledL2()(X,C,S))
+    A2 = F.softmax(encoding.scaledL2()(X,C,S))
     E2 = encoding.aggregate()(A2, X, C)
 
     print('E1', E1)
@@ -121,7 +121,7 @@ def test_sum_square():
 
 if __name__ == '__main__':
     test_aggregateP()
-    test_ScaledL2()
+    test_scaledL2()
     test_encoding() 
     test_aggregate()
     test_residual()

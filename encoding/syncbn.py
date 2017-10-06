@@ -16,6 +16,9 @@ from torch.autograd import Function, Variable
 from ._ext import encoding_lib
 
 class sum_square(Function):
+    r"""
+    Calculate sum of elements and sum of squares for Batch Normalization.
+    """
     def forward(ctx, input):
         ctx.save_for_backward(input)
         B,C,H,W = input.size()
@@ -53,6 +56,20 @@ class sum_square(Function):
 
 
 class batchnormtrain(Function):
+    r"""Applies Batch Normalization over a 3d input that is seen as a
+    mini-batch.
+
+    .. _bencoding.atchnormtrain:
+
+    .. math::
+
+        y = \frac{x - \mu[x]}{ \sqrt{var[x] + \epsilon}} * \gamma + \beta
+
+    Shape:
+        - Input: :math:`(N, C)` or :math:`(N, C, L)`
+        - Output: :math:`(N, C)` or :math:`(N, C, L)` (same shape as input)
+
+    """
     def forward(ctx, input, gamma, beta, mean, std):
         ctx.save_for_backward(input, gamma, beta, mean, std)
         assert(input.dim()==3)
@@ -99,6 +116,11 @@ class batchnormtrain(Function):
 
 
 class batchnormeval(Function):
+    r"""Applies Batch Normalization over a 3d input that is seen as a
+    mini-batch.
+
+    Please see encoding.batchnormtrain_
+    """
     def forward(ctx, input, gamma, beta, mean, std):
         ctx.save_for_backward(input, gamma, beta, mean, std)
         assert(input.dim()==3)

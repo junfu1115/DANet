@@ -8,7 +8,7 @@
 Encoding documentation
 ======================
 
-PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding Layer, Synchronized Batch Normalization.
+PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding Layer, Multi-GPU Synchronized Batch Normalization.
 
 .. toctree::
    :glob:
@@ -18,10 +18,11 @@ PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding L
    notes/*
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Package Reference
 
    encoding
+   syncbn
 
 
 Indices and tables

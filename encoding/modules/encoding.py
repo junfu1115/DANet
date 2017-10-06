@@ -48,7 +48,7 @@ class Encoding(nn.Module):
         >>> E = layer(X)
 
     Reference:
-        Zhang, Hang, Jia Xue, and Kristin Dana. "Deep TEN: Texture Encoding Network." *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2017*
+        Hang Zhang, Jia Xue, and Kristin Dana. "Deep TEN: Texture Encoding Network." *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2017*
     """
     def __init__(self, D, K):
         super(Encoding, self).__init__()
@@ -79,7 +79,7 @@ class Encoding(nn.Module):
         else:
             raise RuntimeError('Encoding Layer unknown input dims!')
         # assignment weights
-        A = F.softmax(ScaledL2()(X, self.codewords, self.scale))
+        A = F.softmax(scaledL2()(X, self.codewords, self.scale))
         # aggregate
         E = aggregate()(A, X, self.codewords)
         return E
