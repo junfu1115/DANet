@@ -3,11 +3,12 @@
 **Deep TEN: Texture Encoding Network** [[arXiv]](https://arxiv.org/pdf/1612.02844.pdf)  
   [Hang Zhang](http://hangzh.com/), [Jia Xue](http://jiaxueweb.com/), [Kristin Dana](http://eceweb1.rutgers.edu/vision/dana.html)
 ```
-@article{zhang2016deep,
-  title={Deep TEN: Texture Encoding Network},
-  author={Zhang, Hang and Xue, Jia and Dana, Kristin},
-  journal={arXiv preprint arXiv:1612.02844},
-  year={2016}
+@InProceedings{Zhang_2017_CVPR,
+author = {Zhang, Hang and Xue, Jia and Dana, Kristin},
+title = {Deep TEN: Texture Encoding Network},
+booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+month = {July},
+year = {2017}
 }
 ```
 
