@@ -23,7 +23,7 @@ class Encoding(nn.Module):
 
     .. math::
 
-        a_{ik} = \frac{exp(-\beta\|x_{i}-c_k\|^2)}{\sum_{j=1}^K exp(-\beta\|x_{i}-c_j\|^2)}
+        e_{ik} = \frac{exp(-s_k\|x_{i}-c_k\|^2)}{\sum_{j=1}^K exp(-s_j\|x_{i}-c_j\|^2)} (x_i - c_k)
 
     Args:
         D: dimention of the features or feature channels
@@ -95,7 +95,7 @@ class Aggregate(nn.Module):
     Aggregate operation, aggregate the residuals (:math:`R`) with assignment weights (:math:`A`).
 
     .. math::
-        e_{k} = \sum_{i=1}^{N} a_{ik} (r_{ik})
+        e_{k} = \sum_{i=1}^{N} a_{ik} r_{ik}
 
     Shape:
         - Input: :math:`A\in\mathcal{R}^{B\times N\times K}` :math:`R\in\mathcal{R}^{B\times N\times K\times D}` (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)

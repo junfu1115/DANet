@@ -46,3 +46,7 @@ Functions
     :members:
 
 
+:hidden:`assign`
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: assign

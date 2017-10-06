@@ -20,3 +20,13 @@ Install PyTorch-Encoding
 
          MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
 
+- Reference:
+    Hang Zhang, Jia Xue, and Kristin Dana. "Deep TEN: Texture Encoding Network." *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2017*::
+
+        @InProceedings{Zhang_2017_CVPR,
+        author = {Zhang, Hang and Xue, Jia and Dana, Kristin},
+        title = {Deep TEN: Texture Encoding Network},
+        booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+        month = {July},
+        year = {2017}
+        }
