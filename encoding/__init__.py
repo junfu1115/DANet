@@ -10,5 +10,6 @@
 
 from .functions import *
 from .modules import *
-from .syncbn import *
+from .syncbn import sum_square, batchnormtrain, batchnormeval
+from .parallel import ModelDataParallel, CriterionDataParallel
 

@@ -243,7 +243,7 @@ def assign(R, S):
     Calculate assignment weights for given residuals (:math:`R`) and scale (:math:`S`)
 
     .. math::
-        a_{ik} = \frac{exp(-s_k\|x_{i}-c_k\|^2)}{\sum_{j=1}^K exp(-s_j\|x_{i}-c_j\|^2)}
+        a_{ik} = \frac{exp(-s_k\|r_{ik}\|^2)}{\sum_{j=1}^K exp(-s_j\|r_{ik}\|^2)}
 
     Shape:
         - Input: :math:`R\in\mathcal{R}^{B\times N\times K\times D}` :math:`S\in \mathcal{R}^K` (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)

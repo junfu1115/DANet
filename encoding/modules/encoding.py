@@ -19,7 +19,8 @@ from ..functions import *
 
 class Encoding(nn.Module):
     r"""
-    Encoding Layer: learnable residual encoders over 3d or 4d input that is seen as a mini-batch.
+    Encoding Layer: learnable residual encoders over 3d or 4d input that 
+    is seen as a mini-batch.
 
     .. math::
 
@@ -92,7 +93,8 @@ class Encoding(nn.Module):
 
 class Aggregate(nn.Module):
     r"""
-    Aggregate operation, aggregate the residuals (:math:`R`) with assignment weights (:math:`A`).
+    Aggregate operation, aggregate the residuals (:math:`R`) with 
+    assignment weights (:math:`A`).
 
     .. math::
         e_{k} = \sum_{i=1}^{N} a_{ik} r_{ik}

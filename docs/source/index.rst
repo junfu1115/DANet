@@ -23,6 +23,7 @@ PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding L
 
    encoding
    syncbn
+   parallel
 
 
 Indices and tables
