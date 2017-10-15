@@ -8,7 +8,9 @@
 ## LICENSE file in the root directory of this source tree 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import io
 import os
+import re
 import sys
 import subprocess
 
@@ -17,6 +19,23 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 
 this_file = os.path.dirname(__file__)
+
+def read(*names, **kwargs):
+    with io.open(
+        os.path.join(os.path.dirname(__file__), *names),
+        encoding=kwargs.get("encoding", "utf8")
+    ) as fp:
+        return fp.read()
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
+_version = find_version('encoding/__init__.py')
 
 #extra_compile_args = ['-std=c++11', '-Wno-write-strings']
 if os.getenv('PYTORCH_BINARY_BUILD') and platform.system() == 'Linux':
@@ -32,7 +51,7 @@ class TestCommand(install):
 
 setup(
     name="encoding",
-    version="0.0.1",
+    version=_version,
     description="PyTorch Encoding Layer",
     url="https://github.com/zhanghang1989/PyTorch-Encoding-Layer",
     author="Hang Zhang",

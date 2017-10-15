@@ -8,26 +8,46 @@ The current BN is implementated insynchronized accross the gpus, which is a big 
 To synchronize the batchnorm accross multiple gpus is not easy to implment within the current Dataparallel framework. We address this difficulty by making each layer 'self-parallel', that is accepting the inputs from multi-gpus. Therefore, we can handle different layers seperately for synchronizing it across gpus.
 We will release the whole SyncBN Module and compatible DataParallel later. 
 
+
+.. currentmodule:: encoding.nn
+
+Modules
+-------
+
+:hidden:`BatchNorm1d`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: BatchNorm1d
+    :members:
+
+:hidden:`BatchNorm2d`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: BatchNorm2d
+    :members:
+
+
 .. currentmodule:: encoding
+
 
 Functions
 ---------
 
+.. currentmodule:: encoding.functions
+
+
 :hidden:`batchnormtrain`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: batchnormtrain
-    :members:
+.. autofunction:: batchnormtrain
 
 :hidden:`batchnormeval`
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: batchnormeval
-    :members:
+.. autofunction:: batchnormeval
 
 :hidden:`sum_square`
 ~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: sum_square
-    :members:
+.. autofunction:: sum_square
 

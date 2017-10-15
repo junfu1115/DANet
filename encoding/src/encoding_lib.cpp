@@ -17,10 +17,24 @@ extern THCState *state;
 extern "C" {
 #endif
 
+// float
 #include "generic/encoding_generic.c"
 #include "THC/THCGenerateFloatType.h"
 
+#include "generic/syncbn_generic.c"
+#include "THC/THCGenerateFloatType.h"
+
+#include "generic/pooling_generic.c"
+#include "THC/THCGenerateFloatType.h"
+
+// double
 #include "generic/encoding_generic.c"
+#include "THC/THCGenerateDoubleType.h"
+
+#include "generic/syncbn_generic.c"
+#include "THC/THCGenerateDoubleType.h"
+
+#include "generic/pooling_generic.c"
 #include "THC/THCGenerateDoubleType.h"
 
 #ifdef __cplusplus

@@ -3,3 +3,4 @@
 *.pyc
 build/
 data/
+docs/html/

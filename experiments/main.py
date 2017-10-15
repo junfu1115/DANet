@@ -10,6 +10,9 @@
 
 from __future__ import print_function
 
+import matplotlib.pyplot as plot
+import importlib
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -17,115 +20,172 @@ import torch.optim as optim
 from torch.autograd import Variable
 
 from option import Options
-from model.encodenet import Net
-from utils import *
+from encoding.utils import *
 
 # global variable
-best_pred = 0.0
-acclist = []
+best_pred = 100.0
+errlist_train = []
+errlist_val = []
+
+
+def adjust_learning_rate(optimizer, args, epoch, best_pred):
+    if epoch <= 60:
+        lr = args.lr * (0.1 ** ((epoch - 1) // 40))
+    else:
+        lr = 1e-4
+    print('=>Epochs %i, learning rate = %.4f, previous best = %.3f%%' % (
+		epoch, lr, best_pred))
+    if len(optimizer.param_groups) == 1:
+        optimizer.param_groups[0]['lr'] = lr
+    elif len(optimizer.param_groups) == 2:
+        # enlarge the lr at the head
+        optimizer.param_groups[0]['lr'] = lr
+        optimizer.param_groups[1]['lr'] = lr * 10
+    else:
+        raise RuntimeError('unsupported number of param groups: {}' \
+            .format(len(optimizer.param_groups)))
 
 def main():
-	# init the args
-	args = Options().parse()
-	args.cuda = not args.no_cuda and torch.cuda.is_available()
-	torch.manual_seed(args.seed)
-	if args.cuda:
-		torch.cuda.manual_seed(args.seed)
-	# init dataloader
-	if args.dataset == 'cifar':
-		from dataset.cifar import Dataloder
-		train_loader, test_loader = Dataloder(args).getloader()
-	else:
-		raise ValueError('Unknow dataset!')
+    # init the args
+    global best_pred, errlist_train, errlist_val
+    args = Options().parse()
+    args.cuda = not args.no_cuda and torch.cuda.is_available()
+    torch.manual_seed(args.seed)
+    # plot 
+    if args.plot:
+        print('=>Enabling matplotlib for display:')
+        plot.ion()
+        plot.show()
+    if args.cuda:
+        torch.cuda.manual_seed(args.seed)
+    # init dataloader
+    dataset = importlib.import_module('dataset.'+args.dataset)
+    Dataloder = dataset.Dataloder
+    train_loader, test_loader = Dataloder(args).getloader()
+    # init the model
+    models = importlib.import_module('model.'+args.model)
+    model = models.Net()
+    print(model)
+    # criterion and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = get_optimizer(args, model)
+    if args.cuda:
+        model.cuda()
+        # Please use CUDA_VISIBLE_DEVICES to control the number of gpus
+        model = torch.nn.DataParallel(model)
+    """
+    optim.SGD(model.parameters(), lr=args.lr, momentum=
+            args.momentum, weight_decay=args.weight_decay)
+    """
+    # check point
+    if args.resume is not None:
+        if os.path.isfile(args.resume):
+            print("=> loading checkpoint '{}'".format(args.resume))
+            checkpoint = torch.load(args.resume)
+            args.start_epoch = checkpoint['epoch'] +1
+            best_pred = checkpoint['best_pred']
+            errlist_train = checkpoint['errlist_train']
+            errlist_val = checkpoint['errlist_val']
+            model.load_state_dict(checkpoint['state_dict'])
+            optimizer.load_state_dict(checkpoint['optimizer'])
+            print("=> loaded checkpoint '{}' (epoch {})"
+                .format(args.resume, checkpoint['epoch']))
+        else:
+            print("=> no resume checkpoint found at '{}'".\
+                format(args.resume))
+    #scheduler = CosLR_Scheduler(args, len(train_loader))
+    def train(epoch):
+        model.train()
+        global best_pred, errlist_train
+        train_loss, correct, total = 0,0,0
+        adjust_learning_rate(optimizer, args, epoch, best_pred)
+        for batch_idx, (data, target) in enumerate(train_loader):
+            #scheduler(optimizer, batch_idx, epoch, best_pred)
+            if args.cuda:
+                data, target = data.cuda(), target.cuda()
+            data, target = Variable(data), Variable(target)
+            optimizer.zero_grad()
+            output = model(data)
+            loss = criterion(output, target)
+            loss.backward()
+            optimizer.step()
 
-	model = Net()
+            train_loss += loss.data[0]
+            pred = output.data.max(1)[1] 
+            correct += pred.eq(target.data).cpu().sum()
+            total += target.size(0)
+            err = 100-100.*correct/total
+            progress_bar(batch_idx, len(train_loader), 
+                'Loss: %.3f | Err: %.3f%% (%d/%d)' % \
+                (train_loss/(batch_idx+1), 
+                err, total-correct, total))
+        errlist_train += [err]
 
-	if args.cuda:
-		model.cuda()
+    def test(epoch):
+        model.eval()
+        global best_pred, errlist_train, errlist_val
+        test_loss, correct, total = 0,0,0
+        is_best = False
+        for batch_idx, (data, target) in enumerate(test_loader):
+            if args.cuda:
+                data, target = data.cuda(), target.cuda()
+            data, target = Variable(data, volatile=True), Variable(target)
+            output = model(data)
+            test_loss += criterion(output, target).data[0]
+            # get the index of the max log-probability
+            pred = output.data.max(1)[1] 
+            correct += pred.eq(target.data).cpu().sum()
+            total += target.size(0)
 
-	if args.resume is not None:
-		if os.path.isfile(args.resume):
-			print("=> loading checkpoint '{}'".format(args.resume))
-			checkpoint = torch.load(args.resume)
-			args.start_epoch = checkpoint['epoch']
-			best_pred = checkpoint['best_pred']
-			acclist = checkpoint['acclist']
-			model.load_state_dict(checkpoint['state_dict'])
-			print("=> loaded checkpoint '{}' (epoch {})"
-				.format(args.resume, checkpoint['epoch']))
-		else:
-			print("=> no resume checkpoint found at '{}'".format(args.resume))
+            err = 100-100.*correct/total
+            progress_bar(batch_idx, len(test_loader), 
+                'Loss: %.3f | Err: %.3f%% (%d/%d)'% \
+                (test_loss/(batch_idx+1), 
+                err, total-correct, total))
 
-	criterion = nn.CrossEntropyLoss()
-	# TODO make weight_decay oen of args
-	optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=
-			args.momentum, weight_decay=1e-4)
+        if args.eval:
+            print('Error rate is %.3f'%err)
+            return
+        # save checkpoint
+        errlist_val += [err]
+        if err < best_pred:
+            best_pred = err 
+            is_best = True
+        save_checkpoint({
+            'epoch': epoch,
+            'state_dict': model.state_dict(),
+            'optimizer': optimizer.state_dict(),
+            'best_pred': best_pred,
+            'errlist_train':errlist_train,
+            'errlist_val':errlist_val,
+            }, args=args, is_best=is_best)
+        if args.plot:
+            plot.clf()
+            plot.xlabel('Epoches: ')
+            plot.ylabel('Error Rate: %')
+            plot.plot(errlist_train, label='train')
+            plot.plot(errlist_val, label='val')
+            plot.legend(loc='upper left')
+            plot.draw()
+            plot.pause(0.001)
 
-	def train(epoch):
-		model.train()
-		global best_pred
-		train_loss, correct, total = 0,0,0
-		adjust_learning_rate(optimizer, epoch, best_pred, args)
-		for batch_idx, (data, target) in enumerate(train_loader):
-			if args.cuda:
-				data, target = data.cuda(), target.cuda()
-			data, target = Variable(data), Variable(target)
-			optimizer.zero_grad()
-			output = model(data)
-			loss = criterion(output, target)
-			loss.backward()
-			optimizer.step()
+    if args.eval:
+        test(args.start_epoch)
+        return
 
-			train_loss += loss.data[0]
-			pred = output.data.max(1)[1] 
-			correct += pred.eq(target.data).cpu().sum()
-			total += target.size(0)
-			progress_bar(batch_idx, len(train_loader), 
-				'Loss: %.3f | Acc: %.3f%% (%d/%d)' % (train_loss/(batch_idx+1), 
-				100.*correct/total, correct, total))
+    for epoch in range(args.start_epoch, args.epochs + 1):
+        train(epoch)
+        test(epoch)
 
-	def test(epoch):
-		model.eval()
-		global best_pred
-		global acclist
-		test_loss, correct, total = 0,0,0
-		acc = 0.0
-		is_best = False
-		# for data, target in test_loader:
-		for batch_idx, (data, target) in enumerate(test_loader):
-			if args.cuda:
-				data, target = data.cuda(), target.cuda()
-			data, target = Variable(data, volatile=True), Variable(target)
-			output = model(data)
-			test_loss += criterion(output, target).data[0]
-			# get the index of the max log-probability
-			pred = output.data.max(1)[1] 
-			correct += pred.eq(target.data).cpu().sum()
-			total += target.size(0)
-
-			acc = 100.*correct/total
-			progress_bar(batch_idx, len(test_loader), 
-				'Loss: %.3f | Acc: %.3f%% (%d/%d)'% (test_loss/(batch_idx+1), 
-				acc, correct, total))
-		# save checkpoint
-		acclist += [acc]
-		if acc > best_pred:
-			best_pred = acc
-			is_best = True
-		save_checkpoint({
-			'epoch': epoch,
-			'state_dict': model.state_dict(),
-			'best_pred': best_pred,
-			'acclist':acclist,
-			}, args=args, is_best=is_best)
-
-	# TODO add plot curve
-
-	for epoch in range(args.start_epoch, args.epochs + 1):
-		train(epoch)
-		# FIXME this is a bug somewhere not in the code
-		test(epoch)
-
+    # save train_val curve to a file
+    if args.plot:
+        plot.clf()
+        plot.xlabel('Epoches: ')
+        plot.ylabel('Error Rate: %')
+        plot.plot(errlist_train, label='train')
+        plot.plot(errlist_val, label='val')
+        plot.savefig("runs/%s/%s/"%(args.dataset, args.checkname)
+                            +'train_val.jpg')
 
 if __name__ == "__main__":
-	main()
+    main()

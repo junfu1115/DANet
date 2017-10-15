@@ -64,9 +64,21 @@ int Encoding_Float_batchnorm_Backward(THCudaTensor *gradoutput_,
 int Encoding_Float_sum_square_Forward(THCudaTensor *input_, 
     THCudaTensor *sum_, THCudaTensor *square_);
 
-void Encoding_Float_sum_square_Backward(
+int Encoding_Float_sum_square_Backward(
     THCudaTensor *gradInput, THCudaTensor *input_, 
     THCudaTensor *gradSum_, THCudaTensor *gradSquare_);
+
+int Encoding_Float_DilatedAvgPool2d_Forward(
+    THCudaTensor *X_, THCudaTensor *Y_, 
+    int kH, int kW, int dH, int dW,
+    int padH, int padW,
+    int dilationH, int dilationW);
+
+int Encoding_Float_DilatedAvgPool2d_Backward(
+    THCudaTensor *gradX_, THCudaTensor *gradY_, 
+    int kH, int kW, int dH, int dW,
+    int padH, int padW,
+    int dilationH, int dilationW);
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
@@ -124,3 +136,15 @@ int Encoding_Double_sum_square_Forward(THCudaDoubleTensor *input_,
 void Encoding_Double_sum_square_Backward(
     THCudaDoubleTensor *gradInput, THCudaDoubleTensor *input_, 
     THCudaDoubleTensor *gradSum_, THCudaDoubleTensor *gradSquare_);
+
+int Encoding_Double_DilatedAvgPool2d_Forward(
+    THCudaDoubleTensor *X_, THCudaDoubleTensor *Y_, 
+    int kH, int kW, int dH, int dW,
+    int padH, int padW,
+    int dilationH, int dilationW);
+
+int Encoding_Double_DilatedAvgPool2d_Backward(
+    THCudaDoubleTensor *gradX_, THCudaDoubleTensor *gradY_, 
+    int kH, int kW, int dH, int dW,
+    int padH, int padW,
+    int dilationH, int dilationW);

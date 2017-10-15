@@ -1,14 +1,13 @@
-.. Encoding documentation master file, created by
-   sphinx-quickstart on Fri Dec 23 13:31:47 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Encoding documentation master file
 
 :github_url: https://github.com/zhanghang1989/PyTorch-Encoding
 
-Encoding documentation
+Encoding Documentation
 ======================
 
-PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding Layer, Multi-GPU Synchronized Batch Normalization.
+Created by `Hang Zhang <http://hangzh.com/>`_
+
+PyTorch-Encoding is an optimized PyTorch package with CUDA backend, including Encoding Layer, Multi-GPU Synchronized Batch Normalization and useful util functions. Example systems are also provided in `experiments section <experiments/texture.html>`_. We hope this software will accelerate your research, please cite our `papers <notes/compile.html>`_. 
 
 .. toctree::
    :glob:
@@ -18,13 +17,23 @@ PyTorch-Encoding is an optimized PyTorch package using GPU, including Encoding L
    notes/*
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 1
    :caption: Package Reference
 
    encoding
    syncbn
    parallel
+   dilated
+   nn
+   functions
+   utils
 
+.. toctree::
+   :glob:
+   :maxdepth: 1
+   :caption: Experiment Systems
+
+   experiments/*
 
 Indices and tables
 ==================

@@ -1,21 +1,36 @@
 .. role:: hidden
     :class: hidden-section
 
-Encoding Layer
-==============
-
-.. automodule:: encoding
-
+My NN Layers
+============
 
 Modules
 -------
 
-.. currentmodule:: encoding
+.. currentmodule:: encoding.nn
 
 :hidden:`Encoding`
 ~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: Encoding
+    :members:
+
+:hidden:`Inspiration`
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: Inspiration
+    :members:
+
+:hidden:`DilatedAvgPool2d`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: DilatedAvgPool2d
+    :members:
+
+:hidden:`GramMatrix`
+~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: GramMatrix
     :members:
 
 :hidden:`Aggregate`
@@ -27,23 +42,22 @@ Modules
 Functions
 ---------
 
+.. currentmodule:: encoding.functions
+
 :hidden:`aggregate`
 ~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: aggregate
-    :members:
+.. autofunction:: aggregate
 
 :hidden:`scaledL2`
 ~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: scaledL2
-    :members:
+.. autofunction:: scaledL2
 
 :hidden:`residual`
 ~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: residual
-    :members:
+.. autofunction:: residual
 
 
 :hidden:`assign`

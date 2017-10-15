@@ -8,10 +8,7 @@
 ## LICENSE file in the root directory of this source tree 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-__version__ = '1.0.1'
-
-import encoding.nn
-import encoding.functions
-import encoding.dilated
-import encoding.parallel 
-
+from .syncbn import *
+from .basic import *
+from .encoding import *
+from .customize import *

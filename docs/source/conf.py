@@ -20,6 +20,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import encoding
 import sphinx_rtd_theme
 
 
@@ -47,7 +48,7 @@ extensions = [
 
 napoleon_use_ivar = True
 
-googleanalytics_id = 'UA-90545585-1'
+googleanalytics_id = 'UA-54746507-1'
 googleanalytics_enabled = True
 
 # Add any paths that contain templates here, relative to this directory.
@@ -56,8 +57,8 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
+#source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -72,7 +73,7 @@ author = 'Hang Zhang'
 # built documents.
 #
 # The short X.Y version.
-version = 'master (0.0.1)'
+version = 'master (' + encoding.__version__ + ')'
 # The full version, including alpha/beta/rc tags.
 # TODO: verify this works as expected
 release = 'master'
@@ -124,6 +125,7 @@ html_static_path = ['_static']
 html_context = {
     'css_files': [
         'https://fonts.googleapis.com/css?family=Lato',
+        '_static/css/encoding.css'
     ],
 }
 #'_static/css/hangzh.css'

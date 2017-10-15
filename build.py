@@ -40,9 +40,9 @@ defines = [('WITH_CUDA', None)]
 with_cuda = True 
 
 include_path = [os.path.join(lib_path, 'include'),
-                                os.path.join(os.environ['HOME'],'pytorch/torch/lib/THC'), 
-                                os.path.join(lib_path,'include/ENCODING'), 
-                                os.path.join(this_file,'encoding/src/')]
+                os.path.join(os.environ['HOME'],'pytorch/torch/lib/THC'), 
+                os.path.join(lib_path,'include/ENCODING'), 
+                os.path.join(this_file,'encoding/src/')]
 
 def make_relative_rpath(path):
     if platform.system() == 'Darwin':
