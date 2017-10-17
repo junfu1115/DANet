@@ -1,0 +1,14 @@
+language: python
+dist: trusty
+
+python:
+    - 2.7.9
+    - 2.7
+    - 3.5
+    - 3.6
+
+install:
+    - travis_retry pip install --upgrade pip setuptools wheel
+    - setup.py install
+
+sudo: false
