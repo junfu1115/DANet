@@ -1,26 +1,30 @@
-Install PyTorch-Encoding
-========================
+Installing PyTorch-Encoding
+===========================
 
-- Install PyTorch from Source to the ``$HOME`` directory:
-    * Please follow the `PyTorch instructions <https://github.com/pytorch/pytorch#from-source>`_ (recommended).
-    * Or you can simply clone a copy to ``$HOME`` directory::
+
+Install from Source
+-------------------
+
+    * Please follow the `PyTorch instructions <https://github.com/pytorch/pytorch#from-source>`_ to install PyTorch from Source to the ``$HOME`` directory (recommended). Or you can simply clone a copy to ``$HOME`` directory::
 
         git clone https://github.com/pytorch/pytorch $HOME/pytorch
 
-- Install this package:
-    * Clone the repo::
+    * Install this package
 
-        git clone https://github.com/zhanghang1989/PyTorch-Encoding && cd PyTorch-Encoding-Layer
+        - Clone the repo::
 
-    * On Linux::
+            git clone https://github.com/zhanghang1989/PyTorch-Encoding && cd PyTorch-Encoding
 
-        python setup.py install
+        - On Linux::
 
-    * On Mac OSX::
+            python setup.py install
 
-         MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
+        - On Mac OSX::
 
-- Reference:
+             MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
+
+Reference
+---------
 
     .. note::
         If using the code in your research, please cite our paper.

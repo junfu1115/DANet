@@ -5,8 +5,7 @@ Synchronized BatchNorm
 ======================
 
 The current BN is implementated insynchronized accross the gpus, which is a big problem for memory consuming tasks such as Semantic Segmenation, since the mini-batch is very small. 
-To synchronize the batchnorm accross multiple gpus is not easy to implment within the current Dataparallel framework. We address this difficulty by making each layer 'self-parallel', that is accepting the inputs from multi-gpus. Therefore, we can handle different layers seperately for synchronizing it across gpus.
-We will release the whole SyncBN Module and compatible DataParallel later. 
+To synchronize the batchnorm accross multiple gpus is not easy to implment within the current Dataparallel framework. We address this difficulty by making each layer 'self-parallel' :class:`encoding.parallel.SelfDataParallel`, that is accepting the inputs from multi-gpus. Therefore, we can handle the synchronizing across gpus.
 
 
 .. currentmodule:: encoding.nn

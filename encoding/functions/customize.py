@@ -21,34 +21,57 @@ from .._ext import encoding_lib
 __all__ = ['dilatedavgpool2d']
 
 class _dilatedavgpool2d(Function):
-    def forward(self, input, kernel_size, stride, padding,
+    @staticmethod
+    def forward(ctx, input, kernel_size, stride, padding,
             dilation=1):
-        self.kH, self.kW = _pair(kernel_size)
-        self.dH, self.dW = _pair(stride if stride is not None else 
+        ctx.kH, ctx.kW = _pair(kernel_size)
+        ctx.dH, ctx.dW = _pair(stride if stride is not None else 
             kernel_size)
-        self.padH, self.padW = _pair(padding)
-        self.dilationH, self.dilationW = _pair(dilation)
+        ctx.padH, ctx.padW = _pair(padding)
+        ctx.dilationH, ctx.dilationW = _pair(dilation)
         b,c,h,w = input.size()
-        if self.dH==1 and self.dW==1:
+        if ctx.dH==1 and ctx.dW==1:
             # keep the size for dilated avgpool
             ow, oh = w, h
         else:
-            ow = math.floor(float(w-self.kW+2*self.padW)/float(self.dW)) +1
-            oh = math.floor(float(h-self.kH+2*self.padH)/float(self.dH)) +1
-        output = input.new(b,c,oh,ow)
-        self.save_for_backward(input)
-        encoding_lib.Encoding_Float_DilatedAvgPool2d_Forward(input, output,
-            self.kH, self.kW, self.dH, self.dW, self.padH, self.padW,
-            self.dilationH, self.dilationW)
+            ow = math.floor(float(w-ctx.kW+2*ctx.padW)/float(ctx.dW)) +1
+            oh = math.floor(float(h-ctx.kH+2*ctx.padH)/float(ctx.dH)) +1
+        with torch.cuda.device_of(input):
+            output = input.new(b,c,oh,ow)
+        ctx.save_for_backward(input)
+        if isinstance(input, torch.cuda.FloatTensor):
+            with torch.cuda.device_of(input):
+                encoding_lib.Encoding_Float_DilatedAvgPool2d_Forward(input, output,
+                    ctx.kH, ctx.kW, ctx.dH, ctx.dW, ctx.padH, ctx.padW,
+                    ctx.dilationH, ctx.dilationW)
+        elif isinstance(input, torch.cuda.DoubleTensor):
+            with torch.cuda.device_of(input):
+                encoding_lib.Encoding_Double_DilatedAvgPool2d_Forward(input, output,
+                    ctx.kH, ctx.kW, ctx.dH, ctx.dW, ctx.padH, ctx.padW,
+                    ctx.dilationH, ctx.dilationW)
+        else:
+            raise RuntimeError('Unimplemented data type!')
         return output
 
-    def backward(self, gradOutput):
-        input, = self.saved_variables
-        gradInput = input.new().resize_as_(input)
-        encoding_lib.Encoding_Float_DilatedAvgPool2d_Backward(
-            gradinput, gradoutput,
-            self.kH, self.kW, self.dH, self.dW, self.padH, self.padW,
-            self.dilationH, self.dilationW)
+    @staticmethod
+    def backward(ctx, gradOutput):
+        input, = ctx.saved_variables
+        with torch.cuda.device_of(input):
+            gradInput = Variable(input.data.new().resize_as_(input.data))
+        if isinstance(input.data, torch.cuda.FloatTensor):
+            with torch.cuda.device_of(input.data):
+                encoding_lib.Encoding_Float_DilatedAvgPool2d_Backward(
+                    gradInput.data, gradOutput.data,
+                    ctx.kH, ctx.kW, ctx.dH, ctx.dW, ctx.padH, ctx.padW,
+                    ctx.dilationH, ctx.dilationW)
+        elif isinstance(input.data, torch.cuda.DoubleTensor):
+            with torch.cuda.device_of(input.data):
+                encoding_lib.Encoding_Double_DilatedAvgPool2d_Backward(
+                    gradInput.data, gradOutput.data,
+                    ctx.kH, ctx.kW, ctx.dH, ctx.dW, ctx.padH, ctx.padW,
+                    ctx.dilationH, ctx.dilationW)
+        else:
+            raise RuntimeError('Unimplemented data type!')
         return gradInput, None, None, None, None
 
 

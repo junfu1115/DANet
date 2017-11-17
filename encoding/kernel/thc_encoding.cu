@@ -22,6 +22,9 @@ extern "C" {
 #endif
 
 // float
+#include "generic/encoding_utils.c"
+#include "THC/THCGenerateFloatType.h"
+
 #include "generic/encoding_kernel.c"
 #include "THC/THCGenerateFloatType.h"
 
@@ -32,6 +35,9 @@ extern "C" {
 #include "THC/THCGenerateFloatType.h"
 
 // double
+#include "generic/encoding_utils.c"
+#include "THC/THCGenerateDoubleType.h"
+
 #include "generic/encoding_kernel.c"
 #include "THC/THCGenerateDoubleType.h"
 

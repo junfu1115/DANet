@@ -9,6 +9,12 @@ Other NN Layers
 Customized Layers
 -----------------
 
+:hidden:`GramMatrix`
+~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: GramMatrix
+    :members:
+
 :hidden:`Normalize`
 ~~~~~~~~~~~~~~~~~~~
 

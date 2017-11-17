@@ -29,6 +29,9 @@ class BatchNorm1d(Module):
     r"""Synchronized Batch Normalization 1d
     Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`
 
+    Reference::
+        We provide this code for a comming paper.
+
     Applies Batch Normalization over a 2d or 3d input that is seen as a
     mini-batch.
 
@@ -219,6 +222,9 @@ class BatchNorm1d(Module):
 class BatchNorm2d(Module):
     r"""Synchronized Batch Normalization 2d
     Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`    
+
+    Reference::
+        We provide this code for a comming paper.
 
     Applies Batch Normalization over a 4d input that is seen as a mini-batch
     of 3d inputs
@@ -411,3 +417,20 @@ class BatchNorm2d(Module):
             return outputs
         else:
             raise RuntimeError('unknown input type')
+
+
+def _get_a_var(obj):
+    if isinstance(obj, Variable):
+        return obj
+
+    if isinstance(obj, list) or isinstance(obj, tuple):
+        results = map(_get_a_var, obj)
+        for result in results:
+            if isinstance(result, Variable):
+                return result
+    if isinstance(obj, dict):
+        results = map(_get_a_var, obj.items())
+        for result in results:
+            if isinstance(result, Variable):
+                return result
+    return None

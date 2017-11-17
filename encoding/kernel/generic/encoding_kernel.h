@@ -12,10 +12,10 @@
 #define THC_GENERIC_FILE "generic/encoding_kernel.h"
 #else
 
-void Encoding_(AggregateE_Forward)(THCState *state, THCTensor *E_, 
+void Encoding_(Aggregate_Forward)(THCState *state, THCTensor *E_, 
     THCTensor *A_, THCTensor *X_, THCTensor *C_);
 
-void Encoding_(AggregateE_Backward)(THCState *state, THCTensor *GA_, 
+void Encoding_(Aggregate_Backward)(THCState *state, THCTensor *GA_, 
      THCTensor *GE_, THCTensor *A_, THCTensor *X_, THCTensor *C_);
 
 void Encoding_(ScaledL2_Forward)( THCState *state, THCTensor *SL_,  
@@ -24,18 +24,5 @@ void Encoding_(ScaledL2_Forward)( THCState *state, THCTensor *SL_,
 void Encoding_(ScaledL2_Backward)(
     THCState *state, THCTensor *GSL_, THCTensor *GX_, THCTensor *GC_,
     THCTensor *X_, THCTensor *C_, THCTensor *S_);
-
-void Encoding_(Aggregate_Forward)(
-    THCState *state, THCTensor *E_, THCTensor *A_, THCTensor *R_);
-
-void Encoding_(Aggregate_Backward)(
-    THCState *state, THCTensor *GA_, THCTensor *GR_, THCTensor *L_, 
-    THCTensor *A_, THCTensor *R_);
-
-void Encoding_(Residual_Forward)(
-    THCState *state, THCTensor *R_, THCTensor *X_, THCTensor *D_);
-
-void Encoding_(Residual_Backward)(
-    THCState *state, THCTensor *GR_, THCTensor *GX_, THCTensor *GD_);
 
 #endif

@@ -1,7 +1,7 @@
 MSG-Net Style Transfer Example
 ==============================
 
-.. image:: https://raw.githubusercontent.com/zhanghang1989/MSG-Net/master/images/figure1.jpg
+.. image:: ../_static/img/figure1.jpg
     :width: 55%
     :align: left
 
@@ -47,7 +47,7 @@ Stylize Images Using Pre-trained Model
 
     python camera_demo.py demo --model models/9styles.model
 
-.. image:: https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/myimage.gif
+.. image:: ../_static/img/myimage.gif
 
 - Test the model::
 
@@ -66,14 +66,14 @@ Stylize Images Using Pre-trained Model
 
 .. raw:: html
 
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/1.jpg" width="260px" /> <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/2.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/3.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/4.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/5.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/6.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/7.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/8.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/9.jpg" width="260px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/1.jpg" width="220px" /> <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/2.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/3.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/4.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/5.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/6.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/7.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/8.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/9.jpg" width="220px" />
 
 Train Your Own MSG-Net Model
 ----------------------------
@@ -96,7 +96,7 @@ Train Your Own MSG-Net Model
 
 
 Neural Style
--------------
+------------
 `Image Style Transfer Using Convolutional Neural Networks <http://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Gatys_Image_Style_Transfer_CVPR_2016_paper.pdf>`_ by Leon A. Gatys, Alexander S. Ecker, and Matthias Bethge::
 
     python main.py optim --content-image images/content/venice-boat.jpg --style-image images/9styles/candy.jpg
@@ -110,12 +110,12 @@ Neural Style
 
 .. raw:: html
 
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g1.jpg" width="260px" /> <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g2.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g3.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g4.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g5.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g6.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g7.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g8.jpg" width="260px" />
-    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g9.jpg" width="260px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g1.jpg" width="220px" /> <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g2.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g3.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g4.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g5.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g6.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g7.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g8.jpg" width="220px" />
+    <img src ="https://raw.githubusercontent.com/zhanghang1989/PyTorch-Style-Transfer/master/images/g9.jpg" width="220px" />
 

@@ -8,10 +8,9 @@
 ## LICENSE file in the root directory of this source tree 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-__version__ = '1.0.1'
+from .version import __version__
 
 import encoding.nn
 import encoding.functions
 import encoding.dilated
 import encoding.parallel 
-

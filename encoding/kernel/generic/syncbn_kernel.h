@@ -12,12 +12,6 @@
 #define THC_GENERIC_FILE "generic/syncbn_kernel.h"
 #else
 
-void Encoding_(SquareSqueeze_Forward)(
-    THCState *state, THCTensor *L_,  THCTensor *R_);
-
-void Encoding_(SquareSqueeze_Backward)(
-    THCState *state, THCTensor *GL_, THCTensor *GR_, THCTensor *R_);
-
 void Encoding_(BatchNorm_Forward)(THCState *state, 
     THCTensor *output_, THCTensor *input_, 
     THCTensor *mean_, THCTensor *invstd_,

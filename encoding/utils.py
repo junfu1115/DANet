@@ -14,6 +14,7 @@ import os
 import sys
 import time
 import math
+import tqdm
 
 def get_optimizer(args, model, diff_LR=True):
     """
@@ -44,9 +45,7 @@ class CosLR_Scheduler(object):
     """Cosine Learning Rate Scheduler
 
     .. math::
-        lr = base_lr * 0.5 * (1 + cos(T/N))
-
-    where ``T`` is current iters and ``N`` is total iters
+        lr = baselr * 0.5 * (1 + cos(iter/maxiter))
 
     Args:
         args:  base learning rate :attr:`args.lr`, number of epochs :attr:`args.epochs`
@@ -62,7 +61,7 @@ class CosLR_Scheduler(object):
         T = (epoch - 1) * self.niters + i
         lr = 0.5 * self.lr * (1 + math.cos(1.0 * T / self.N * math.pi))
         if epoch > self.epoch:
-            print('=>Epochs %i, learning rate = %.4f, previous best ='\
+            print('\n=>Epochs %i, learning rate = %.4f, previous best ='\
                 '%.3f%%' % (epoch, lr, best_pred))
             self.epoch = epoch
         self._adjust_learning_rate(optimizer, lr)
@@ -90,12 +89,14 @@ def save_checkpoint(state, args, is_best, filename='checkpoint.pth.tar'):
     if is_best:
         shutil.copyfile(filename, directory + 'model_best.pth.tar')
 
+
 # refer to https://github.com/kuangliu/pytorch-cifar/blob/master/utils.py
 _, term_width = os.popen('stty size', 'r').read().split()
-term_width = int(term_width)
-TOTAL_BAR_LENGTH = 86.
+term_width = int(term_width)-1
+TOTAL_BAR_LENGTH = 36.
 last_time = time.time()
 begin_time = last_time
+
 def progress_bar(current, total, msg=None):
     """Progress Bar for display
     """

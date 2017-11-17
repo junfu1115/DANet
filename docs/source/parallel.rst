@@ -4,8 +4,8 @@
 Data Parallel
 =============
 
-Current PyTorch DataParallel Table is not supporting mutl-gpu loss calculation, which makes the gpu memory usage very in-efficient. We address this issue here by doing CriterionDataParallel. 
-The DataParallel compatible with SyncBN will be released later.
+- Current PyTorch DataParallel Table is not supporting mutl-gpu loss calculation, which makes the gpu memory usage very in-efficient. We address this issue here by doing CriterionDataParallel. 
+- :class:`encoding.parallel.SelfDataParallel` is compatible with Synchronized Batch Normalization :class:`encoding.nn.BatchNorm2d`.
 
 .. automodule:: encoding.parallel
 .. currentmodule:: encoding.parallel

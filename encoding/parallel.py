@@ -82,6 +82,9 @@ class Broadcast(Function):
 class ModelDataParallel(Module):
     """Implements data parallelism at the module level.
 
+    Reference::
+        We provide this code for a comming paper.
+
     This container parallelizes the application of the given module by
     splitting the input across the specified devices by chunking in the 
     batch dimension. 
@@ -149,6 +152,9 @@ class CriterionDataParallel(Module):
     Calculate loss in multiple-GPUs, which balance the memory usage for 
     Semantic Segmentation.
 
+    Reference::
+        We provide this code for a comming paper.
+
     The targets are splitted across the specified devices by chunking in
     the batch dimension. Please use together with :class:`encoding.parallel.ModelDataParallel`.
     """
@@ -191,9 +197,12 @@ class CriterionDataParallel(Module):
 class SelfDataParallel(Module):
     """SelfDataParallel, please make sure you understand it before using.
 
+    Reference::
+        We provide this code for a comming paper.
+
     Each module in the network should be in self-parallel mode, 
     which allows list of inputs from multiple GPUs.
-    Please see encoding.nn for detail, use with cautious
+    Please see :class:`encoding.nn` for detail, use with cautious
     """
     def __init__(self, module, device_ids=None, output_device=None, dim=0):
         super(SelfDataParallel, self).__init__()
@@ -211,11 +220,26 @@ class SelfDataParallel(Module):
 
     def forward(self, *inputs, **kwargs):
         inputs, kwargs = self.scatter(inputs, kwargs, self.device_ids)
-        outputs = self.module(inputs)
-        return outputs
+        if self.training:
+            # self parallel mode
+            outputs = self.module(inputs)
+            return outputs
+        else:
+            # TODO check faster?
+            if len(self.device_ids) == 1:
+                return self.module(*inputs[0], **kwargs[0])
+            replicas = self.replicate(self.module, \
+                self.device_ids[:len(inputs)])
+            outputs = self.parallel_apply(replicas, inputs, kwargs)
+            return outputs 
+            
+    def replicate(self, module, device_ids):
+        return replicate(module, device_ids)
+
+    def parallel_apply(self, replicas, inputs, kwargs):
+        return parallel_apply(replicas, inputs, kwargs)
 
     def scatter(self, inputs, kwargs, device_ids):
-        #return my_scatter(inputs, target_gpus=device_ids)
         outputs = scatter_kwargs(inputs, kwargs, device_ids, dim=self.dim)
         return outputs
 
@@ -342,4 +366,5 @@ def my_data_parallel(module, inputs, device_ids=None, \
     replicas = replicate(module, device_ids[:len(inputs)])
     outputs = my_parallel_apply(replicas, inputs, module_kwargs)
     return outputs 
+
 

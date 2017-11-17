@@ -1,7 +1,7 @@
 Deep TEN: Deep Texture Encoding Network Example
 ===============================================
 
-.. image:: http://hangzh.com/figure/cvpr17.svg
+.. image:: ../_static/img/cvpr17.svg
         :width: 100%
         :align: left
 
@@ -39,7 +39,7 @@ Test Pre-trained Model
 Train Your Own Model
 --------------------
 
-- Example training command::
+- Example training command for training above model::
 
     python main.py --dataset minc --model encodingnet --batch-size 64 --lr 0.01 --epochs 60 
 

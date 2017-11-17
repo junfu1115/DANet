@@ -13,107 +13,6 @@
 #else
 
 
-__global__ void Encoding_(SquareSqueeze_Forward_kernel) (
-    THCDeviceTensor<real, 3> L,
-    THCDeviceTensor<real, 4> R)
-/*
- * aggregating forward kernel function
- */
-{
-    /* declarations of the variables */
-    int b, k, d, i, D;
-    real sum;
-    /* Get the index and channels */ 
-    b = blockIdx.z;
-    k = blockIdx.x * blockDim.x + threadIdx.x;
-    i = blockIdx.y * blockDim.y + threadIdx.y;
-    D = R.getSize(3);
-    /* boundary check for output */
-    if (k >= L.getSize(2) || i >= L.getSize(1)) return;
-    /* main operation */
-    sum = 0;
-    for(d=0; d<D; d++) {
-        sum += R[b][i][k][d].ldg()*R[b][i][k][d].ldg();
-    }
-    L[b][i][k] = sum;
-}
-
-void Encoding_(SquareSqueeze_Forward)(
-    THCState *state, THCTensor *L_,  THCTensor *R_)
-/*
- * aggregating forward the residuals with assignment weights
- */
-{
-    /* Check the GPU index and tensor dims*/
-    THCTensor_(checkGPU)(state, 2, L_, R_); 
-    if (THCTensor_(nDimension)(state, L_) != 3 ||
-        THCTensor_(nDimension)(state, R_) != 4)
-    THError("Encoding: incorrect input dims. \n");
-    /* Device tensors */
-    THCDeviceTensor<real, 3> L = devicetensor<3>(state, L_);
-    THCDeviceTensor<real, 4> R = devicetensor<4>(state, R_);
-    /* kernel function */
-    cudaStream_t stream = THCState_getCurrentStream(state);
-    dim3 threads(16, 16);
-    dim3 blocks(L.getSize(2)/16+1, L.getSize(1)/16+1, 
-                L.getSize(0));
-    Encoding_(SquareSqueeze_Forward_kernel)<<<blocks, threads, 0, stream>>>
-        (L, R);
-    THCudaCheck(cudaGetLastError());
-}
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-__global__ void Encoding_(SquareSqueeze_Backward_kernel) (
-    THCDeviceTensor<real, 3> GL,
-    THCDeviceTensor<real, 4> GR,
-    THCDeviceTensor<real, 4> R)
-/*
- */
-{
-    /* declarations of the variables */
-    int b, k, d, i, D;
-    real scale;
-    /* Get the index and channels */ 
-    b = blockIdx.z;
-    k = blockIdx.x * blockDim.x + threadIdx.x;
-    i = blockIdx.y * blockDim.y + threadIdx.y;
-    D = R.getSize(3);
-    /* boundary check for output */
-    if (k >= R.getSize(2) || i >= R.getSize(1)) return;
-    /* main operation */
-    scale = GL[b][i][k] * 2;
-    for(d=0; d<D; d++) {
-        GR[b][i][k][d] = scale * R[b][i][k][d];
-    }
-}
-
-void Encoding_(SquareSqueeze_Backward)(
-    THCState *state, THCTensor *GL_, THCTensor *GR_, THCTensor *R_)
-/*
- */
-{
-    /* Check the GPU index and tensor dims*/
-    THCTensor_(checkGPU)(state, 3, GL_, GR_, R_); 
-    if (THCTensor_(nDimension)(state, GL_) != 3 ||
-        THCTensor_(nDimension)(state, GR_) != 4 ||
-        THCTensor_(nDimension)(state, R_) != 4)
-    THError("Encoding: incorrect input dims. \n");
-    /* Device tensors */
-    THCDeviceTensor<real, 3> GL = devicetensor<3>(state, GL_);
-    THCDeviceTensor<real, 4> GR = devicetensor<4>(state, GR_);
-    THCDeviceTensor<real, 4> R = devicetensor<4>(state, R_);
-    /* kernel function */
-    cudaStream_t stream = THCState_getCurrentStream(state);
-    dim3 threads(16, 16);
-    dim3 blocks(R.getSize(2)/16+1, R.getSize(1)/16+1, 
-                R.getSize(0));
-    Encoding_(SquareSqueeze_Backward_kernel)<<<blocks, threads, 0, stream>>>
-        (GL, GR, R);
-    THCudaCheck(cudaGetLastError());
-}
-
-/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
 __global__ void Encoding_(BatchNorm_Forward_kernel) (
     THCDeviceTensor<real, 3> output,
     THCDeviceTensor<real, 3> input,
@@ -168,42 +67,6 @@ void Encoding_(BatchNorm_Forward)(THCState *state,
     THCudaCheck(cudaGetLastError());
 }
 
-struct Encoding_(Float2){
-    real v1, v2;
-    __device__ Encoding_(Float2)() {}
-    __device__ Encoding_(Float2)(real x1, real x2) : v1(x1), v2(x2) {}
-    __device__ Encoding_(Float2)(real v) : v1(v), v2(v) {}
-    __device__ Encoding_(Float2)(int v) :  v1(v), v2(v) {}
-    __device__ Encoding_(Float2)& operator+=(const Encoding_(Float2)& a) {
-    v1 += a.v1;
-    v2 += a.v2;
-    return *this;
-  }
-};
-
-static __device__ __forceinline__ real Encoding_(rwarpSum)(real val) {
-#if __CUDA_ARCH__ >= 300
-  for (int i = 0; i < getMSB(WARP_SIZE); ++i) {
-    val += __shfl_xor(val, 1 << i, WARP_SIZE);
-  }
-#else
-  __shared__ real values[MAX_BLOCK_SIZE];
-  values[threadIdx.x] = val;
-  __threadfence_block();
-  const int base = (threadIdx.x / WARP_SIZE) * WARP_SIZE;
-  for (int i = 1; i < WARP_SIZE; i++) {
-    val += values[base + ((i + threadIdx.x) % WARP_SIZE)];
-  }
-#endif
-  return val;
-}
-
-static __device__ __forceinline__ Encoding_(Float2) Encoding_(warpSum)(Encoding_(Float2) value) {
-  value.v1 = Encoding_(rwarpSum)(value.v1);
-  value.v2 = Encoding_(rwarpSum)(value.v2);
-  return value;
-}
-
 struct Encoding_(GradOp) {
     __device__ Encoding_(GradOp)(real m, THCDeviceTensor<real, 3> i, THCDeviceTensor<real, 3> g)
         : mean(m), input(i), gradOutput(g) {}
@@ -217,8 +80,12 @@ struct Encoding_(GradOp) {
     THCDeviceTensor<real, 3> gradOutput;
 };
 
-// Sum across (batch, x/y/z) applying Op() pointwise
-__device__ Encoding_(Float2) Encoding_(reduce)(Encoding_(GradOp) op, THCDeviceTensor<real, 3> tensor, int plane) {
+// Sum across (batch, b/c/n) applying Op() pointwise
+__device__ Encoding_(Float2) Encoding_(reduce)(
+        Encoding_(GradOp) op,
+        THCDeviceTensor<real, 3> tensor, 
+        int plane) 
+{
     Encoding_(Float2) sum = (Encoding_(Float2))0;
     for (int batch = 0; batch < tensor.getSize(0); ++batch) {
         for (int x = threadIdx.x; x < tensor.getSize(2); x += blockDim.x) {

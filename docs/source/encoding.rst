@@ -4,6 +4,7 @@
 My NN Layers
 ============
 
+
 Modules
 -------
 
@@ -21,22 +22,16 @@ Modules
 .. autoclass:: Inspiration
     :members:
 
+:hidden:`UpsampleConv2d`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: UpsampleConv2d
+    :members:
+
 :hidden:`DilatedAvgPool2d`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: DilatedAvgPool2d
-    :members:
-
-:hidden:`GramMatrix`
-~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: GramMatrix
-    :members:
-
-:hidden:`Aggregate`
-~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: Aggregate
     :members:
 
 Functions
@@ -54,13 +49,3 @@ Functions
 
 .. autofunction:: scaledL2
 
-:hidden:`residual`
-~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: residual
-
-
-:hidden:`assign`
-~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: assign

@@ -1,10 +1,10 @@
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from torch.autograd import Variable
 import torch.utils.model_zoo as model_zoo
 from collections import OrderedDict
 
-from ..nn import DilatedAvgPool2d
+from .. import nn
+from .. import functions as F
 
 __all__ = ['DenseNet', 'densenet121', 'densenet169', 'densenet201', 'densenet161']
 
@@ -91,7 +91,13 @@ class _DenseLayer(nn.Sequential):
         new_features = super(_DenseLayer, self).forward(x)
         if self.drop_rate > 0:
             new_features = F.dropout(new_features, p=self.drop_rate, training=self.training)
-        return torch.cat([x, new_features], 1)
+
+        if isinstance(x, Variable):
+            return torch.cat([x, new_features], 1)
+        elif isinstance(x, tuple) or isinstance(x, list):
+            return F.cat_each(x, new_features, 1)
+        else:
+            raise RuntimeError('unknown input type')
 
 
 class _DenseBlock(nn.Sequential):
@@ -109,7 +115,7 @@ class _Transition(nn.Sequential):
         self.add_module('relu', nn.ReLU(inplace=True))
         self.add_module('conv', nn.Conv2d(num_input_features, num_output_features,
                                           kernel_size=1, stride=1, bias=False))
-        self.add_module('pool', DilatedAvgPool2d(kernel_size=2, stride=stride, 
+        self.add_module('pool', nn.DilatedAvgPool2d(kernel_size=2, stride=stride, 
                                                  dilation=dilation))
 
 

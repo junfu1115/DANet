@@ -15,17 +15,17 @@ import torch.nn.functional as F
 from torch.autograd import Function, Variable
 
 from .._ext import encoding_lib
-from ..functions import scaledL2, aggregate, aggregateP, residual, assign
+from ..functions import scaledL2, aggregate
 from ..parallel import my_data_parallel
 
-__all__ = ['Encoding', 'Inspiration', 'GramMatrix', 'Aggregate','EncodingP']
+__all__ = ['Encoding', 'EncodingShake', 'Inspiration', 'GramMatrix'] 
 
 class Encoding(nn.Module):
     r"""
     Encoding Layer: a learnable residual encoder over 3d or 4d input that 
     is seen as a mini-batch.
 
-    .. image:: http://hangzh.com/figure/cvpr17.svg
+    .. image:: _static/img/cvpr17.svg
         :width: 50%
         :align: center
 
@@ -71,9 +71,8 @@ class Encoding(nn.Module):
         
     def reset_params(self):
         std1 = 1./((self.K*self.D)**(1/2))
-        std2 = 1./((self.K)**(1/2))
         self.codewords.data.uniform_(-std1, std1)
-        self.scale.data.uniform_(-std2, std2)
+        self.scale.data.uniform_(-1, 0)
 
     def forward(self, X):
         if isinstance(X, tuple) or isinstance(X, list):
@@ -82,7 +81,7 @@ class Encoding(nn.Module):
         elif not isinstance(X, Variable):
             raise RuntimeError('unknown input type')
         # input X is a 4D tensor
-        assert(X.size(1)==self.D,"Encoding Layer wrong channels!")
+        assert(X.size(1)==self.D)
         if X.dim() == 3:
             # BxDxN
             B, N, K, D = X.size(0), X.size(2), self.K, self.D
@@ -94,7 +93,8 @@ class Encoding(nn.Module):
         else:
             raise RuntimeError('Encoding Layer unknown input dims!')
         # assignment weights
-        A = F.softmax(scaledL2(X, self.codewords, self.scale))
+        #A = F.softmax(scaledL2(X, self.codewords, self.scale).view(B*N,-1), dim=1).view(B,N,K)
+        A = F.softmax(scaledL2(X, self.codewords, self.scale), dim=2)
         # aggregate
         E = aggregate(A, X, self.codewords)
         return E
@@ -104,10 +104,65 @@ class Encoding(nn.Module):
             + 'N x ' + str(self.D) + '=>' + str(self.K) + 'x' \
             + str(self.D) + ')'
 
+class EncodingShake(nn.Module):
+    def __init__(self, D, K):
+        super(EncodingShake, self).__init__()
+        # init codewords and smoothing factor
+        self.D, self.K = D, K
+        self.codewords = nn.Parameter(torch.Tensor(K, D), 
+            requires_grad=True)
+        self.scale = nn.Parameter(torch.Tensor(K), requires_grad=True) 
+        self.reset_params()
+        
+    def reset_params(self):
+        std1 = 1./((self.K*self.D)**(1/2))
+        self.codewords.data.uniform_(-std1, std1)
+        self.scale.data.uniform_(-1, 0)
+
+    def shake(self):
+        if self.training:
+            self.scale.data.uniform_(-1, 0)
+        else:
+            self.scale.data.zero_().add_(-0.5)
+
+    def forward(self, X):
+        if isinstance(X, tuple) or isinstance(X, list):
+            # for self-parallel mode, please see encoding.nn
+            return my_data_parallel(self, X)
+        elif not isinstance(X, Variable):
+            raise RuntimeError('unknown input type')
+        # input X is a 4D tensor
+        assert(X.size(1)==self.D)
+        if X.dim() == 3:
+            # BxDxN
+            B, N, K, D = X.size(0), X.size(2), self.K, self.D
+            X = X.transpose(1,2).contiguous()
+        elif X.dim() == 4:
+            # BxDxHxW
+            B, N, K, D = X.size(0), X.size(2)*X.size(3), self.K, self.D
+            X = X.view(B,D,-1).transpose(1,2).contiguous()
+        else:
+            raise RuntimeError('Encoding Layer unknown input dims!')
+        # shake
+        self.shake()
+        # assignment weights
+        A = F.softmax(scaledL2(X, self.codewords, self.scale).view(B*N,-1), dim=1).view(B,N,K)
+        # aggregate
+        E = aggregate(A, X, self.codewords)
+        # shake
+        self.shake()
+        return E
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(' \
+            + 'N x ' + str(self.D) + '=>' + str(self.K) + 'x' \
+            + str(self.D) + ')'
+
 
 class Inspiration(nn.Module):
-    r""" Inspiration Layer (for MSG-Net). 
-    Tuning the featuremap with target Gram Matrix
+    r""" 
+    Inspiration Layer (CoMatch Layer) enables the multi-style transfer in feed-forward network, which learns to match the target feature statistics during the training. 
+    This module is differentialble and can be inserted in standard feed-forward network to be learned directly from the loss function without additional supervision. 
 
     .. math::
         Y = \phi^{-1}[\phi(\mathcal{F}^T)W\mathcal{G}]
@@ -116,7 +171,7 @@ class Inspiration(nn.Module):
     training multi-style generative network for real-time transfer.
 
     Reference:
-        Hang Zhang, and Kristin Dana. "Multi-style Generative Network for Real-time Transfer."  *arXiv preprint arXiv:1703.06953 (2017)*
+        Hang Zhang and Kristin Dana. "Multi-style Generative Network for Real-time Transfer."  *arXiv preprint arXiv:1703.06953 (2017)*
     """
     def __init__(self, C, B=1):
         super(Inspiration, self).__init__()
@@ -155,77 +210,4 @@ class GramMatrix(nn.Module):
         features_t = features.transpose(1, 2)
         gram = features.bmm(features_t) / (ch * h * w)
         return gram
-
-
-class Aggregate(nn.Module):
-    r"""
-    Aggregate operation, aggregate the residuals (:math:`R`) with 
-    assignment weights (:math:`A`).
-
-    .. math::
-        e_{k} = \sum_{i=1}^{N} a_{ik} r_{ik}
-
-    Shape:
-        - Input: :math:`A\in\mathcal{R}^{B\times N\times K}` :math:`R\in\mathcal{R}^{B\times N\times K\times D}` (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)
-        - Output: :math:`E\in\mathcal{R}^{B\times K\times D}`
-
-    """ 
-    def forward(self, A, R):
-        if isinstance(A, tuple) or isinstance(A, list):
-            # for self-parallel mode, please see encoding.nn
-            return my_data_parallel(self, A, R)
-        elif not isinstance(A, Variable):
-            raise RuntimeError('unknown input type')
-        return aggregateP(A, R)
-
-
-class EncodingP(nn.Module):
-    def __init__(self, D, K):
-        super(EncodingP, self).__init__()
-        # init codewords and smoothing factor
-        self.D, self.K = D, K
-        self.codewords = nn.Parameter(torch.Tensor(K, D), 
-            requires_grad=True)
-        self.scale = nn.Parameter(torch.Tensor(K), requires_grad=True) 
-        self.reset_params()
-        print('EncodingP is deprecated, please use Encoding.')
-        
-    def reset_params(self):
-        std1 = 1./((self.K*self.D)**(1/2))
-        std2 = 1./((self.K)**(1/2))
-        self.codewords.data.uniform_(-std1, std1)
-        self.scale.data.uniform_(-std2, std2)
-
-    def forward(self, X):
-        if isinstance(X, tuple) or isinstance(X, list):
-            # for self-parallel mode, please see encoding.nn
-            return my_data_parallel(self, X)
-        elif not isinstance(X, Variable):
-            raise RuntimeError('unknown input type')
-        # input X is a 4D tensor
-        assert(X.size(1)==self.D,"Encoding Layer wrong channels!")
-        if X.dim() == 3:
-            # BxDxN
-            B, N, K, D = X.size(0), X.size(2), self.K, self.D
-            X = X.transpose(1,2)
-        elif X.dim() == 4:
-            # BxDxHxW
-            B, N, K, D = X.size(0), X.size(2)*X.size(3), self.K, self.D
-            X = X.view(B,D,-1).transpose(1,2)
-        else:
-            raise RuntimeError('Encoding Layer unknown input dims!')
-        # calculate residuals
-        R = residual(X.contiguous(), self.codewords)
-        # assignment weights
-        A = assign(R, self.scale)
-        # aggregate
-        E = aggregateP(A, R)
-
-        return E
-
-    def __repr__(self):
-        return self.__class__.__name__ + '(' \
-            + 'N x ' + str(self.D) + '=>' + str(self.K) + 'x' \
-            + str(self.D) + ')'
-
 

@@ -4,7 +4,7 @@ from torch.autograd import Variable
 import torch.utils.model_zoo as model_zoo
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
-           'resnet152']
+           'resnet152', 'BasicBlock', 'Bottleneck']
 
 model_urls = {
     'resnet18': 'https://download.pytorch.org/models/resnet18-5c106cde.pth',
@@ -23,14 +23,14 @@ def conv3x3(in_planes, out_planes, stride=1):
 
 class BasicBlock(nn.Module):
     expansion = 1
-    def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, fist_dilation=1):
+    def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, first_dilation=1):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=3, stride=stride,
                                padding=dilation, dilation=dilation, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1,
-                               padding=fist_dilation, dilation=fist_dilation, bias=False)
+                               padding=first_dilation, dilation=first_dilation, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
         self.downsample = downsample
         self.stride = stride
@@ -56,14 +56,16 @@ class BasicBlock(nn.Module):
 
 class Bottleneck(nn.Module):
     expansion = 4
-    def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, fist_dilation=1):
+    def __init__(self, inplanes, planes, stride=1, dilation=1, 
+            downsample=None, first_dilation=1):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
-                               padding=dilation, dilation=dilation, bias=False)
+            padding=dilation, dilation=dilation, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
+        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, 
+            bias=False)
         self.bn3 = nn.BatchNorm2d(planes * 4)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
@@ -108,7 +110,10 @@ class ResNet(nn.Module):
     """Dilated Pre-trained ResNet Model, which preduces the stride of 8 featuremaps at conv5.
     
     Reference:
-        Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions."
+
+        - He, Kaiming, et al. "Deep residual learning for image recognition." Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.
+
+        - Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions."
     """
     def __init__(self, block, layers, num_classes=1000):
         self.inplanes = 64
@@ -145,16 +150,16 @@ class ResNet(nn.Module):
         layers = []
         if dilation == 1 or dilation == 2:
             layers.append(block(self.inplanes, planes, stride, dilation=1, 
-                                downsample=downsample, fist_dilation=dilation))
+                                downsample=downsample, first_dilation=dilation))
         elif dilation ==4:
             layers.append(block(self.inplanes, planes, stride, dilation=2, 
-                                downsample=downsample, fist_dilation=dilation))
+                                downsample=downsample, first_dilation=dilation))
         else:
             raise RuntimeError("=> unknown dilation size: {}".format(dilation))
             
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, dilation=dilation, fist_dilation=dilation))
+            layers.append(block(self.inplanes, planes, dilation=dilation, first_dilation=dilation))
 
         return nn.Sequential(*layers)
 

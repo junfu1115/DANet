@@ -15,45 +15,38 @@ import sys
 import subprocess
 
 from setuptools import setup, find_packages
-from setuptools.command.develop import develop
-from setuptools.command.install import install
+import setuptools.command.develop 
+import setuptools.command.install 
 
-this_file = os.path.dirname(__file__)
+cwd = os.path.dirname(os.path.abspath(__file__))
 
-def read(*names, **kwargs):
-    with io.open(
-        os.path.join(os.path.dirname(__file__), *names),
-        encoding=kwargs.get("encoding", "utf8")
-    ) as fp:
-        return fp.read()
-
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
-
-_version = find_version('encoding/__init__.py')
-
-#extra_compile_args = ['-std=c++11', '-Wno-write-strings']
-if os.getenv('PYTORCH_BINARY_BUILD') and platform.system() == 'Linux':
-    print('PYTORCH_BINARY_BUILD found. Static linking libstdc++ on Linux')
-    extra_compile_args += ['-static-libstdc++']
-    extra_link_args += ['-static-libstdc++']
-
-class TestCommand(install):
-    """Post-installation mode.""" 
+# run test scrip after installation
+class install(setuptools.command.install.install):
     def run(self):
-        install.run(self)
+        self.create_version_file()
+        setuptools.command.install.install.run(self)
         subprocess.check_call("python test/test.py".split())
+    @staticmethod
+    def create_version_file():
+        global version, cwd
+        print('-- Building version ' + version)
+        version_path = os.path.join(cwd, 'encoding', 'version.py')
+        with open(version_path, 'w') as f:
+            f.write("__version__ = '{}'\n".format(version))
+
+version = '0.1.0'
+try:
+    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], 
+        cwd=cwd).decode('ascii').strip()
+    version += '+' + sha[:7]
+except Exception:
+    pass
 
 setup(
     name="encoding",
-    version=_version,
-    description="PyTorch Encoding Layer",
-    url="https://github.com/zhanghang1989/PyTorch-Encoding-Layer",
+    version=version,
+    description="PyTorch Encoding",
+    url="https://github.com/zhanghang1989/PyTorch-Encoding",
     author="Hang Zhang",
     author_email="zhang.hang@rutgers.edu",
     # Require cffi.
@@ -61,14 +54,13 @@ setup(
     setup_requires=["cffi>=1.0.0"],
     # Exclude the build files.
     packages=find_packages(exclude=["build"]),
-    #extra_compile_args=extra_compile_args,
     # Package where to put the extensions. Has to be a prefix of build.py.
     ext_package="",
     # Extensions to compile.
     cffi_modules=[
-        os.path.join(this_file, "build.py:ffi")
+        os.path.join(cwd, "build.py:ffi")
     ],
     cmdclass={
-        'install': TestCommand,
+        'install': install,
     },
 )

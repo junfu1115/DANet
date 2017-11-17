@@ -77,16 +77,19 @@ class _ConvNd(Module):
 
 
 class Conv1d(_ConvNd):
-    r"""Applies a 1D convolution over an input signal composed of several input
-    planes.
+    r"""Applies a 1D convolution over an input signal composed of several 
+    input planes.
     In the simplest case, the output value of the layer with input size
     :math:`(N, C_{in}, L)` and output :math:`(N, C_{out}, L_{out})` can be
     precisely described as:
+
     .. math::
         \begin{array}{ll}
         out(N_i, C_{out_j})  = bias(C_{out_j})
-                       + \sum_{{k}=0}^{C_{in}-1} weight(C_{out_j}, k)  \star input(N_i, k)
+                       + \sum_{{k}=0}^{C_{in}-1} weight(C_{out_j}, k)  
+                       \star input(N_i, k)
         \end{array}
+
     where :math:`\star` is the valid `cross-correlation`_ operator
 
     | :attr:`stride` controls the stride for the cross-correlation.
@@ -155,11 +158,13 @@ class Conv2d(_ConvNd):
     In the simplest case, the output value of the layer with input size
     :math:`(N, C_{in}, H, W)` and output :math:`(N, C_{out}, H_{out}, W_{out})`
     can be precisely described as:
+
     .. math::
         \begin{array}{ll}
         out(N_i, C_{out_j})  = bias(C_{out_j})
                        + \sum_{{k}=0}^{C_{in}-1} weight(C_{out_j}, k)  \star input(N_i, k)
         \end{array}
+
     where :math:`\star` is the valid 2D `cross-correlation`_ operator
 
     | :attr:`stride` controls the stride for the cross-correlation.
@@ -414,10 +419,13 @@ class ReLU(Threshold):
 class Sigmoid(Module):
     """Applies the element-wise function :math:`f(x) = 1 / ( 1 + exp(-x))`
     Shape:
+
         - Input: :math:`(N, *)` where `*` means, any number of additional
           dimensions
         - Output: :math:`(N, *)`, same shape as the input
+
     Examples::
+
         >>> m = nn.Sigmoid()
         >>> input = autograd.Variable(torch.randn(2))
         >>> print(input)
@@ -436,10 +444,11 @@ class Sigmoid(Module):
 
 
 class MaxPool2d(Module):
-    r"""Applies a 2D max pooling over an input signal composed of several input
-    planes.
-    In the simplest case, the output value of the layer with input size :math:`(N, C, H, W)`,
-    output :math:`(N, C, H_{out}, W_{out})` and :attr:`kernel_size` :math:`(kH, kW)`
+    r"""Applies a 2D max pooling over an input signal composed of several 
+    input planes.
+    In the simplest case, the output value of the layer with input size 
+    :math:`(N, C, H, W)`, output :math:`(N, C, H_{out}, W_{out})` and 
+    :attr:`kernel_size` :math:`(kH, kW)`
     can be precisely described as:
 
     .. math::
@@ -450,8 +459,8 @@ class MaxPool2d(Module):
 
     | If :attr:`padding` is non-zero, then the input is implicitly zero-padded on both sides
       for :attr:`padding` number of points
-    | :attr:`dilation` controls the spacing between the kernel points. It is harder to describe,
-      but this `link`_ has a nice visualization of what :attr:`dilation` does.
+    | :attr:`dilation` controls the spacing between the kernel points. It is harder to describe, but this `link`_ has a nice visualization of what :attr:`dilation` does.
+
     The parameters :attr:`kernel_size`, :attr:`stride`, :attr:`padding`, :attr:`dilation` can either be:
         - a single ``int`` -- in which case the same value is used for the height and width dimension
         - a ``tuple`` of two ints -- in which case, the first `int` is used for the height dimension,
@@ -531,8 +540,8 @@ class AvgPool2d(Module):
                                input(N_i, C_j, stride[0] * h + m, stride[1] * w + n)
         \end{array}
 
-    | If :attr:`padding` is non-zero, then the input is implicitly zero-padded on both sides
-      for :attr:`padding` number of points
+    | If :attr:`padding` is non-zero, then the input is implicitly zero-padded on both sides for :attr:`padding` number of points
+
     The parameters :attr:`kernel_size`, :attr:`stride`, :attr:`padding` can either be:
         - a single ``int`` -- in which case the same value is used for the height and width dimension
         - a ``tuple`` of two ints -- in which case, the first `int` is used for the height dimension,
