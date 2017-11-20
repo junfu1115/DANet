@@ -10,6 +10,7 @@
 
 from __future__ import print_function
 
+import os
 import matplotlib.pyplot as plot
 import importlib
 
@@ -22,28 +23,12 @@ from torch.autograd import Variable
 from option import Options
 from encoding.utils import *
 
+from tqdm import tqdm
+
 # global variable
 best_pred = 100.0
 errlist_train = []
 errlist_val = []
-
-
-def adjust_learning_rate(optimizer, args, epoch, best_pred):
-    if epoch <= 60:
-        lr = args.lr * (0.1 ** ((epoch - 1) // 40))
-    else:
-        lr = 1e-4
-    print('=>Epochs %i, learning rate = %.4f, previous best = %.3f%%' % (
-		epoch, lr, best_pred))
-    if len(optimizer.param_groups) == 1:
-        optimizer.param_groups[0]['lr'] = lr
-    elif len(optimizer.param_groups) == 2:
-        # enlarge the lr at the head
-        optimizer.param_groups[0]['lr'] = lr
-        optimizer.param_groups[1]['lr'] = lr * 10
-    else:
-        raise RuntimeError('unsupported number of param groups: {}' \
-            .format(len(optimizer.param_groups)))
 
 def main():
     # init the args
@@ -64,19 +49,15 @@ def main():
     train_loader, test_loader = Dataloder(args).getloader()
     # init the model
     models = importlib.import_module('model.'+args.model)
-    model = models.Net()
+    model = models.Net(args)
     print(model)
     # criterion and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = get_optimizer(args, model)
+    optimizer = get_optimizer(args, model, False)
     if args.cuda:
         model.cuda()
         # Please use CUDA_VISIBLE_DEVICES to control the number of gpus
         model = torch.nn.DataParallel(model)
-    """
-    optim.SGD(model.parameters(), lr=args.lr, momentum=
-            args.momentum, weight_decay=args.weight_decay)
-    """
     # check point
     if args.resume is not None:
         if os.path.isfile(args.resume):
@@ -93,14 +74,15 @@ def main():
         else:
             print("=> no resume checkpoint found at '{}'".\
                 format(args.resume))
-    #scheduler = CosLR_Scheduler(args, len(train_loader))
+    scheduler = LR_Scheduler(args, len(train_loader))
     def train(epoch):
         model.train()
         global best_pred, errlist_train
         train_loss, correct, total = 0,0,0
-        adjust_learning_rate(optimizer, args, epoch, best_pred)
-        for batch_idx, (data, target) in enumerate(train_loader):
-            #scheduler(optimizer, batch_idx, epoch, best_pred)
+        #adjust_learning_rate(optimizer, args, epoch, best_pred)
+        tbar = tqdm(train_loader, desc='\r')
+        for batch_idx, (data, target) in enumerate(tbar):
+            scheduler(optimizer, batch_idx, epoch, best_pred)
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
             data, target = Variable(data), Variable(target)
@@ -115,10 +97,9 @@ def main():
             correct += pred.eq(target.data).cpu().sum()
             total += target.size(0)
             err = 100-100.*correct/total
-            progress_bar(batch_idx, len(train_loader), 
-                'Loss: %.3f | Err: %.3f%% (%d/%d)' % \
-                (train_loss/(batch_idx+1), 
-                err, total-correct, total))
+            tbar.set_description('\rLoss: %.3f | Err: %.3f%% (%d/%d)' % \
+                (train_loss/(batch_idx+1), err, total-correct, total))
+
         errlist_train += [err]
 
     def test(epoch):
@@ -126,7 +107,8 @@ def main():
         global best_pred, errlist_train, errlist_val
         test_loss, correct, total = 0,0,0
         is_best = False
-        for batch_idx, (data, target) in enumerate(test_loader):
+        tbar = tqdm(test_loader, desc='\r')
+        for batch_idx, (data, target) in enumerate(tbar):
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
             data, target = Variable(data, volatile=True), Variable(target)
@@ -138,10 +120,8 @@ def main():
             total += target.size(0)
 
             err = 100-100.*correct/total
-            progress_bar(batch_idx, len(test_loader), 
-                'Loss: %.3f | Err: %.3f%% (%d/%d)'% \
-                (test_loss/(batch_idx+1), 
-                err, total-correct, total))
+            tbar.set_description('Loss: %.3f | Err: %.3f%% (%d/%d)'% \
+                (test_loss/(batch_idx+1), err, total-correct, total))
 
         if args.eval:
             print('Error rate is %.3f'%err)

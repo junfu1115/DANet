@@ -68,7 +68,7 @@ class LR_Scheduler(object):
             self.N = args.epochs * niters
         self.epoch = -1
 
-    def __call__(self, optimizer, i, epoch):
+    def __call__(self, optimizer, i, epoch, best_pred):
         if self.mode == 'cos':
             T = (epoch - 1) * self.niters + i
             lr = 0.5 * self.lr * (1 + math.cos(1.0 * T / self.N * math.pi))
@@ -80,8 +80,9 @@ class LR_Scheduler(object):
         else:
             raise RuntimeError('Unknown LR scheduler!')
         if epoch > self.epoch:
-            print('\n=>Epoches %i, learning rate = %.4f' % (
-                epoch, lr))
+            print('\n=>Epoches %i, learning rate = %.4f, \
+                previous best = %.4f' % (
+                epoch, lr, best_pred))
             self.epoch = epoch
         self._adjust_learning_rate(optimizer, lr)
 

@@ -19,7 +19,7 @@ Test Pre-trained Model
 
     git clone git@github.com:zhanghang1989/PyTorch-Encoding.git
 
-- Download the `MINC-2500 <http://opensurfaces.cs.cornell.edu/publications/minc/>`_ dataset to ``$HOME/data/minc`` folder. Download pre-trained model (training `curve`_ as bellow, pre-trained on train-1 split using single training size of 224, with an error rate of :math:`19.98\%` using single crop on test-1 set)::
+- Download the `MINC-2500 <http://opensurfaces.cs.cornell.edu/publications/minc/>`_ dataset to ``$HOME/data/minc-2500/`` folder. Download pre-trained model (training `curve`_ as bellow, pre-trained on train-1 split using single training size of 224, with an error rate of :math:`19.98\%` using single crop on test-1 set)::
 
     cd PyTorch-Encoding/experiments
     bash model/download_models.sh
@@ -31,7 +31,7 @@ Test Pre-trained Model
 
 - Test pre-trained model on MINC-2500::
 
-    >>> python main.py --dataset minc --model encodingnet --resume model/minc.pth.tar --eval
+    >>> python main.py --dataset minc --model deepten --nclass 23 --resume model/minc.pth.tar --eval
     # Teriminal Output:
     #[======================================== 23/23 ===================================>...]    Step: 104ms | Tot: 3s256ms | Loss: 0.719 | Err: 19.983% (1149/5750) 
 
@@ -41,7 +41,7 @@ Train Your Own Model
 
 - Example training command for training above model::
 
-    python main.py --dataset minc --model encodingnet --batch-size 64 --lr 0.01 --epochs 60 
+    python main.py --model deepten --nclass 23 --model encodingnet --batch-size 64 --lr 0.01 --epochs 60 
 
 - Training options::
 

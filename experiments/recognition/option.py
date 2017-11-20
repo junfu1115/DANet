@@ -17,11 +17,15 @@ class Options():
         parser = argparse.ArgumentParser(description='Deep Encoding')
         parser.add_argument('--dataset', type=str, default='cifar10',
             help='training dataset (default: cifar10)')
+        # model params 
         parser.add_argument('--model', type=str, default='densenet',
             help='network model type (default: densenet)')
-        # scale factor for HangsNet only
+        parser.add_argument('--nclass', type=int, default=10, metavar='N',
+            help='number of classes (default: 10)')
         parser.add_argument('--widen', type=int, default=4, metavar='N',
             help='widen factor of the network (default: 4)')
+        parser.add_argument('--backbone', type=str, default='resnet50',
+            help='backbone name (default: resnet50)')
         # training hyper params
         parser.add_argument('--batch-size', type=int, default=128,
             metavar='N', help='batch size for training (default: 128)')
@@ -31,12 +35,18 @@ class Options():
             help='number of epochs to train (default: 300)')
         parser.add_argument('--start_epoch', type=int, default=1, 
             metavar='N', help='the epoch number to start (default: 0)')
+        # lr setting
         parser.add_argument('--lr', type=float, default=0.1, metavar='LR',
             help='learning rate (default: 0.1)')
+        parser.add_argument('--lr-scheduler', type=str, default='step', 
+            help='learning rate scheduler (default: step)')
+        parser.add_argument('--lr-step', type=int, default=40, metavar='LR',
+            help='learning rate step (default: 40)')
+        # optimizer
         parser.add_argument('--momentum', type=float, default=0.9, 
             metavar='M', help='SGD momentum (default: 0.9)')
-        parser.add_argument('--weight-decay', type=float, default=1e-4, 
-            metavar ='M', help='SGD weight decay (default: 1e-4)')
+        parser.add_argument('--weight-decay', type=float, default=5e-4, 
+            metavar ='M', help='SGD weight decay (default: 5e-4)')
         # cuda, seed and logging
         parser.add_argument('--no-cuda', action='store_true', 
             default=False, help='disables CUDA training')
@@ -53,5 +63,6 @@ class Options():
         parser.add_argument('--eval', action='store_true', default= False,
             help='evaluating')
         self.parser = parser
+
     def parse(self):
         return self.parser.parse_args()

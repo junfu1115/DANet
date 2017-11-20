@@ -17,19 +17,19 @@ import encoding
 import torchvision.models as resnet
 
 class Net(nn.Module):
-    def __init__(self, nclass=23, aux=False, backbone='resnet50'):
+    def __init__(self, args):
+        nclass=args.nclass
         super(Net, self).__init__()
-        self.backbone = backbone
+        self.backbone = args.backbone
         # copying modules from pretrained models
-        if backbone == 'resnet50':
+        if self.backbone == 'resnet50':
             self.pretrained = resnet.resnet50(pretrained=True)
-        elif backbone == 'resnet101':
+        elif self.backbone == 'resnet101':
             self.pretrained = resnet.resnet101(pretrained=True)
-        elif backbone == 'resnet152':
+        elif self.backbone == 'resnet152':
             self.pretrained = resnet.resnet152(pretrained=True)
         else:
-            raise RuntimeError('unknown backbone: {}'.format(backbone))
-        self.aux = aux
+            raise RuntimeError('unknown backbone: {}'.format(self.backbone))
         n_codes = 32
         self.head = nn.Sequential(
             nn.Conv2d(2048, 128, 1),
@@ -51,35 +51,13 @@ class Net(nn.Module):
             _, _, h, w = var_input.size()
         else:
             raise RuntimeError('unknown input type: ', type(x))
-
-        if self.backbone == 'resnet50' or self.backbone == 'resnet101' \
-            or self.backbone == 'resnet152':
-            # pre-trained ResNet feature
-            x = self.pretrained.conv1(x)
-            x = self.pretrained.bn1(x)
-            x = self.pretrained.relu(x)
-            x = self.pretrained.maxpool(x)
-            x = self.pretrained.layer1(x)
-            x = self.pretrained.layer2(x)
-            x = self.pretrained.layer3(x)
-            x = self.pretrained.layer4(x)
-        else:
-            x = self.pretrained(x)
+        x = self.pretrained.conv1(x)
+        x = self.pretrained.bn1(x)
+        x = self.pretrained.relu(x)
+        x = self.pretrained.maxpool(x)
+        x = self.pretrained.layer1(x)
+        x = self.pretrained.layer2(x)
+        x = self.pretrained.layer3(x)
+        x = self.pretrained.layer4(x)
         return self.head(x)
 
-
-def test():
-    net = Net(nclass=23).cuda()
-    print(net)
-    x = Variable(torch.randn(1,3,224,224)).cuda()
-    y = net(x)
-    print(y)
-    params = net.parameters()
-    sum = 0
-    for param in params:
-        sum += param.nelement()
-    print('Total params:', sum)
-
-
-if __name__ == "__main__":
-    test()
