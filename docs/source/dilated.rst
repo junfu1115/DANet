@@ -4,11 +4,13 @@
 Dilated Networks
 ================
 
-We provide correct dilated pre-trained ResNet and DenseNet for semantic segmentation. 
-For dilation of ResNet, we replace the stride of 2 Conv3x3 at begining of certain stage and update the dilation of the conv layers afterwards. 
-For dilation of DenseNet, we provide :class:`encoding.nn.DilatedAvgPool2d` that handles the dilation of the transition layers, then update the dilation of the conv layers afterwards. 
+We provide correct dilated pre-trained ResNet and DenseNet (stride of 8) for semantic segmentation. 
+For dilation of DenseNet, we provide :class:`encoding.nn.DilatedAvgPool2d`. 
 All provided models have been verified. 
 
+.. note::
+
+    This code is provided together with the paper (coming soon), please cite our work.
 
 .. automodule:: encoding.dilated
 .. currentmodule:: encoding.dilated

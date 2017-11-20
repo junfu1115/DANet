@@ -19,6 +19,9 @@ from torch.nn.parallel.scatter_gather import scatter, scatter_kwargs, \
 from torch.nn.parallel.replicate import replicate
 from torch.nn.parallel.parallel_apply import parallel_apply
 
+__all__ = ['AllReduce', 'Broadcast', 'ModelDataParallel', 
+    'CriterionDataParallel', 'SelfDataParallel']
+
 def nccl_all_reduce(inputs):
     # TODO, figure out why nccl all_reduce doesn't work for gradcheck
     input_size = inputs[0].size()

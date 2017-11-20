@@ -6,5 +6,8 @@ build/
 data/
 docs/src/
 docs/html/
+encoding/lib/
 encoding/_ext/
 encoding.egg-info/
+experiments/recognition/
+experiments/segmentation/

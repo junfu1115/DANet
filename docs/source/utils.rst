@@ -9,10 +9,10 @@ Useful util functions.
 .. automodule:: encoding.utils
 .. currentmodule:: encoding.utils
 
-:hidden:`CosLR_Scheduler`
+:hidden:`LR_Scheduler`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: CosLR_Scheduler
+.. autoclass:: LR_Scheduler
     :members:
 
 :hidden:`get_optimizer`

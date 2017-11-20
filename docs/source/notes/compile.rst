@@ -5,9 +5,7 @@ Installing PyTorch-Encoding
 Install from Source
 -------------------
 
-    * Please follow the `PyTorch instructions <https://github.com/pytorch/pytorch#from-source>`_ to install PyTorch from Source to the ``$HOME`` directory (recommended). Or you can simply clone a copy to ``$HOME`` directory::
-
-        git clone https://github.com/pytorch/pytorch $HOME/pytorch
+    * Install PyTorch from Source (recommended). Please follow the `PyTorch instructions <https://github.com/pytorch/pytorch#from-source>`_.
 
     * Install this package
 

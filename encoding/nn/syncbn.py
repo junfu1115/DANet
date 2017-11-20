@@ -27,7 +27,8 @@ __all__ = ['BatchNorm1d', 'BatchNorm2d']
 
 class BatchNorm1d(Module):
     r"""Synchronized Batch Normalization 1d
-    Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`
+
+    `Implementation ideas <./notes/syncbn.html>`_. Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`
 
     Reference::
         We provide this code for a comming paper.
@@ -221,7 +222,8 @@ class BatchNorm1d(Module):
 
 class BatchNorm2d(Module):
     r"""Synchronized Batch Normalization 2d
-    Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`    
+
+    `Implementation ideas <./notes/syncbn.html>`_. Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`. 
 
     Reference::
         We provide this code for a comming paper.

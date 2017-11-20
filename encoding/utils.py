@@ -16,6 +16,8 @@ import time
 import math
 import tqdm
 
+__all__ = ['get_optimizer', 'LR_Scheduler', 'save_checkpoint', 'progress_bar']
+
 def get_optimizer(args, model, diff_LR=True):
     """
     Returns an optimizer for given model, 
@@ -41,41 +43,56 @@ def get_optimizer(args, model, diff_LR=True):
     return optimizer
 
 
-class CosLR_Scheduler(object):
-    """Cosine Learning Rate Scheduler
+class LR_Scheduler(object):
+    """Learning Rate Scheduler
 
-    .. math::
-        lr = baselr * 0.5 * (1 + cos(iter/maxiter))
+    Step mode: ``lr = baselr * 0.1 ^ {floor(epoch-1 / lr_step)}``
+
+    Cosine mode: ``lr = baselr * 0.5 * (1 + cos(iter/maxiter))``
+
+    Poly mode: ``lr = baselr * (1 - iter/maxiter) ^ 0.9``
 
     Args:
-        args:  base learning rate :attr:`args.lr`, number of epochs :attr:`args.epochs`
+        args:  :attr:`args.lr_scheduler` lr scheduler mode (`cos`, `poly`), :attr:`args.lr` base learning rate, :attr:`args.epochs` number of epochs, :attr:`args.lr_step`
+
         niters: number of iterations per epoch
     """
-    def __init__(self, args, niters):
+    def __init__(self, args, niters=0):
+        self.mode = args.lr_scheduler 
+        print('Using {} LR Scheduler!'.format(self.mode))
         self.lr = args.lr
-        self.niters = niters
-        self.N = args.epochs * niters
+        if self.mode == 'step':
+            self.lr_step = args.lr_step
+        else:
+            self.niters = niters
+            self.N = args.epochs * niters
         self.epoch = -1
 
-    def __call__(self, optimizer, i, epoch, best_pred):
-        T = (epoch - 1) * self.niters + i
-        lr = 0.5 * self.lr * (1 + math.cos(1.0 * T / self.N * math.pi))
+    def __call__(self, optimizer, i, epoch):
+        if self.mode == 'cos':
+            T = (epoch - 1) * self.niters + i
+            lr = 0.5 * self.lr * (1 + math.cos(1.0 * T / self.N * math.pi))
+        elif self.mode == 'poly':
+            T = (epoch - 1) * self.niters + i
+            lr = self.lr * pow((1 - 1.0 * T / self.N), 0.9)
+        elif self.mode == 'step':
+            lr = self.lr * (0.1 ** ((epoch - 1) // self.lr_step))
+        else:
+            raise RuntimeError('Unknown LR scheduler!')
         if epoch > self.epoch:
-            print('\n=>Epochs %i, learning rate = %.4f, previous best ='\
-                '%.3f%%' % (epoch, lr, best_pred))
+            print('\n=>Epoches %i, learning rate = %.4f' % (
+                epoch, lr))
             self.epoch = epoch
         self._adjust_learning_rate(optimizer, lr)
 
     def _adjust_learning_rate(self, optimizer, lr):
         if len(optimizer.param_groups) == 1:
             optimizer.param_groups[0]['lr'] = lr
-        elif len(optimizer.param_groups) == 2:
+        else:
             # enlarge the lr at the head
             optimizer.param_groups[0]['lr'] = lr
-            optimizer.param_groups[1]['lr'] = lr * 10
-        else:
-            raise RuntimeError('unsupported number of param groups: {}' \
-                .format(len(optimizer.param_groups)))
+            for i in range(1,len(optimizer.param_groups)):
+                optimizer.param_groups[i]['lr'] = lr * 10
 
 
 # refer to https://github.com/xternalz/WideResNet-pytorch

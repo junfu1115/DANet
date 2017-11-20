@@ -10,8 +10,6 @@
 
 import io
 import os
-import re
-import sys
 import subprocess
 
 from setuptools import setup, find_packages
@@ -55,6 +53,10 @@ setup(
     # Exclude the build files.
     packages=find_packages(exclude=["build"]),
     # Package where to put the extensions. Has to be a prefix of build.py.
+    package_data={'encoding': [
+        'lib/*.so*', 'lib/*.dylib*',
+        'kernel/*.h', 'kernel/generic/*h',
+    ]},
     ext_package="",
     # Extensions to compile.
     cffi_modules=[

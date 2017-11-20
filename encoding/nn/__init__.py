@@ -8,7 +8,7 @@
 ## LICENSE file in the root directory of this source tree 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+from .encoding import *
 from .syncbn import *
 from .basic import *
-from .encoding import *
 from .customize import *

@@ -61,7 +61,11 @@ def sum_square(input):
     return _sum_square()(input)
 
 
-class _batchnormtrain(Function):
+class _batchnorm(Function):
+    def __init__(self, training=False):
+        super(_batchnorm, self).__init__()
+        self.training = training
+
     def forward(ctx, input, gamma, beta, mean, std):
         ctx.save_for_backward(input, gamma, beta, mean, std)
         assert(input.dim()==3)
@@ -95,13 +99,13 @@ class _batchnormtrain(Function):
                 encoding_lib.Encoding_Float_batchnorm_Backward(
                     gradOutput, input, gradInput, gradGamma, gradBeta, 
                     mean, invstd, gamma, beta, gradMean, gradStd,
-                    True) 
+                    self.training) 
         elif isinstance(input, torch.cuda.DoubleTensor):
             with torch.cuda.device_of(input):
                 encoding_lib.Encoding_Double_batchnorm_Backward(
                     gradOutput, input, gradInput, gradGamma, gradBeta, 
                     mean, invstd, gamma, beta, gradMean, gradStd,
-                    True) 
+                    self.training) 
         else:
             raise RuntimeError('Unimplemented data type!')
         return gradInput, gradGamma, gradBeta, gradMean, gradStd
@@ -122,52 +126,7 @@ def batchnormtrain(input, gamma, beta, mean, std):
         - Output: :math:`(N, C)` or :math:`(N, C, L)` (same shape as input)
 
     """
-    return _batchnormtrain()(input, gamma, beta, mean, std)
-
-
-class _batchnormeval(Function):
-    def forward(ctx, input, gamma, beta, mean, std):
-        ctx.save_for_backward(input, gamma, beta, mean, std)
-        assert(input.dim()==3)
-        with torch.cuda.device_of(input):
-            invstd = 1.0 / std
-            output = input.new().resize_as_(input)
-        if isinstance(input, torch.cuda.FloatTensor):
-            with torch.cuda.device_of(input):
-                encoding_lib.Encoding_Float_batchnorm_Forward(output, 
-                    input, mean, invstd, gamma, beta)
-        elif isinstance(input, torch.cuda.DoubleTensor):
-            with torch.cuda.device_of(input):
-                encoding_lib.Encoding_Double_batchnorm_Forward(output, 
-                    input, mean, invstd, gamma, beta)
-        else:
-            raise RuntimeError('Unimplemented data type!')
-        return output 
-
-    def backward(ctx, gradOutput):
-        input, gamma, beta, mean, std = ctx.saved_tensors
-        invstd = 1.0 / std
-        with torch.cuda.device_of(input):
-            gradInput = gradOutput.new().resize_as_(input).zero_()
-            gradGamma = gradOutput.new().resize_as_(gamma).zero_()
-            gradBeta  = gradOutput.new().resize_as_(beta).zero_()
-            gradMean  = gradOutput.new().resize_as_(mean).zero_()
-            gradStd   = gradOutput.new().resize_as_(std).zero_()
-        if isinstance(input, torch.cuda.FloatTensor):
-            with torch.cuda.device_of(input):
-                encoding_lib.Encoding_Float_batchnorm_Backward(
-                    gradOutput, input, gradInput, gradGamma, gradBeta, 
-                    mean, invstd, gamma, beta, gradMean, gradStd,
-                    False) 
-        elif isinstance(input, torch.cuda.DoubleTensor):
-            with torch.cuda.device_of(input):
-                encoding_lib.Encoding_Double_batchnorm_Backward(
-                    gradOutput, input, gradInput, gradGamma, gradBeta, 
-                    mean, invstd, gamma, beta, gradMean, gradStd,
-                    False) 
-        else:
-            raise RuntimeError('Unimplemented data type!')
-        return gradInput, gradGamma, gradBeta, gradMean, gradStd
+    return _batchnorm(True)(input, gamma, beta, mean, std)
 
 
 def batchnormeval(input, gamma, beta, mean, std):
@@ -176,4 +135,4 @@ def batchnormeval(input, gamma, beta, mean, std):
 
     Please see encoding.batchnormtrain_
     """
-    return _batchnormeval()(input, gamma, beta, mean, std)
+    return _batchnorm(False)(input, gamma, beta, mean, std)

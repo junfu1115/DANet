@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-mkdir -p encoding/build && cd encoding/build
+mkdir -p encoding/lib && cd encoding/lib
 # compile and install
 cmake ..
-make install
-cd ..
+make

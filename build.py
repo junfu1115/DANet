@@ -16,6 +16,7 @@ from torch.utils.ffi import create_extension
 
 lib_path = os.path.join(os.path.dirname(torch.__file__), 'lib')
 cwd = os.path.dirname(os.path.realpath(__file__))
+encoding_lib_path = os.path.join(cwd, "encoding", "lib")
 
 # clean the build files
 clean_cmd = ['bash', 'clean.sh']
@@ -26,11 +27,12 @@ os.environ['TORCH_BUILD_DIR'] = lib_path
 if platform.system() == 'Darwin':
     os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libTH.1.dylib')
     os.environ['THC_LIBRARIES'] = os.path.join(lib_path,'libTHC.1.dylib')
-    ENCODING_LIB = os.path.join(lib_path, 'libENCODING.dylib')
+    ENCODING_LIB = os.path.join(cwd, 'encoding/lib/libENCODING.dylib')
+
 else:
     os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libTH.so.1')
     os.environ['THC_LIBRARIES'] = os.path.join(lib_path,'libTHC.so.1')
-    ENCODING_LIB = os.path.join(lib_path, 'libENCODING.so')
+    ENCODING_LIB = os.path.join(cwd, 'encoding/lib/libENCODING.so')
 
 build_all_cmd = ['bash', 'encoding/make.sh']
 subprocess.check_call(build_all_cmd, env=dict(os.environ))
@@ -44,7 +46,7 @@ defines = [('WITH_CUDA', None)]
 with_cuda = True 
 
 include_path = [os.path.join(lib_path, 'include'),
-                os.path.join(lib_path,'include/ENCODING'), 
+                os.path.join(cwd,'encoding/kernel'), 
                 os.path.join(cwd,'encoding/kernel/include'), 
                 os.path.join(cwd,'encoding/src/')]
 
@@ -65,6 +67,7 @@ ffi = create_extension(
     include_dirs = include_path,
     extra_link_args = [
         make_relative_rpath(lib_path),
+        make_relative_rpath(encoding_lib_path),
         ENCODING_LIB,
     ],
 )
