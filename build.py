@@ -25,13 +25,11 @@ subprocess.check_call(clean_cmd)
 # build CUDA library
 os.environ['TORCH_BUILD_DIR'] = lib_path
 if platform.system() == 'Darwin':
-    os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libTH.1.dylib')
-    os.environ['THC_LIBRARIES'] = os.path.join(lib_path,'libTHC.1.dylib')
+    os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.1.dylib')
     ENCODING_LIB = os.path.join(cwd, 'encoding/lib/libENCODING.dylib')
 
 else:
-    os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libTH.so.1')
-    os.environ['THC_LIBRARIES'] = os.path.join(lib_path,'libTHC.so.1')
+    os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.so.1')
     ENCODING_LIB = os.path.join(cwd, 'encoding/lib/libENCODING.so')
 
 build_all_cmd = ['bash', 'encoding/make.sh']
