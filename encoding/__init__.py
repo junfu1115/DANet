@@ -14,3 +14,4 @@ import encoding.nn
 import encoding.functions
 import encoding.dilated
 import encoding.parallel 
+import encoding.utils
