@@ -24,6 +24,8 @@ class Options():
             help='number of classes (default: 10)')
         parser.add_argument('--widen', type=int, default=4, metavar='N',
             help='widen factor of the network (default: 4)')
+        parser.add_argument('--ncodes', type=int, default=32, metavar='N',
+            help='number of codewords in Encoding Layer (default: 32)')
         parser.add_argument('--backbone', type=str, default='resnet50',
             help='backbone name (default: resnet50)')
         # training hyper params
@@ -31,8 +33,8 @@ class Options():
             metavar='N', help='batch size for training (default: 128)')
         parser.add_argument('--test-batch-size', type=int, default=256, 
             metavar='N', help='batch size for testing (default: 256)')
-        parser.add_argument('--epochs', type=int, default=300, metavar='N',
-            help='number of epochs to train (default: 300)')
+        parser.add_argument('--epochs', type=int, default=600, metavar='N',
+            help='number of epochs to train (default: 600)')
         parser.add_argument('--start_epoch', type=int, default=1, 
             metavar='N', help='the epoch number to start (default: 0)')
         # lr setting
@@ -65,4 +67,7 @@ class Options():
         self.parser = parser
 
     def parse(self):
-        return self.parser.parse_args()
+        args = self.parser.parse_args()
+        if args.dataset == 'minc':
+            args.nclass = 23
+        return args

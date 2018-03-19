@@ -19,7 +19,7 @@ from torch.nn.parallel.scatter_gather import scatter, scatter_kwargs, \
 from torch.nn.parallel.replicate import replicate
 from torch.nn.parallel.parallel_apply import parallel_apply
 
-__all__ = ['AllReduce', 'Broadcast', 'ModelDataParallel', 
+__all__ = ['Reduce', 'AllReduce', 'Broadcast', 'ModelDataParallel', 
     'CriterionDataParallel', 'SelfDataParallel']
 
 def nccl_all_reduce(inputs):
@@ -45,6 +45,22 @@ def comm_all_reduce(inputs):
         results.append(result.clone().cuda(i))
     return results
 
+class Reduce(Function):
+    def forward(ctx, *inputs):
+        ctx.save_for_backward(*inputs)
+        if len(inputs) == 1:
+            return inputs[0]
+        return comm.reduce_add(inputs)
+
+    def backward(ctx, gradOutput):
+        inputs = tuple(ctx.saved_tensors)
+        if len(inputs) == 1:
+            return gradOutput
+        gradInputs = []
+        for i in range(len(inputs)):
+            with torch.cuda.device_of(inputs[i]):
+                gradInputs.append(gradOutput.cuda())
+        return tuple(gradInputs)
 
 class AllReduce(Function):
     """Cross GPU all reduce autograd operation for calculate mean and

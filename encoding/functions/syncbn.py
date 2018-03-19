@@ -62,9 +62,9 @@ def sum_square(input):
 
 
 class _batchnorm(Function):
-    def __init__(self, training=False):
-        super(_batchnorm, self).__init__()
-        self.training = training
+    def __init__(ctx, training=False):
+        super(_batchnorm, ctx).__init__()
+        ctx.training = training
 
     def forward(ctx, input, gamma, beta, mean, std):
         ctx.save_for_backward(input, gamma, beta, mean, std)
@@ -99,13 +99,13 @@ class _batchnorm(Function):
                 encoding_lib.Encoding_Float_batchnorm_Backward(
                     gradOutput, input, gradInput, gradGamma, gradBeta, 
                     mean, invstd, gamma, beta, gradMean, gradStd,
-                    self.training) 
+                    ctx.training) 
         elif isinstance(input, torch.cuda.DoubleTensor):
             with torch.cuda.device_of(input):
                 encoding_lib.Encoding_Double_batchnorm_Backward(
                     gradOutput, input, gradInput, gradGamma, gradBeta, 
                     mean, invstd, gamma, beta, gradMean, gradStd,
-                    self.training) 
+                    ctx.training) 
         else:
             raise RuntimeError('Unimplemented data type!')
         return gradInput, gradGamma, gradBeta, gradMean, gradStd

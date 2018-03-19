@@ -36,4 +36,3 @@ SET(Torch_INSTALL_INCLUDE "${TORCH_BUILD_DIR}/include" ${TORCH_TH_INCLUDE_DIR} $
 
 # Find the libs. We need to find libraries one by one.
 SET(TH_LIBRARIES "$ENV{TH_LIBRARIES}")
-SET(THC_LIBRARIES "$ENV{THC_LIBRARIES}")

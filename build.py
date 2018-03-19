@@ -29,6 +29,7 @@ if platform.system() == 'Darwin':
     ENCODING_LIB = os.path.join(cwd, 'encoding/lib/libENCODING.dylib')
 
 else:
+    os.environ['CFLAGS'] = '-std=c99'
     os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.so.1')
     ENCODING_LIB = os.path.join(cwd, 'encoding/lib/libENCODING.so')
 

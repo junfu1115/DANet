@@ -62,19 +62,6 @@ def test_sum_square():
     print('Testing sum_square(): {}'.format(test))
 
 
-def test_dilated_densenet():
-    net = encoding.dilated.densenet161(True).cuda().eval()
-    print(net)
-    net2 = models.densenet161(True).cuda().eval()
-
-    x=Variable(torch.Tensor(1,3,224,224).uniform_(-0.5,0.5)).cuda()
-    y = net.features(x)
-    y2 = net2.features(x)
-
-    print(y[0][0])
-    print(y2[0][0])
-
-
 def test_dilated_avgpool():
     X = Variable(torch.cuda.FloatTensor(1,3,75,75).uniform_(-0.5,0.5))
     input = (X,)
@@ -89,6 +76,3 @@ if __name__ == '__main__':
     test_aggregate()
     test_sum_square()
     test_dilated_avgpool()
-    """
-    test_dilated_densenet()
-    """

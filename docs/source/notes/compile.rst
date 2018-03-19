@@ -25,7 +25,18 @@ Reference
 ---------
 
     .. note::
-        If using the code in your research, please cite our paper.
+        If using the code in your research, please cite our papers.
+
+        * Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. "Context Encoding for Semantic Segmentation"  *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2018*::
+
+            @InProceedings{Zhang_2018_CVPR,
+            author = {Zhang, Hang and Dana, Kristin and Shi, Jianping and Zhang, Zhongyue and Wang, Xiaogang and Tyagi, Ambrish and Agrawal, Amit},
+            title = {Context Encoding for Semantic Segmentation},
+            booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+            month = {June},
+            year = {2018}
+            }
+
 
         * Hang Zhang, Jia Xue, and Kristin Dana. "Deep TEN: Texture Encoding Network." *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2017*::
 

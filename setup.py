@@ -32,7 +32,7 @@ class install(setuptools.command.install.install):
         with open(version_path, 'w') as f:
             f.write("__version__ = '{}'\n".format(version))
 
-version = '0.1.0'
+version = '0.2.0'
 try:
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], 
         cwd=cwd).decode('ascii').strip()

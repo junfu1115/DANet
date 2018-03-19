@@ -35,7 +35,7 @@ __global__ void Encoding_(DilatedAvgPool_Forward_kernel) (
     c = bc - b*C;
     /* boundary check for output */
     if (w >= Y.getSize(3) || h >= Y.getSize(2)) return;
-    int hstart = h*dW -padH;
+    int hstart = h*dH -padH;
     int wstart = w*dW -padW;
     int hend = min(hstart + kH*dilationH, X.getSize(2));
     int wend = min(wstart + kW*dilationW, X.getSize(3));

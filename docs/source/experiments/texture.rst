@@ -8,20 +8,18 @@ Deep TEN: Deep Texture Encoding Network Example
 In this section, we show an example of training/testing Encoding-Net for texture recognition on MINC-2500 dataset. Comparing to original Torch implementation, we use *different learning rate* for pre-trained base network and encoding layer (10x), disable color jittering after reducing lr and adopt much *smaller training image size* (224 instead of 352). 
 
 
-.. note::
-    **Make Sure** to `Install PyTorch Encoding <../notes/compile.html>`_ First.
-
 Test Pre-trained Model
 ----------------------
 
-
-- Clone the GitHub repo (I am sure you did during the installation)::
+- Clone the GitHub repo::
 
     git clone git@github.com:zhanghang1989/PyTorch-Encoding.git
 
+- Install PyTorch Encoding (if not yet). Please follow the installation guide `Installing PyTorch Encoding <../notes/compile.html>`_.
+
 - Download the `MINC-2500 <http://opensurfaces.cs.cornell.edu/publications/minc/>`_ dataset to ``$HOME/data/minc-2500/`` folder. Download pre-trained model (training `curve`_ as bellow, pre-trained on train-1 split using single training size of 224, with an error rate of :math:`19.98\%` using single crop on test-1 set)::
 
-    cd PyTorch-Encoding/experiments
+    cd PyTorch-Encoding/experiments/recognition
     bash model/download_models.sh
 
 .. _curve:
@@ -41,14 +39,14 @@ Train Your Own Model
 
 - Example training command for training above model::
 
-    python main.py --model deepten --nclass 23 --model encodingnet --batch-size 64 --lr 0.01 --epochs 60 
+    python main.py --model deepten --nclass 23 --model deepten --batch-size 64 --lr 0.01 --epochs 60 
 
-- Training options::
+- Detail training options::
 
   -h, --help            show this help message and exit
   --dataset DATASET     training dataset (default: cifar10)
   --model MODEL         network model type (default: densenet)
-  --widen N             widen factor of the network (default: 4)
+  --backbone BACKBONE   backbone name (default: resnet50)
   --batch-size N        batch size for training (default: 128)
   --test-batch-size N   batch size for testing (default: 1000)
   --epochs N            number of epochs to train (default: 300)
@@ -69,7 +67,7 @@ Train Your Own Model
 Extending the Software
 ----------------------
 
-This code includes an integrated pipeline and some visualization tools (progress bar, real-time training curve plots). It is easy to use and extend for your own model or dataset:
+This code is well written, easy to use and extendable for your own models or datasets:
 
 - Write your own Dataloader ``mydataset.py`` to ``dataset/`` folder
 

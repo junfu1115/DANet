@@ -120,7 +120,9 @@ class _Transition(nn.Sequential):
 
 
 class DenseNet(nn.Module):
-    r"""Dilated Densenet-BC model class
+    r"""Dilated DenseNet.
+
+    For correctly dilation of transition layer fo DenseNet, we implement the :class:`encoding.nn.DilatedAvgPool2d`.
 
     Args:
         growth_rate (int) - how many filters to add each layer (`k` in paper)

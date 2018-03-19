@@ -1,7 +1,7 @@
 Implementing Synchronized Multi-GPU Batch Normalization
 =======================================================
 
-In this tutorial, we discuss the implementation detail of Multi-GPU Batch Normalization (BN) :class:`encoding.nn.BatchNorm2d` and compatible :class:`encoding.parallel.SelfDataParallel`. We will provide the training example in a later version.
+In this tutorial, we discuss the implementation detail of Multi-GPU Batch Normalization (BN) (classic implementation: :class:`encoding.nn.BatchNorm2d` and compatible :class:`encoding.parallel.SelfDataParallel`). We will provide the training example in a later version.
 
 How BN works?
 -------------
@@ -23,7 +23,7 @@ BN layer was introduced in the paper `Batch Normalization: Accelerating Deep Net
 
         \frac{d_\ell}{d_{x_i}} = \frac{d_\ell}{d_{y_i}}\cdot\frac{d_{y_i}}{d_{x_i}} + \frac{d_\ell}{d_\mu}\cdot\frac{d_\mu}{d_{x_i}} + \frac{d_\ell}{d_\sigma}\cdot\frac{d_\sigma}{d_{x_i}}
 
-    where :math:`\frac{d_\ell}{d_{x_i}}=\frac{\gamma}{\sigma}, \frac{d_\ell}{d_\mu}=-\frac{\gamma}{\sigma}\sum_i^N\frac{d_\ell}{d_{y_i}} 
+    where :math:`\frac{d_{y_i}}{d_{x_i}}=\frac{\gamma}{\sigma}, \frac{d_\ell}{d_\mu}=-\frac{\gamma}{\sigma}\sum_i^N\frac{d_\ell}{d_{y_i}}
     \text{ and } \frac{d_\sigma}{d_{x_i}}=-\frac{1}{\sigma}(\frac{x_i-\mu}{N})`.
 
 Why Synchronize BN?
@@ -48,6 +48,9 @@ Suppose we have :math:`K` number of GPUs, :math:`sum(x)_k` and :math:`sum(x^2)_k
     * Calculate the gradient of :math:`sum(x)` and :math:`sum(x^2)` individually in each GPU :math:`\frac{d_\ell}{d_{sum(x)_k}}` and :math:`\frac{d_\ell}{d_{sum(x^2)_k}}`. 
 
     * Then Sync the gradient (automatically handled by :class:`encoding.parallel.AllReduce`) and continue the backward.
+
+Classic Implementation
+~~~~~~~~~~~~~~~~~~~~~~
 
 - Synchronized DataParallel:
     Standard DataParallel pipeline of public frameworks (MXNet, PyTorch...) in each training iters: 

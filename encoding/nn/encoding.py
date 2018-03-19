@@ -13,13 +13,14 @@ import torch
 from torch.nn import Module, Parameter
 import torch.nn.functional as F
 from torch.autograd import Function, Variable
+from torch.nn.modules.utils import _single, _pair, _triple
 
 from .._ext import encoding_lib
 from ..functions import scaledL2, aggregate
 from ..parallel import my_data_parallel
 from ..functions import dilatedavgpool2d
 
-__all__ = ['Encoding', 'EncodingShake', 'Inspiration', 'DilatedAvgPool2d', 'UpsampleConv2d'] 
+__all__ = ['Encoding', 'EncodingDrop', 'Inspiration', 'DilatedAvgPool2d', 'UpsampleConv2d'] 
 
 class Encoding(Module):
     r"""
@@ -104,9 +105,9 @@ class Encoding(Module):
             + 'N x ' + str(self.D) + '=>' + str(self.K) + 'x' \
             + str(self.D) + ')'
 
-class EncodingShake(Module):
+class EncodingDrop(Module):
     def __init__(self, D, K):
-        super(EncodingShake, self).__init__()
+        super(EncodingDrop, self).__init__()
         # init codewords and smoothing factor
         self.D, self.K = D, K
         self.codewords = Parameter(torch.Tensor(K, D), 
@@ -119,7 +120,7 @@ class EncodingShake(Module):
         self.codewords.data.uniform_(-std1, std1)
         self.scale.data.uniform_(-1, 0)
 
-    def shake(self):
+    def _drop(self):
         if self.training:
             self.scale.data.uniform_(-1, 0)
         else:
@@ -143,14 +144,12 @@ class EncodingShake(Module):
             X = X.view(B,D,-1).transpose(1,2).contiguous()
         else:
             raise RuntimeError('Encoding Layer unknown input dims!')
-        # shake
-        self.shake()
+        self._drop()
         # assignment weights
         A = F.softmax(scaledL2(X, self.codewords, self.scale), dim=1)
         # aggregate
         E = aggregate(A, X, self.codewords)
-        # shake
-        self.shake()
+        self._drop()
         return E
 
     def __repr__(self):
@@ -202,27 +201,27 @@ class DilatedAvgPool2d(Module):
     r"""We provide Dilated Average Pooling for the dilation of Densenet as
     in :class:`encoding.dilated.DenseNet`.
 
-    Reference::
+    Reference:
         We provide this code for a comming paper.
 
     Applies a 2D average pooling over an input signal composed of several input planes.
 
     In the simplest case, the output value of the layer with input size :math:`(N, C, H, W)`,
-    output :math:`(N, C, H_{out}, W_{out})` and :attr:`kernel_size` :math:`(kH, kW)`
+    output :math:`(B, C, H_{out}, W_{out})`, :attr:`kernel_size` :math:`(k_H,k_W)`, :attr:`stride` :math:`(s_H,s_W)` :attr:`dilation` :math:`(d_H,d_W)`
     can be precisely described as:
 
     .. math::
 
         \begin{array}{ll}
-        out(b, c, h, w)  = 1 / (kH * kW) * 
-        \sum_{{m}=0}^{kH-1} \sum_{{n}=0}^{kW-1}
-        input(b, c, dH * h + m, dW * w + n)
+        out(b, c, h, w)  = 1 / (k_H \cdot k_W) \cdot 
+        \sum_{{m}=0}^{k_H-1} \sum_{{n}=0}^{k_W-1}
+        input(b, c, s_H \cdot h + d_H \cdot m, s_W \cdot w + d_W \cdot n)
         \end{array}
 
     | If :attr:`padding` is non-zero, then the input is implicitly zero-padded on both sides
       for :attr:`padding` number of points
 
-    The parameters :attr:`kernel_size`, :attr:`stride`, :attr:`padding`, :attr:`dilation` can either be:
+    | The parameters :attr:`kernel_size`, :attr:`stride`, :attr:`padding`, :attr:`dilation` can either be:
 
         - a single ``int`` -- in which case the same value is used for the height and width dimension
         - a ``tuple`` of two ints -- in which case, the first `int` is used for the height dimension,
@@ -235,10 +234,11 @@ class DilatedAvgPool2d(Module):
         dilation: the dilation parameter similar to Conv2d
 
     Shape:
-        - Input: :math:`(N, C, H_{in}, W_{in})`
-        - Output: :math:`(N, C, H_{out}, W_{out})` where
+        - Input: :math:`(B, C, H_{in}, W_{in})`
+        - Output: :math:`(B, C, H_{out}, W_{out})` where
           :math:`H_{out} = floor((H_{in}  + 2 * padding[0] - kernel\_size[0]) / stride[0] + 1)`
           :math:`W_{out} = floor((W_{in}  + 2 * padding[1] - kernel\_size[1]) / stride[1] + 1)`
+          For :attr:`stride=1`, the output featuremap preserves the same size as input.
 
     Examples::
 
@@ -306,7 +306,7 @@ class UpsampleConv2d(Module):
                          (in_channels, scale * scale * out_channels, kernel_size[0], kernel_size[1])
         bias (Tensor):   the learnable bias of the module of shape (scale * scale * out_channels)
 
-    Examples::
+    Examples:
         >>> # With square kernels and equal stride
         >>> m = nn.UpsampleCov2d(16, 33, 3, stride=2)
         >>> # non-square kernels and unequal stride and with padding
