@@ -1,5 +1,5 @@
-Installing PyTorch-Encoding
-===========================
+Install and Citations
+=====================
 
 
 Install from Source
@@ -21,7 +21,7 @@ Install from Source
 
              MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
 
-Reference
+Citations
 ---------
 
     .. note::

@@ -44,8 +44,7 @@ Functions
 
 .. autofunction:: aggregate
 
-:hidden:`scaledL2`
-~~~~~~~~~~~~~~~~~~~
+:hidden:`dilatedavgpool2d`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: scaledL2
-
+.. autofunction:: dilatedavgpool2d

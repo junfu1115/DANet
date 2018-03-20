@@ -78,6 +78,10 @@ class _dilatedavgpool2d(Function):
 def dilatedavgpool2d(input, kernel_size, stride=None, padding=0, 
         dilation=1):
     """Dilated Average Pool 2d, for dilation of DenseNet. 
+ 
+    Reference:
+
+        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. “Context Encoding for Semantic Segmentation. CVPR 2018
 
     Applies 2D average-pooling operation in kh x kw regions by step size
     dh x dw steps. The number of output features is equal to the number of

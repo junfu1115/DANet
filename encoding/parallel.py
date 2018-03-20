@@ -101,8 +101,9 @@ class Broadcast(Function):
 class ModelDataParallel(Module):
     """Implements data parallelism at the module level.
 
-    Reference::
-        We provide this code for a comming paper.
+    Reference:
+
+        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. “Context Encoding for Semantic Segmentation. CVPR 2018
 
     This container parallelizes the application of the given module by
     splitting the input across the specified devices by chunking in the 
@@ -171,8 +172,9 @@ class CriterionDataParallel(Module):
     Calculate loss in multiple-GPUs, which balance the memory usage for 
     Semantic Segmentation.
 
-    Reference::
-        We provide this code for a comming paper.
+    Reference:
+ 
+        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. “Context Encoding for Semantic Segmentation. CVPR 2018
 
     The targets are splitted across the specified devices by chunking in
     the batch dimension. Please use together with :class:`encoding.parallel.ModelDataParallel`.
@@ -216,8 +218,9 @@ class CriterionDataParallel(Module):
 class SelfDataParallel(Module):
     """SelfDataParallel, please make sure you understand it before using.
 
-    Reference::
-        We provide this code for a comming paper.
+    Reference:
+
+        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. “Context Encoding for Semantic Segmentation. CVPR 2018
 
     Each module in the network should be in self-parallel mode, 
     which allows list of inputs from multiple GPUs.

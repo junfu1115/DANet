@@ -202,7 +202,8 @@ class DilatedAvgPool2d(Module):
     in :class:`encoding.dilated.DenseNet`.
 
     Reference:
-        We provide this code for a comming paper.
+
+        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. “Context Encoding for Semantic Segmentation. CVPR 2018
 
     Applies a 2D average pooling over an input signal composed of several input planes.
 

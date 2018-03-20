@@ -7,10 +7,10 @@ Encoding Documentation
 
 Created by `Hang Zhang <http://hangzh.com/>`_
 
-- An optimized PyTorch package with CUDA backend, including Encoding Layer :class:`encoding.nn.Encoding`, Multi-GPU Synchronized Batch Normalization :class:`encoding.nn.BatchNorm2d` and other customized modules and functions. 
+An optimized PyTorch package with CUDA backend. 
 
-- **Example Systems** for Semantic Segmentation (coming), CIFAR-10 Classification, `Texture Recognition <experiments/texture.html>`_ and `Style Transfer <experiments/style.html>`_ are provided in experiments section. 
-
+.. todo::
+    A PyTorch DataParallel compatible Synchronized Cross-GPU Batch Normalization will be provided soon.
 
 .. toctree::
    :glob:
@@ -18,6 +18,13 @@ Created by `Hang Zhang <http://hangzh.com/>`_
    :caption: Notes
 
    notes/*
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+   :caption: Experiment Systems
+
+   experiments/*
 
 .. toctree::
    :maxdepth: 1
@@ -30,13 +37,6 @@ Created by `Hang Zhang <http://hangzh.com/>`_
    nn
    functions
    utils
-
-.. toctree::
-   :glob:
-   :maxdepth: 1
-   :caption: Experiment Systems
-
-   experiments/*
 
 Indices and tables
 ==================

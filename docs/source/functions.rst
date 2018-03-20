@@ -9,10 +9,11 @@ Other Functions
 .. currentmodule:: encoding.functions
 
 
-:hidden:`dilatedavgpool2d`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+:hidden:`scaledL2`
+~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: dilatedavgpool2d
+.. autofunction:: scaledL2
+
 
 :hidden:`upsample`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

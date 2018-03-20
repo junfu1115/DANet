@@ -30,8 +30,9 @@ class BatchNorm1d(Module):
 
     `Implementation ideas <./notes/syncbn.html>`_. Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`
 
-    Reference::
-        We provide this code for a comming paper.
+    Reference:
+
+        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. “Context Encoding for Semantic Segmentation. CVPR 2018
 
     Applies Batch Normalization over a 2d or 3d input that is seen as a
     mini-batch.
@@ -225,8 +226,9 @@ class BatchNorm2d(Module):
 
     `Implementation ideas <./notes/syncbn.html>`_. Please use compatible :class:`encoding.parallel.SelfDataParallel` and :class:`encoding.nn`. 
 
-    Reference::
-        We provide this code for a comming paper.
+    Reference:
+
+        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. “Context Encoding for Semantic Segmentation. CVPR 2018
 
     Applies Batch Normalization over a 4d input that is seen as a mini-batch
     of 3d inputs

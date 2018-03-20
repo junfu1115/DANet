@@ -72,7 +72,7 @@ def main():
             print("=> loaded checkpoint '{}' (epoch {})"
                 .format(args.resume, checkpoint['epoch']))
         else:
-            print("=> no resume checkpoint found at '{}'".\
+            raise RuntimeError ("=> no resume checkpoint found at '{}'".\
                 format(args.resume))
     scheduler = LR_Scheduler(args, len(train_loader))
     def train(epoch):
@@ -111,15 +111,16 @@ def main():
         for batch_idx, (data, target) in enumerate(tbar):
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
-            data, target = Variable(data, volatile=True), Variable(target)
-            output = model(data)
-            test_loss += criterion(output, target).data[0]
-            # get the index of the max log-probability
-            pred = output.data.max(1)[1] 
-            correct += pred.eq(target.data).cpu().sum()
-            total += target.size(0)
+            data, target = Variable(data), Variable(target)
+            with torch.no_grad():
+                output = model(data)
+                test_loss += criterion(output, target).data.item()
+                # get the index of the max log-probability
+                pred = output.data.max(1)[1] 
+                correct += pred.eq(target.data).cpu().sum().item()
+                total += target.size(0)
 
-            err = 100-100.*correct/total
+            err = 100-100.0*correct/total
             tbar.set_description('Loss: %.3f | Err: %.3f%% (%d/%d)'% \
                 (test_loss/(batch_idx+1), err, total-correct, total))
 
