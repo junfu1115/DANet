@@ -14,7 +14,7 @@ Test Pre-trained Model
 - Download pre-trained EncNet-32k128d model::
 
     cd PyTorch-Encoding/experiments/recognition
-    bash model/download_cifar_models.sh
+    bash model/download_models.sh
 
 .. _curve:
 
