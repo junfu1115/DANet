@@ -6,12 +6,12 @@ created by [Hang Zhang](http://hangzh.com/)
 
 - Please visit the [**Docs**](http://hangzh.com/PyTorch-Encoding/) for detail instructions of installation and usage. 
 
-- How to use Synchronized Batch Normalization (SyncBN)? See the [examples](https://github.com/zhanghang1989/PyTorch-SyncBatchNorm#mnist-example).
+- How to use Synchronized Batch Normalization (SyncBN)? See the [examples](https://github.com/zhanghang1989/PyTorch-SyncBatchNorm).
 
 ## Citations
 
-**Context Encoding for Semantic Segmentation**  
-  [Hang Zhang](http://hangzh.com/), [Kristin Dana](http://eceweb1.rutgers.edu/vision/dana.html), [Jianping Shi](http://shijianping.me/), [Zhongyue Zhang](http://zhongyuezhang.com/), [Xiaogang Wang](http://www.ee.cuhk.edu.hk/~xgwang/), [Ambrish Tyagi](https://scholar.google.com/citations?user=GaSWCoUAAAAJ&hl=en), [Amit Agrawal](http://www.amitkagrawal.com/) [[arXiv]](https://arxiv.org/pdf/1803.08904.pdf)
+**Context Encoding for Semantic Segmentation** [[arXiv]](https://arxiv.org/pdf/1803.08904.pdf)
+  [Hang Zhang](http://hangzh.com/), [Kristin Dana](http://eceweb1.rutgers.edu/vision/dana.html), [Jianping Shi](http://shijianping.me/), [Zhongyue Zhang](http://zhongyuezhang.com/), [Xiaogang Wang](http://www.ee.cuhk.edu.hk/~xgwang/), [Ambrish Tyagi](https://scholar.google.com/citations?user=GaSWCoUAAAAJ&hl=en), [Amit Agrawal](http://www.amitkagrawal.com/)
 ```
 @InProceedings{Zhang_2018_CVPR,
 author = {Zhang, Hang and Dana, Kristin and Shi, Jianping and Zhang, Zhongyue and Wang, Xiaogang and Tyagi, Ambrish and Agrawal, Amit},
