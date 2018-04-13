@@ -9,8 +9,8 @@ Created by `Hang Zhang <http://hangzh.com/>`_
 
 An optimized PyTorch package with CUDA backend. 
 
-.. todo::
-    A PyTorch DataParallel compatible Synchronized Cross-GPU Batch Normalization will be provided soon.
+.. note::
+    PyTorch compatible Synchronized Cross-GPU :class:`encoding.nn.BatchNorm2d` has been released.
 
 .. toctree::
    :glob:
@@ -34,7 +34,6 @@ An optimized PyTorch package with CUDA backend.
    syncbn
    parallel
    dilated
-   nn
    functions
    utils
 

@@ -11,15 +11,8 @@ All provided models have been verified.
 .. note::
     This code is provided together with the paper
 
-    * Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. "Context Encoding for Semantic Segmentation"  *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2018*::
+    * Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. "Context Encoding for Semantic Segmentation"  *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2018*
 
-        @InProceedings{Zhang_2018_CVPR,
-        author = {Zhang, Hang and Dana, Kristin and Shi, Jianping and Zhang, Zhongyue and Wang, Xiaogang and Tyagi, Ambrish and Agrawal, Amit},
-        title = {Context Encoding for Semantic Segmentation},
-        booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-        month = {June},
-        year = {2018}
-        }
 
 .. automodule:: encoding.dilated
 .. currentmodule:: encoding.dilated
@@ -91,5 +84,3 @@ DenseNet
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: densenet201
-
-

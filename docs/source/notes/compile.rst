@@ -15,11 +15,13 @@ Install from Source
 
         - On Linux::
 
+            pip install -r requirements.txt
             python setup.py install
 
         - On Mac OSX::
 
-             MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
+            pip install -r requirements.txt
+            MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
 
 Citations
 ---------

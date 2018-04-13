@@ -8,7 +8,7 @@ which is extending :mod:`torch.nn` and
 Torch C and CUDA Backend
 ------------------------
 
-Given an example of the residual operation (in a mini-batch): 
+Given a simple example of the residual operation (in a mini-batch): 
 
 .. math::
     r_{ik} = x_i - c_k

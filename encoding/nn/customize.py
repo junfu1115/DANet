@@ -5,19 +5,15 @@
 ## Copyright (c) 2017
 ##
 ## This source code is licensed under the MIT-style license found in the
-## LICENSE file in the root directory of this source tree 
+## LICENSE file in the root directory of this source tree
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import math
+"""Encoding Custermized NN Module"""
 import torch
-from torch.autograd import Variable
-from torch.nn import Module, Parameter
+from torch.nn import Module, Sequential, Conv2d, ReLU, AdaptiveAvgPool2d
 from torch.nn import functional as F
 
-from ..parallel import my_data_parallel
 from .syncbn import BatchNorm2d
-from ..functions import view_each, upsample
-from .basic import *
 
 __all__ = ['GramMatrix', 'View', 'Sum', 'Mean', 'Normalize', 'PyramidPooling']
 
@@ -48,12 +44,7 @@ class View(Module):
             self.size = torch.Size(args)
 
     def forward(self, input):
-        if isinstance(input, Variable):
-            return input.view(self.size)
-        elif isinstance(input, tuple) or isinstance(input, list):
-            return view_each(input, self.size)
-        else:
-            raise RuntimeError('unknown input type')
+        return input.view(self.size)
 
 
 class Sum(Module):
@@ -63,12 +54,7 @@ class Sum(Module):
         self.keep_dim = keep_dim
 
     def forward(self, input):
-        if isinstance(input, Variable):
-            return input.sum(self.dim, self.keep_dim)
-        elif isinstance(input, tuple) or isinstance(input, list):
-            return my_data_parallel(self, input)
-        else:
-            raise RuntimeError('unknown input type')
+        return input.sum(self.dim, self.keep_dim)
 
 
 class Mean(Module):
@@ -78,12 +64,7 @@ class Mean(Module):
         self.keep_dim = keep_dim
 
     def forward(self, input):
-        if isinstance(input, Variable):
-            return input.mean(self.dim, self.keep_dim)
-        elif isinstance(input, tuple) or isinstance(input, list):
-            return my_data_parallel(self, input)
-        else:
-            raise RuntimeError('unknown input type')
+        return input.mean(self.dim, self.keep_dim)
 
 
 class Normalize(Module):
@@ -108,20 +89,15 @@ class Normalize(Module):
     def __init__(self, p=2, dim=1):
         super(Normalize, self).__init__()
         self.p = p
-        self.dim =dim
+        self.dim = dim
 
     def forward(self, x):
-        if isinstance(x, Variable):
-            return F.normalize(x, self.p, self.dim, eps=1e-10)
-        elif isinstance(x, tuple) or isinstance(x, list):
-            return my_data_parallel(self, x)
-        else:
-            raise RuntimeError('unknown input type')
+        return F.normalize(x, self.p, self.dim, eps=1e-10)
 
 
 class PyramidPooling(Module):
     """
-    Reference: 
+    Reference:
         Zhao, Hengshuang, et al. *"Pyramid scene parsing network."*
     """
     def __init__(self, in_channels):
@@ -146,31 +122,16 @@ class PyramidPooling(Module):
                                 ReLU(True))
 
     def _cat_each(self, x, feat1, feat2, feat3, feat4):
-        assert(len(x)==len(feat1))
+        assert(len(x) == len(feat1))
         z = []
         for i in range(len(x)):
-            z.append( torch.cat((x[i], feat1[i], feat2[i], feat3[i], feat4[i]), 1))
+            z.append(torch.cat((x[i], feat1[i], feat2[i], feat3[i], feat4[i]), 1))
         return z
 
     def forward(self, x):
-        if isinstance(x, Variable):
-            _, _, h, w = x.size()
-        elif isinstance(x, tuple) or isinstance(x, list):
-            _, _, h, w = x[0].size()
-        else:
-            raise RuntimeError('unknown input type')
-        feat1 = upsample(self.conv1(self.pool1(x)),(h,w),
-                              mode='bilinear')
-        feat2 = upsample(self.conv2(self.pool2(x)),(h,w),
-                              mode='bilinear')
-        feat3 = upsample(self.conv3(self.pool3(x)),(h,w), 
-                              mode='bilinear')
-        feat4 = upsample(self.conv4(self.pool4(x)),(h,w), 
-                              mode='bilinear')
-        if isinstance(x, Variable):
-            return torch.cat((x, feat1, feat2, feat3, feat4), 1)
-        elif isinstance(x, tuple) or isinstance(x, list):
-            return self._cat_each(x, feat1, feat2, feat3, feat4)
-        else:
-            raise RuntimeError('unknown input type')
-
+        _, _, h, w = x.size()
+        feat1 = F.upsample(self.conv1(self.pool1(x)), (h, w), mode='bilinear')
+        feat2 = F.upsample(self.conv2(self.pool2(x)), (h, w), mode='bilinear')
+        feat3 = F.upsample(self.conv3(self.pool3(x)), (h, w), mode='bilinear')
+        feat4 = F.upsample(self.conv4(self.pool4(x)), (h, w), mode='bilinear')
+        return torch.cat((x, feat1, feat2, feat3, feat4), 1)

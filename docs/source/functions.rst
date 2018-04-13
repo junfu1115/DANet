@@ -1,12 +1,22 @@
 .. role:: hidden
     :class: hidden-section
 
-Other Functions
-===============
+encoding.functions
+==================
 
 .. automodule:: encoding.functions
 
 .. currentmodule:: encoding.functions
+
+:hidden:`dilatedavgpool2d`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: dilatedavgpool2d
+
+:hidden:`aggregate`
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: aggregate
 
 
 :hidden:`scaledL2`
@@ -15,44 +25,7 @@ Other Functions
 .. autofunction:: scaledL2
 
 
-:hidden:`upsample`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+:hidden:`sum_square`
+~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: upsample
-
-
-:hidden:`dropout`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: dropout
-
-
-:hidden:`relu`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: relu
-
-
-:hidden:`view_each`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: view_each
-
-
-:hidden:`multi_each`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: multi_each
-
-
-:hidden:`sum_each`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: sum_each
-
-
-:hidden:`cat_each`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: cat_each
-
+.. autofunction:: sum_square

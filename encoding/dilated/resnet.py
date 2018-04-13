@@ -1,7 +1,7 @@
-from .. import nn
+"""Dilated ResNet"""
 import math
-from torch.autograd import Variable
 import torch.utils.model_zoo as model_zoo
+from .. import nn
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'BasicBlock', 'Bottleneck']
@@ -22,6 +22,8 @@ def conv3x3(in_planes, out_planes, stride=1):
 
 
 class BasicBlock(nn.Module):
+    """ResNet BasicBlock
+    """
     expansion = 1
     def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, first_dilation=1):
         super(BasicBlock, self).__init__()
@@ -55,25 +57,29 @@ class BasicBlock(nn.Module):
 
 
 class Bottleneck(nn.Module):
+    """ResNet Bottleneck
+    """
+    # pylint: disable=unused-argument
     expansion = 4
-    def __init__(self, inplanes, planes, stride=1, dilation=1, 
-            downsample=None, first_dilation=1):
+    def __init__(self, inplanes, planes, stride=1, dilation=1,
+                 downsample=None, first_dilation=1):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
+        self.conv2 = nn.Conv2d(
+            planes, planes, kernel_size=3, stride=stride,
             padding=dilation, dilation=dilation, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, 
-            bias=False)
+        self.conv3 = nn.Conv2d(
+            planes, planes * 4, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * 4)
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.dilation = dilation
         self.stride = stride
-    
+
     def _sum_each(self, x, y):
-        assert(len(x)==len(y))
+        assert(len(x) == len(y))
         z = []
         for i in range(len(x)):
             z.append(x[i]+y[i])
@@ -96,11 +102,7 @@ class Bottleneck(nn.Module):
         if self.downsample is not None:
             residual = self.downsample(x)
 
-        if isinstance(out, Variable):
-            out += residual
-        elif isinstance(out, tuple) or isinstance(out, list):
-            out = self._sum_each(out, residual)
-            
+        out += residual
         out = self.relu(out)
 
         return out
@@ -108,13 +110,14 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
     """Dilated Pre-trained ResNet Model, which preduces the stride of 8 featuremaps at conv5.
-    
+
     Reference:
 
         - He, Kaiming, et al. "Deep residual learning for image recognition." Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.
 
         - Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions."
     """
+    # pylint: disable=unused-variable
     def __init__(self, block, layers, num_classes=1000):
         self.inplanes = 64
         super(ResNet, self).__init__()
@@ -149,14 +152,14 @@ class ResNet(nn.Module):
 
         layers = []
         if dilation == 1 or dilation == 2:
-            layers.append(block(self.inplanes, planes, stride, dilation=1, 
+            layers.append(block(self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample, first_dilation=dilation))
-        elif dilation ==4:
-            layers.append(block(self.inplanes, planes, stride, dilation=2, 
+        elif dilation == 4:
+            layers.append(block(self.inplanes, planes, stride, dilation=2,
                                 downsample=downsample, first_dilation=dilation))
         else:
             raise RuntimeError("=> unknown dilation size: {}".format(dilation))
-            
+
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
             layers.append(block(self.inplanes, planes, dilation=dilation, first_dilation=dilation))
@@ -239,8 +242,3 @@ def resnet152(pretrained=False, **kwargs):
     if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['resnet152']))
     return model
-
-if __name__ == "__main__":
-    model = ResNet(Bottleneck, [3, 4, 23, 3])
-    model.load_state_dict(model_zoo.load_url(model_urls['resnet101']))
-    print(model.layer4)

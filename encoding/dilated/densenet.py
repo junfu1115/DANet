@@ -1,7 +1,8 @@
-import torch
-from torch.autograd import Variable
-import torch.utils.model_zoo as model_zoo
+"""Dilated DenseNet"""
 from collections import OrderedDict
+
+import torch
+import torch.utils.model_zoo as model_zoo
 
 from .. import nn
 from .. import functions as F
@@ -74,17 +75,18 @@ def densenet161(pretrained=False, **kwargs):
 
 
 class _DenseLayer(nn.Sequential):
+    # pylint: disable=expression-not-assigned
     def __init__(self, num_input_features, growth_rate, bn_size, drop_rate, dilation=1):
         super(_DenseLayer, self).__init__()
         self.add_module('norm.1', nn.BatchNorm2d(num_input_features)),
         self.add_module('relu.1', nn.ReLU(inplace=True)),
-        self.add_module('conv.1', nn.Conv2d(num_input_features, bn_size *
-                        growth_rate, kernel_size=1, stride=1, bias=False)),
+        self.add_module('conv.1', nn.Conv2d(
+            num_input_features, bn_size * growth_rate, kernel_size=1, stride=1, bias=False)),
         self.add_module('norm.2', nn.BatchNorm2d(bn_size * growth_rate)),
         self.add_module('relu.2', nn.ReLU(inplace=True)),
-        self.add_module('conv.2', nn.Conv2d(bn_size * growth_rate, growth_rate,
-                        kernel_size=3, stride=1, padding=dilation, dilation=dilation, 
-                        bias=False)),
+        self.add_module('conv.2', nn.Conv2d(
+            bn_size * growth_rate, growth_rate, kernel_size=3, stride=1,
+            padding=dilation, dilation=dilation, bias=False)),
         self.drop_rate = drop_rate
 
     def forward(self, x):
@@ -92,12 +94,7 @@ class _DenseLayer(nn.Sequential):
         if self.drop_rate > 0:
             new_features = F.dropout(new_features, p=self.drop_rate, training=self.training)
 
-        if isinstance(x, Variable):
-            return torch.cat([x, new_features], 1)
-        elif isinstance(x, tuple) or isinstance(x, list):
-            return F.cat_each(x, new_features, 1)
-        else:
-            raise RuntimeError('unknown input type')
+        return torch.cat([x, new_features], 1)
 
 
 class _DenseBlock(nn.Sequential):
@@ -115,8 +112,8 @@ class _Transition(nn.Sequential):
         self.add_module('relu', nn.ReLU(inplace=True))
         self.add_module('conv', nn.Conv2d(num_input_features, num_output_features,
                                           kernel_size=1, stride=1, bias=False))
-        self.add_module('pool', nn.DilatedAvgPool2d(kernel_size=2, stride=stride, 
-                                                 dilation=dilation))
+        self.add_module('pool', nn.DilatedAvgPool2d(kernel_size=2, stride=stride,
+                                                    dilation=dilation))
 
 
 class DenseNet(nn.Module):
@@ -150,8 +147,8 @@ class DenseNet(nn.Module):
         ]))
 
         # Each denseblock
-        strides = [1,2,1,1]
-        dilations = [1,1,2,4]
+        strides = [1, 2, 1, 1]
+        dilations = [1, 1, 2, 4]
         num_features = num_init_features
         for i, num_layers in enumerate(block_config):
             block = _DenseBlock(num_layers=num_layers, num_input_features=num_features,
@@ -173,8 +170,6 @@ class DenseNet(nn.Module):
     def forward(self, x):
         features = self.features(x)
         out = F.relu(features, inplace=True)
-        """
-        out = F.avg_pool2d(out, kernel_size=7).view(features.size(0), -1)
-        out = self.classifier(out)
-        """
+        # out = F.avg_pool2d(out, kernel_size=7).view(features.size(0), -1)
+        # out = self.classifier(out)
         return out

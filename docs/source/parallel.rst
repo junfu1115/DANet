@@ -4,8 +4,13 @@
 Data Parallel
 =============
 
-- Current PyTorch DataParallel Table is not supporting mutl-gpu loss calculation, which makes the gpu memory usage very in-efficient. We address this issue here by doing CriterionDataParallel. 
-- :class:`encoding.parallel.SelfDataParallel` is compatible with Synchronized Batch Normalization :class:`encoding.nn.BatchNorm2d`.
+- Current PyTorch DataParallel Table is not supporting mutl-gpu loss calculation, which makes the gpu memory usage very in-balance. We address this issue here by doing Model & CriterionDataParallel. 
+
+.. note::
+    This code is provided together with the paper
+
+    * Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. "Context Encoding for Semantic Segmentation"  *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2018*
+
 
 .. automodule:: encoding.parallel
 .. currentmodule:: encoding.parallel
@@ -22,21 +27,8 @@ Data Parallel
 .. autoclass:: CriterionDataParallel
     :members:
 
-:hidden:`SelfDataParallel`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: SelfDataParallel
-    :members:
+:hidden:`allreduce`
+~~~~~~~~~~~~~~~~~~~
 
-:hidden:`AllReduce`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: AllReduce
-    :members:
-
-:hidden:`Broadcast`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: Broadcast
-    :members:
-
+.. autofunction:: allreduce

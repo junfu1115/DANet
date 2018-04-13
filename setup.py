@@ -23,16 +23,17 @@ class install(setuptools.command.install.install):
     def run(self):
         self.create_version_file()
         setuptools.command.install.install.run(self)
-        subprocess.check_call("python test/test.py".split())
+        subprocess.check_call("python tests/unit_test.py".split())
     @staticmethod
     def create_version_file():
         global version, cwd
         print('-- Building version ' + version)
         version_path = os.path.join(cwd, 'encoding', 'version.py')
         with open(version_path, 'w') as f:
+            f.write('"""This is encoding version file."""\n')
             f.write("__version__ = '{}'\n".format(version))
 
-version = '0.2.0'
+version = '0.3.0'
 try:
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], 
         cwd=cwd).decode('ascii').strip()

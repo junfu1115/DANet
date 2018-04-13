@@ -9,6 +9,8 @@
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import encoding
+import unittest
+
 import torch
 import torch.nn.functional as F
 from torch.autograd import Variable, gradcheck
@@ -51,7 +53,7 @@ def test_encoding():
     layer = encoding.nn.Encoding(C,K).double().cuda()
     test = gradcheck(layer, input, eps=1e-6, atol=1e-4)
     print('Testing encoding(): {}'.format(test))
-    
+
 
 def test_sum_square():
     B,C,H,W = 2,3,4,5
@@ -62,17 +64,15 @@ def test_sum_square():
     print('Testing sum_square(): {}'.format(test))
 
 
-def test_dilated_avgpool():
-    X = Variable(torch.cuda.FloatTensor(1,3,75,75).uniform_(-0.5,0.5))
-    input = (X,)
-    layer = encoding.nn.DilatedAvgPool2d(kernel_size=2, stride=1, padding=0, dilation=2)
-    test = gradcheck(layer, input, eps=1e-6, atol=1e-4)
-    print('Testing dilatedavgpool2d(): {}'.format(test))
+def test_all_reduce():
+    ngpu = torch.cuda.device_count()
+    X = [torch.DoubleTensor(2,4,4).uniform_(-0.5,0.5).cuda(i) for i in range(ngpu)]
+    for x in X:
+        x.requires_grad = True
+    Y = encoding.parallel.allreduce(*X)
+    assert (len(X) == len(Y))
 
 
 if __name__ == '__main__':
-    test_scaledL2()
-    test_encoding() 
-    test_aggregate()
-    test_sum_square()
-    test_dilated_avgpool()
+    import nose
+    nose.runmodule()

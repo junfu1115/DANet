@@ -4,9 +4,8 @@
 Synchronized BatchNorm
 ======================
 
-The current BN is implementated insynchronized accross the gpus, which is a big problem for memory consuming tasks such as Semantic Segmenation, since the mini-batch is very small. 
-To synchronize the batchnorm accross multiple gpus is not easy to implment within the current Dataparallel framework. We address this difficulty by making each layer 'self-parallel' :class:`encoding.parallel.SelfDataParallel`, that is accepting the inputs from multi-gpus. Therefore, we can handle the synchronizing across gpus.
-
+.. note::
+    The original ``Self-Parallel`` version of ``BatchNorm`` has been deprecated in favor of PyTorch Compatible :class:`encoding.nn.BatchNorm2d`.
 
 .. currentmodule:: encoding.nn
 
@@ -44,9 +43,3 @@ Functions
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: batchnormeval
-
-:hidden:`sum_square`
-~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: sum_square
-

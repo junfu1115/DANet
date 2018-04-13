@@ -1,2 +1,2 @@
 tqdm
-dominate
+nose

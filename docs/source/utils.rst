@@ -24,8 +24,3 @@ Useful util functions.
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: save_checkpoint
-
-:hidden:`progress_bar`
-~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: progress_bar

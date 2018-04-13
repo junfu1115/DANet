@@ -5,13 +5,11 @@
 ## Copyright (c) 2017
 ##
 ## This source code is licensed under the MIT-style license found in the
-## LICENSE file in the root directory of this source tree 
+## LICENSE file in the root directory of this source tree
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-import threading
+"""Functions for Encoding Layer"""
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 from torch.autograd import Function, Variable
 from .._ext import encoding_lib
 
@@ -19,13 +17,13 @@ __all__ = ['aggregate', 'scaledL2']
 
 class _aggregate(Function):
     @staticmethod
-    def forward(self, A, X, C):
+    def forward(ctx, A, X, C):
         # A \in(BxNxK) R \in(BxNxKxD) => E \in(BxNxD)
-        self.save_for_backward(A, X, C)
-        B, N, K = A.size()
+        ctx.save_for_backward(A, X, C)
+        B, _, K = A.size()
         D = X.size(2)
         with torch.cuda.device_of(A):
-            E = A.new(B,K,D)
+            E = A.new(B, K, D)
         if isinstance(A, torch.cuda.FloatTensor):
             with torch.cuda.device_of(A):
                 encoding_lib.Encoding_Float_aggregate_forward(E, A, X, C)
@@ -37,19 +35,19 @@ class _aggregate(Function):
         return E
 
     @staticmethod
-    def backward(self, gradE):
-        A, X, C = self.saved_variables
+    def backward(ctx, gradE):
+        A, X, C = ctx.saved_variables
         with torch.cuda.device_of(A):
             gradA = Variable(A.data.new().resize_as_(A.data))
             gradX = Variable(A.data.new().resize_as_(X.data))
             gradC = Variable(A.data.new().resize_as_(C.data))
         if isinstance(A.data, torch.cuda.FloatTensor):
             with torch.cuda.device_of(A.data):
-                encoding_lib.Encoding_Float_aggregate_backward(gradA.data, 
+                encoding_lib.Encoding_Float_aggregate_backward(gradA.data, \
                     gradE.data, A.data, X.data, C.data)
         elif isinstance(A.data, torch.cuda.DoubleTensor):
             with torch.cuda.device_of(A.data):
-                encoding_lib.Encoding_Double_aggregate_backward(gradA.data, 
+                encoding_lib.Encoding_Double_aggregate_backward(gradA.data, \
                     gradE.data, A.data, X.data, C.data)
         else:
             raise RuntimeError('Unimplemented data type!')
@@ -59,14 +57,17 @@ class _aggregate(Function):
 
 def aggregate(A, X, C):
     r"""
-    Aggregate operation, aggregate the residuals of inputs (:math:`X`) with repect to the codewords (:math:`C`) with assignment weights (:math:`A`).
-    
+    Aggregate operation, aggregate the residuals of inputs (:math:`X`) with repect
+    to the codewords (:math:`C`) with assignment weights (:math:`A`).
 
     .. math::
         e_{k} = \sum_{i=1}^{N} a_{ik} (x_i - d_k)
 
     Shape:
-        - Input: :math:`A\in\mathcal{R}^{B\times N\times K}` :math:`X\in\mathcal{R}^{B\times N\times D}` :math:`C\in\mathcal{R}^{K\times D}`  (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)
+        - Input: :math:`A\in\mathcal{R}^{B\times N\times K}`
+          :math:`X\in\mathcal{R}^{B\times N\times D}` :math:`C\in\mathcal{R}^{K\times D}`
+          (where :math:`B` is batch, :math:`N` is total number of features,
+          :math:`K` is number is codewords, :math:`D` is feature dimensions.)
         - Output: :math:`E\in\mathcal{R}^{B\times K\times D}`
 
     Examples:
@@ -82,11 +83,11 @@ def aggregate(A, X, C):
 
 class _scaledL2(Function):
     @staticmethod
-    def forward(self, X, C, S):
-        B,N,D = X.size()
+    def forward(ctx, X, C, S):
+        B, N, _ = X.size()
         K = C.size(0)
         with torch.cuda.device_of(X):
-            SL = X.new(B,N,K)
+            SL = X.new(B, N, K)
         if isinstance(X, torch.cuda.FloatTensor):
             with torch.cuda.device_of(X):
                 encoding_lib.Encoding_Float_scaledl2_forward(SL, X, C, S)
@@ -95,12 +96,12 @@ class _scaledL2(Function):
                 encoding_lib.Encoding_Double_scaledl2_forward(SL, X, C, S)
         else:
             raise RuntimeError('Unimplemented data type!')
-        self.save_for_backward(X, C, S, SL)
+        ctx.save_for_backward(X, C, S, SL)
         return SL
 
     @staticmethod
-    def backward(self, gradSL):
-        X, C, S, SL = self.saved_variables
+    def backward(ctx, gradSL):
+        X, C, S, SL = ctx.saved_variables
         K = C.size(0)
         with torch.cuda.device_of(X.data):
             gradX = Variable(X.data.new().resize_as_(X.data))
@@ -108,15 +109,15 @@ class _scaledL2(Function):
             gradS = Variable(X.data.new().resize_as_(S.data))
         if isinstance(X.data, torch.cuda.FloatTensor):
             with torch.cuda.device_of(X.data):
-                encoding_lib.Encoding_Float_scaledl2_backward(gradSL.data, 
+                encoding_lib.Encoding_Float_scaledl2_backward(gradSL.data, \
                     gradX.data, gradC.data, X.data, C.data, S.data)
         elif isinstance(X.data, torch.cuda.DoubleTensor):
             with torch.cuda.device_of(X.data):
-                encoding_lib.Encoding_Double_scaledl2_backward(gradSL.data, 
+                encoding_lib.Encoding_Double_scaledl2_backward(gradSL.data, \
                     gradX.data, gradC.data, X.data, C.data, S.data)
         else:
             raise RuntimeError('Unimplemented data type!')
-        gradS.data.copy_((gradSL*(SL/S.view(1,1,K))).sum(0).sum(0).data)
+        gradS.data.copy_((gradSL*(SL/S.view(1, 1, K))).sum(0).sum(0).data)
         return gradX, gradC, gradS
 
 
@@ -128,10 +129,11 @@ def scaledL2(X, C, S):
         sl_{ik} = s_k \|x_i-c_k\|^2
 
     Shape:
-        - Input: :math:`X\in\mathcal{R}^{B\times N\times D}` :math:`C\in\mathcal{R}^{K\times D}` :math:`S\in \mathcal{R}^K` (where :math:`B` is batch, :math:`N` is total number of features, :math:`K` is number is codewords, :math:`D` is feature dimensions.)
+        - Input: :math:`X\in\mathcal{R}^{B\times N\times D}`
+          :math:`C\in\mathcal{R}^{K\times D}` :math:`S\in \mathcal{R}^K`
+          (where :math:`B` is batch, :math:`N` is total number of features,
+          :math:`K` is number is codewords, :math:`D` is feature dimensions.)
         - Output: :math:`E\in\mathcal{R}^{B\times N\times K}`
 
     """
     return _scaledL2.apply(X, C, S)
-
-

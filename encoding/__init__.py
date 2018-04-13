@@ -5,13 +5,9 @@
 ## Copyright (c) 2017
 ##
 ## This source code is licensed under the MIT-style license found in the
-## LICENSE file in the root directory of this source tree 
+## LICENSE file in the root directory of this source tree
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+"""An optimized PyTorch package with CUDA backend."""
 from .version import __version__
-
-import encoding.nn
-import encoding.functions
-import encoding.dilated
-import encoding.parallel 
-import encoding.utils
+from . import nn, functions, dilated, parallel, utils
