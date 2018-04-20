@@ -8,6 +8,9 @@ How BN works?
 
 BN layer was introduced in the paper `Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift <https://arxiv.org/abs/1502.03167>`_, which dramatically speed up the training process of the network (enables larger learning rate) and makes the network less sensitive to the weight initialization. 
 
+.. image:: http://hangzh.com/blog/images/bn1.png
+    :align: center
+
 - Forward Pass: 
     For the input data :math:`X={x_1, ...x_N}`, the data are normalized to be zero-mean and unit-variance, then scale and shit:
 
@@ -31,6 +34,9 @@ Why Synchronize BN?
 
 - Standard Implementations of BN in public frameworks (suck as Caffe, MXNet, Torch, TF, PyTorch) are unsynchronized, which means that the data are normalized within each GPU. Therefore the `working batch-size` of the BN layer is `BatchSize/nGPU` (batch-size in each GPU). 
 
+.. image:: http://hangzh.com/blog/images/bn2.png
+    :align: center
+
 - Since the `working batch-size` is typically large enough for standard vision tasks, such as classification and detection, there is no need to synchronize BN layer during the training. The synchronization will slow down the training.
 
 - However, for the Semantic Segmentation task, the state-of-the-art approaches typically adopt dilated convoluton, which is very memory consuming. The `working bath-size` can be too small for BN layers (2 or 4 in each GPU) when using larger/deeper pre-trained networks, such as :class:`encoding.dilated.ResNet` or :class:`encoding.dilated.DenseNet`. 
@@ -47,8 +53,10 @@ Suppose we have :math:`K` number of GPUs, :math:`sum(x)_k` and :math:`sum(x^2)_k
     * :math:`\frac{d_\ell}{d_{x_i}}=\frac{d_\ell}{d_{y_i}}\frac{\gamma}{\sigma}` can be calculated locally in each GPU.
     * Calculate the gradient of :math:`sum(x)` and :math:`sum(x^2)` individually in each GPU :math:`\frac{d_\ell}{d_{sum(x)_k}}` and :math:`\frac{d_\ell}{d_{sum(x^2)_k}}`. 
 
-    * Then Sync the gradient (automatically handled by :class:`encoding.parallel.allreduce`) and continue the backward.
+    * Then Sync the gradient (automatically handled by :class:`encoding.parallel.AllReduce`) and continue the backward.
 
+.. image:: http://hangzh.com/blog/images/bn3.png
+    :align: center
 
 Citation
 --------

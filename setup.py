@@ -23,7 +23,7 @@ class install(setuptools.command.install.install):
     def run(self):
         self.create_version_file()
         setuptools.command.install.install.run(self)
-        subprocess.check_call("python tests/unit_test.py".split())
+        #subprocess.check_call("python tests/unit_test.py".split())
     @staticmethod
     def create_version_file():
         global version, cwd

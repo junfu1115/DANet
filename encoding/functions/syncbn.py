@@ -55,9 +55,7 @@ class _sum_square(Function):
 
 
 def sum_square(input):
-    r"""
-    Calculate sum of elements and sum of squares for Batch Normalization.
-    """
+    r"""Calculate sum of elements and sum of squares for Batch Normalization"""
     return _sum_square.apply(input)
 
 

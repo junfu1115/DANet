@@ -69,7 +69,7 @@ def test_all_reduce():
     X = [torch.DoubleTensor(2,4,4).uniform_(-0.5,0.5).cuda(i) for i in range(ngpu)]
     for x in X:
         x.requires_grad = True
-    Y = encoding.parallel.allreduce(*X)
+    Y = encoding.parallel.allreduce(1, *X)
     assert (len(X) == len(Y))
 
 
