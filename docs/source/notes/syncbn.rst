@@ -53,7 +53,7 @@ Suppose we have :math:`K` number of GPUs, :math:`sum(x)_k` and :math:`sum(x^2)_k
     * :math:`\frac{d_\ell}{d_{x_i}}=\frac{d_\ell}{d_{y_i}}\frac{\gamma}{\sigma}` can be calculated locally in each GPU.
     * Calculate the gradient of :math:`sum(x)` and :math:`sum(x^2)` individually in each GPU :math:`\frac{d_\ell}{d_{sum(x)_k}}` and :math:`\frac{d_\ell}{d_{sum(x^2)_k}}`. 
 
-    * Then Sync the gradient (automatically handled by :class:`encoding.parallel.AllReduce`) and continue the backward.
+    * Then Sync the gradient (automatically handled by :class:`encoding.parallel.allreduce`) and continue the backward.
 
 .. image:: http://hangzh.com/blog/images/bn3.png
     :align: center

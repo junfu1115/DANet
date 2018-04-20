@@ -13,15 +13,12 @@ import threading
 import torch
 from torch.autograd import Function
 import torch.cuda.comm as comm
-from torch.autograd import Variable
-from torch.nn.modules import Module
 from torch.nn.parallel.data_parallel import DataParallel
-from torch.nn.parallel.scatter_gather import scatter_kwargs
 from torch.nn.parallel.replicate import replicate
 from torch.nn.parallel.parallel_apply import get_a_var
 from torch.nn.parallel._functions import ReduceAddCoalesced, Broadcast
 
-__all__ = ['allreduce', 'ModelDataParallel', 'CriterionDataParallel']
+__all__ = ['allreduce', 'DataParallelModel', 'DataParallelCriterion']
 
 
 def allreduce(num_inputs, *inputs):
@@ -162,4 +159,3 @@ def _criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices
             raise output
         outputs.append(output)
     return outputs
-

@@ -10,7 +10,7 @@ Created by `Hang Zhang <http://hangzh.com/>`_
 An optimized PyTorch package with CUDA backend. 
 
 .. note::
-    PyTorch compatible Synchronized Cross-GPU :class:`encoding.nn.BatchNorm2d` has been released.
+    Please checkout the PyTorch compatible Synchronized Cross-GPU :class:`encoding.nn.BatchNorm2d` and the `mnist example <https://github.com/zhanghang1989/PyTorch-SyncBatchNorm>`_.
 
 .. toctree::
    :glob:
