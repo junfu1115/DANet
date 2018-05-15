@@ -10,12 +10,14 @@
 
 """Encoding Custermized NN Module"""
 import torch
-from torch.nn import Module, Sequential, Conv2d, ReLU, AdaptiveAvgPool2d
+from torch.nn import Module, Sequential, Conv2d, ReLU, AdaptiveAvgPool2d, \
+    NLLLoss, BCELoss, CrossEntropyLoss
 from torch.nn import functional as F
 
 from .syncbn import BatchNorm2d
 
-__all__ = ['GramMatrix', 'View', 'Sum', 'Mean', 'Normalize', 'PyramidPooling']
+__all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
+           'Normalize', 'PyramidPooling']
 
 
 class GramMatrix(Module):
@@ -30,6 +32,46 @@ class GramMatrix(Module):
         features_t = features.transpose(1, 2)
         gram = features.bmm(features_t) / (ch * h * w)
         return gram
+
+def softmax_crossentropy(input, target, weight, size_average, ignore_index, reduce=True):
+    return F.nll_loss(F.log_softmax(input, 1), target, weight,
+                      size_average, ignore_index, reduce)
+
+class SegmentationLosses(CrossEntropyLoss):
+    """2D Cross Entropy Loss with Auxilary Loss"""
+    def __init__(self, aux, aux_weight=0.2, weight=None, size_average=True, ignore_index=-1):
+        super(SegmentationLosses, self).__init__(weight, size_average, ignore_index)
+        self.aux = aux
+        self.aux_weight = aux_weight
+
+    def forward(self, *inputs):
+        if not self.aux:
+            return super(SegmentationLosses, self).forward(*inputs)
+        pred1, pred2, target = tuple(inputs)
+        loss1 = super(SegmentationLosses, self).forward(pred1, target)
+        loss2 = super(SegmentationLosses, self).forward(pred2, target)
+        return loss1 + self.aux_weight * loss2
+
+"""
+class SegmentationLosses(Module):
+    def __init__(self, aux, aux_weight=0.2, weight=None, size_average=True, ignore_index=-1):
+        super(SegmentationLosses, self).__init__()
+        self.aux = aux
+        self.aux_weight = aux_weight
+        # Somehow the size averge is not handled correctly on multi-gpu, so we average by ourself.
+        self.nll_loss = NLLLoss(weight, ignore_index=ignore_index, reduce=True)
+
+    def _forward_each(self, inputs, targets):
+        return self.nll_loss(F.log_softmax(inputs, dim=1), targets)
+
+    def forward(self, *inputs):
+        if not self.aux:
+            return self._forward_each(*inputs)
+        pred1, pred2, target = tuple(inputs)
+        loss1 = self._forward_each(pred1, target)
+        loss2 = self._forward_each(pred2, target)
+        return loss1 + self.aux_weight * loss2
+"""
 
 
 class View(Module):

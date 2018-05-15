@@ -17,6 +17,8 @@ THCDeviceTensor<real, Dim> devicetensor(THCState *state, THCTensor *t) {
         return THCDeviceTensor<real, Dim>();
     }
     int inDim = THCTensor_(nDimension)(state, t);
+    return toDeviceTensor<real, Dim>(state, t);
+    /*
     if (inDim == Dim) {
         return toDeviceTensor<real, Dim>(state, t);
     }
@@ -33,6 +35,7 @@ THCDeviceTensor<real, Dim> devicetensor(THCState *state, THCTensor *t) {
         }
     }
     return THCDeviceTensor<real, Dim>(THCTensor_(data)(state, t), size);
+    */
 }
 
 struct Encoding_(Float2)

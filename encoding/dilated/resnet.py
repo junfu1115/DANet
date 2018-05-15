@@ -1,7 +1,8 @@
 """Dilated ResNet"""
 import math
 import torch.utils.model_zoo as model_zoo
-from .. import nn
+#from .. import nn
+import torch.nn as nn
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'BasicBlock', 'Bottleneck']
@@ -25,15 +26,16 @@ class BasicBlock(nn.Module):
     """ResNet BasicBlock
     """
     expansion = 1
-    def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, first_dilation=1):
+    def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, first_dilation=1,
+                 norm_layer=None):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=3, stride=stride,
                                padding=dilation, dilation=dilation, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn1 = norm_layer(planes)
+        self.relu = nn.ReLU(inplace=False)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1,
                                padding=first_dilation, dilation=first_dilation, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.bn2 = norm_layer(planes)
         self.downsample = downsample
         self.stride = stride
 
@@ -62,18 +64,18 @@ class Bottleneck(nn.Module):
     # pylint: disable=unused-argument
     expansion = 4
     def __init__(self, inplanes, planes, stride=1, dilation=1,
-                 downsample=None, first_dilation=1):
+                 downsample=None, first_dilation=1, norm_layer=None):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
+        self.bn1 = norm_layer(planes)
         self.conv2 = nn.Conv2d(
             planes, planes, kernel_size=3, stride=stride,
             padding=dilation, dilation=dilation, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
+        self.bn2 = norm_layer(planes)
         self.conv3 = nn.Conv2d(
             planes, planes * 4, kernel_size=1, bias=False)
-        self.bn3 = nn.BatchNorm2d(planes * 4)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn3 = norm_layer(planes * 4)
+        self.relu = nn.ReLU(inplace=False)
         self.downsample = downsample
         self.dilation = dilation
         self.stride = stride
@@ -118,18 +120,18 @@ class ResNet(nn.Module):
         - Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions."
     """
     # pylint: disable=unused-variable
-    def __init__(self, block, layers, num_classes=1000):
+    def __init__(self, block, layers, num_classes=1000, norm_layer=None):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
-        self.bn1 = nn.BatchNorm2d(64)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn1 = norm_layer(64)
+        self.relu = nn.ReLU(inplace=False)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0])
-        self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=1, dilation=2)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=1, dilation=4)
+        self.layer1 = self._make_layer(block, 64, layers[0], norm_layer=norm_layer)
+        self.layer2 = self._make_layer(block, 128, layers[1], stride=2, norm_layer=norm_layer)
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=1, dilation=2, norm_layer=norm_layer)
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=1, dilation=4, norm_layer=norm_layer)
         self.avgpool = nn.AvgPool2d(7)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -137,32 +139,33 @@ class ResNet(nn.Module):
             if isinstance(m, nn.Conv2d):
                 n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
                 m.weight.data.normal_(0, math.sqrt(2. / n))
-            elif isinstance(m, nn.BatchNorm2d):
+            elif isinstance(m, norm_layer):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
+    def _make_layer(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
                           kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(planes * block.expansion),
+                norm_layer(planes * block.expansion),
             )
 
         layers = []
         if dilation == 1 or dilation == 2:
             layers.append(block(self.inplanes, planes, stride, dilation=1,
-                                downsample=downsample, first_dilation=dilation))
+                                downsample=downsample, first_dilation=dilation, norm_layer=norm_layer))
         elif dilation == 4:
             layers.append(block(self.inplanes, planes, stride, dilation=2,
-                                downsample=downsample, first_dilation=dilation))
+                                downsample=downsample, first_dilation=dilation, norm_layer=norm_layer))
         else:
             raise RuntimeError("=> unknown dilation size: {}".format(dilation))
 
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, dilation=dilation, first_dilation=dilation))
+            layers.append(block(self.inplanes, planes, dilation=dilation, first_dilation=dilation,
+                                norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
 

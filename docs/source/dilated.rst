@@ -1,7 +1,7 @@
 .. role:: hidden
     :class: hidden-section
 
-Dilated Networks
+encoding.dilated
 ================
 
 We provide correct dilated pre-trained ResNet and DenseNet (stride of 8) for semantic segmentation. 

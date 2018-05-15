@@ -53,7 +53,9 @@ def main():
     print(model)
     # criterion and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = get_optimizer(args, model, False)
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr,
+                                momentum=args.momentum,
+                                weight_decay=args.weight_decay)
     if args.cuda:
         model.cuda()
         # Please use CUDA_VISIBLE_DEVICES to control the number of gpus

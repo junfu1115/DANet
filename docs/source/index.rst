@@ -10,7 +10,7 @@ Created by `Hang Zhang <http://hangzh.com/>`_
 An optimized PyTorch package with CUDA backend. 
 
 .. note::
-    Please checkout the PyTorch compatible Synchronized Cross-GPU :class:`encoding.nn.BatchNorm2d` and the `mnist example <https://github.com/zhanghang1989/PyTorch-SyncBatchNorm>`_.
+    PyTorch compatible Synchronized Cross-GPU :class:`encoding.nn.SyncBatchNorm2d` and the `MNIST example <https://github.com/zhanghang1989/PyTorch-SyncBatchNorm>`_.
 
 .. toctree::
    :glob:
@@ -30,8 +30,7 @@ An optimized PyTorch package with CUDA backend.
    :maxdepth: 1
    :caption: Package Reference
 
-   encoding
-   syncbn
+   nn
    parallel
    dilated
    functions

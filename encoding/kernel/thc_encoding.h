@@ -8,7 +8,7 @@
  * LICENSE file in the root directory of this source tree 
  *+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
  */
-#include <THC/THC.h>
+#include <THC.h>
 #include "THCDeviceTensor.cuh"
 #include "THCDeviceTensorUtils.cuh"
 
