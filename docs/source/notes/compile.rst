@@ -5,9 +5,9 @@ Install and Citations
 Install from Source
 -------------------
 
-    * Install PyTorch from Source (recommended). Please follow the `PyTorch instructions <https://github.com/pytorch/pytorch#from-source>`_.
-
-    * Install this package
+    * Install PyTorch by following the `PyTorch instructions <http://pytorch.org/>`_.
+ 
+    * Install from source
 
         - Clone the repo::
 
@@ -15,12 +15,10 @@ Install from Source
 
         - On Linux::
 
-            pip install -r requirements.txt
             python setup.py install
 
         - On Mac OSX::
 
-            pip install -r requirements.txt
             MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
 
 Citations

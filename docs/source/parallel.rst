@@ -1,10 +1,10 @@
 .. role:: hidden
     :class: hidden-section
 
-Data Parallel
-=============
+encoding.parallel
+=================
 
-- Current PyTorch DataParallel Table is not supporting mutl-gpu loss calculation, which makes the gpu memory usage very in-balance. We address this issue here by doing Model & CriterionDataParallel. 
+- Current PyTorch DataParallel Table is not supporting mutl-gpu loss calculation, which makes the gpu memory usage very in-balance. We address this issue here by doing DataParallel for Model & Criterion. 
 
 .. note::
     This code is provided together with the paper
@@ -15,16 +15,16 @@ Data Parallel
 .. automodule:: encoding.parallel
 .. currentmodule:: encoding.parallel
 
-:hidden:`ModelDataParallel`
+:hidden:`DataParallelModel`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: ModelDataParallel
+.. autoclass:: DataParallelModel
     :members:
 
-:hidden:`CriterionDataParallel`
+:hidden:`DataParallelCriterion`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: CriterionDataParallel
+.. autoclass:: DataParallelCriterion
     :members:
 
 

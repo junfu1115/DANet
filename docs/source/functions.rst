@@ -4,10 +4,20 @@
 encoding.functions
 ==================
 
-.. automodule:: encoding.functions
+.. automodule:: encoding.Functions
 
 .. currentmodule:: encoding.functions
 
+
+:hidden:`batchnorm`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: batchnorm
+
+:hidden:`batchnormeval`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: batchnormeval
 :hidden:`dilatedavgpool2d`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -33,7 +33,7 @@ class install(setuptools.command.install.install):
             f.write('"""This is encoding version file."""\n')
             f.write("__version__ = '{}'\n".format(version))
 
-version = '0.3.0'
+version = '0.4.0'
 try:
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], 
         cwd=cwd).decode('ascii').strip()
@@ -41,22 +41,36 @@ try:
 except Exception:
     pass
 
+try:
+    import pypandoc
+    readme = pypandoc.convert('README.md', 'rst')
+except(IOError, ImportError):
+    readme = open('README.md').read()
+
+requirements = [
+    'numpy',
+    'tqdm',
+    'nose',
+    'torch>=0.3.1',
+    'cffi>=1.0.0',
+]
+
 setup(
     name="encoding",
     version=version,
-    description="PyTorch Encoding",
-    url="https://github.com/zhanghang1989/PyTorch-Encoding",
     author="Hang Zhang",
-    author_email="zhang.hang@rutgers.edu",
-    # Require cffi.
-    install_requires=["cffi>=1.0.0"],
-    setup_requires=["cffi>=1.0.0"],
-    # Exclude the build files.
-    packages=find_packages(exclude=["build"]),
-    # Package where to put the extensions. Has to be a prefix of build.py.
-    package_data={'encoding': [
+    author_email="zhanghang0704@gmail.com",
+    url="https://github.com/zhanghang1989/PyTorch-Encoding",
+    description="PyTorch Encoding Package",
+    long_description=readme,
+    license='MIT',
+    install_requires=requirements,
+    packages=find_packages(exclude=["tests", "experiments"]),
+    package_data={ 'encoding': [
         'lib/*.so*', 'lib/*.dylib*',
+        '_ext/encoding_lib/*.so', '_ext/encoding_lib/*.dylib',
         'kernel/*.h', 'kernel/generic/*h',
+        'src/*.h',
     ]},
     ext_package="",
     # Extensions to compile.

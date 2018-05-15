@@ -11,31 +11,50 @@
 """Encoding Data Parallel"""
 import threading
 import torch
-from torch.autograd import Function
+from torch.autograd import Variable, Function
 import torch.cuda.comm as comm
 from torch.nn.parallel.data_parallel import DataParallel
-from torch.nn.parallel.replicate import replicate
 from torch.nn.parallel.parallel_apply import get_a_var
 from torch.nn.parallel._functions import ReduceAddCoalesced, Broadcast
 
 __all__ = ['allreduce', 'DataParallelModel', 'DataParallelCriterion']
 
+torch_ver = torch.__version__[:3]
 
-def allreduce(num_inputs, *inputs):
+def allreduce(*inputs):
     """Cross GPU all reduce autograd operation for calculate mean and
     variance in SyncBN.
     """
-    target_gpus = [inputs[i].get_device() for i in range(0, len(inputs), num_inputs)]
-    result = ReduceAddCoalesced.apply(target_gpus[0], num_inputs, *inputs)
-    outputs = Broadcast.apply(target_gpus, *result)
-    assert len(outputs) == len(inputs)
-    return outputs
+    return AllReduce.apply(*inputs)
+
+class AllReduce(Function):
+    @staticmethod
+    def forward(ctx, num_inputs, *inputs):
+        ctx.num_inputs = num_inputs
+        ctx.target_gpus = [inputs[i].get_device() for i in range(0, len(inputs), num_inputs)]
+        inputs = [inputs[i:i + num_inputs]
+                 for i in range(0, len(inputs), num_inputs)]
+        # sort before reduce sum
+        inputs = sorted(inputs, key=lambda i: i[0].get_device())
+        results = comm.reduce_add_coalesced(inputs, ctx.target_gpus[0])
+        outputs = comm.broadcast_coalesced(results, ctx.target_gpus)
+        return tuple([t for tensors in outputs for t in tensors])
+
+    @staticmethod
+    def backward(ctx, *inputs):
+        inputs = [i.data for i in inputs]
+        inputs = [inputs[i:i + ctx.num_inputs]
+                 for i in range(0, len(inputs), ctx.num_inputs)]
+        results = comm.reduce_add_coalesced(inputs, ctx.target_gpus[0])
+        outputs = comm.broadcast_coalesced(results, ctx.target_gpus)
+        return (None,) + tuple([Variable(t) for tensors in outputs for t in tensors])
 
 
 class Reduce(Function):
     @staticmethod
     def forward(ctx, *inputs):
         ctx.target_gpus = [inputs[i].get_device() for i in range(len(inputs))]
+        inputs = sorted(inputs, key=lambda i: i.get_device())
         return comm.reduce_add(inputs)
 
     @staticmethod
@@ -101,12 +120,13 @@ class DataParallelCriterion(DataParallel):
         # scattering the targets instead
         if not self.device_ids:
             return self.module(inputs, *targets, **kwargs)
-        targets, kwargs = inputs(targets, kwargs, self.device_ids)
+        targets, kwargs = self.scatter(targets, kwargs, self.device_ids)
         if len(self.device_ids) == 1:
             return self.module(inputs, *targets[0], **kwargs[0])
-        replicas = replicate(self.module, self.device_ids[:len(inputs)])
+        replicas = self.replicate(self.module, self.device_ids[:len(inputs)])
         outputs = _criterion_parallel_apply(replicas, inputs, targets, kwargs)
         return Reduce.apply(*outputs) / len(outputs)
+        #return self.gather(outputs, self.output_device).mean()
 
 
 def _criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices=None):
@@ -123,14 +143,16 @@ def _criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices
 
     lock = threading.Lock()
     results = {}
-    grad_enabled = torch.is_grad_enabled()
+    if torch_ver != "0.3":
+        grad_enabled = torch.is_grad_enabled()
 
     def _worker(i, module, input, target, kwargs, device=None):
-        torch.set_grad_enabled(grad_enabled)
+        if torch_ver != "0.3":
+            torch.set_grad_enabled(grad_enabled)
         if device is None:
             device = get_a_var(input).get_device()
         try:
-            with torch.cuda.device_of(var_input):
+            with torch.cuda.device(device):
                 output = module(*(input + target), **kwargs)
             with lock:
                 results[i] = output
@@ -142,7 +164,7 @@ def _criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices
         threads = [threading.Thread(target=_worker,
                                     args=(i, module, input, target,
                                           kwargs, device),)
-                   for i, (module, input, target, kwargs) in
+                   for i, (module, input, target, kwargs, device) in
                    enumerate(zip(modules, inputs, targets, kwargs_tup, devices))]
 
         for thread in threads:

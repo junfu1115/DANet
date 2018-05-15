@@ -8,55 +8,54 @@
 ## LICENSE file in the root directory of this source tree
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-"""Synchronized Batch Normalization functions"""
+"""Synchronized Cross-GPU Batch Normalization functions"""
 import torch
-from torch.autograd import Function, Variable
+from torch.autograd import Variable, Function
 from .._ext import encoding_lib
 
 __all__ = ['sum_square', 'batchnormtrain', 'batchnormeval']
+
+def sum_square(input):
+    r"""Calculate sum of elements and sum of squares for Batch Normalization"""
+    return _sum_square.apply(input)
+
 
 class _sum_square(Function):
     @staticmethod
     def forward(ctx, input):
         ctx.save_for_backward(input)
-        B, C, _, _ = input.size()
+        C = input.size(1)
         with torch.cuda.device_of(input):
             xsum = input.new().resize_(C).zero_()
             xsquare = input.new().resize_(C).zero_()
         if isinstance(input, torch.cuda.FloatTensor):
             with torch.cuda.device_of(input):
                 encoding_lib.Encoding_Float_sum_square_Forward(
-                    input.view(B, C, -1), xsum, xsquare)
+                    input, xsum, xsquare)
         elif isinstance(input, torch.cuda.DoubleTensor):
             with torch.cuda.device_of(input):
                 encoding_lib.Encoding_Double_sum_square_Forward(
-                    input.view(B, C, -1), xsum, xsquare)
+                    input, xsum, xsquare)
         else:
-            raise RuntimeError('Unimplemented data type!')
+            raise RuntimeError('Unimplemented data type!', type(input))
         return xsum, xsquare
 
     @staticmethod
     def backward(ctx, gradSum, gradSquare):
         input, = ctx.saved_variables
-        B, C, H, W = input.data.size()
         with torch.cuda.device_of(input.data):
-            gradInput = Variable(input.data.new().resize_(B, C, H*W).zero_())
+            gradInput = Variable(input.data.new().resize_as_(input.data).zero_())
         if isinstance(input.data, torch.cuda.FloatTensor):
             with torch.cuda.device_of(input.data):
                 encoding_lib.Encoding_Float_sum_square_Backward(
-                    gradInput, input.data.view(B, C, -1), gradSum, gradSquare)
+                    gradInput.data, input.data, gradSum.data, gradSquare.data)
         elif isinstance(input.data, torch.cuda.DoubleTensor):
             with torch.cuda.device_of(input.data):
                 encoding_lib.Encoding_Double_sum_square_Backward(
-                    gradInput, input.data.view(B, C, -1), gradSum, gradSquare)
+                    gradInput.data, input.data, gradSum.data, gradSquare.data)
         else:
             raise RuntimeError('Unimplemented data type!')
-        return gradInput.view(B, C, H, W)
-
-
-def sum_square(input):
-    r"""Calculate sum of elements and sum of squares for Batch Normalization"""
-    return _sum_square.apply(input)
+        return gradInput
 
 
 class _batchnorm(Function):
@@ -134,3 +133,4 @@ def batchnormeval(input, gamma, beta, mean, std):
     Please see encoding.batchnormtrain_
     """
     return _batchnorm(False)(input, gamma, beta, mean, std)
+
