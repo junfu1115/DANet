@@ -4,7 +4,7 @@
 encoding.functions
 ==================
 
-.. automodule:: encoding.Functions
+.. automodule:: encoding.functions
 
 .. currentmodule:: encoding.functions
 
