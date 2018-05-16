@@ -14,6 +14,8 @@ import platform
 import subprocess
 from torch.utils.ffi import create_extension
 
+torch_ver = torch.__version__[:3]
+
 lib_path = os.path.join(os.path.dirname(torch.__file__), 'lib')
 cwd = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'encoding/')
 encoding_lib_path = os.path.join(cwd, "lib")
@@ -25,12 +27,18 @@ subprocess.check_call(clean_cmd)
 # build CUDA library
 os.environ['TORCH_BUILD_DIR'] = lib_path
 if platform.system() == 'Darwin':
-    os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.dylib')
+    if torch_ver == '0.3':
+        os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.1.dylib')
+    else:
+        os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.dylib')
     ENCODING_LIB = os.path.join(cwd, 'lib/libENCODING.dylib')
 
 else:
     os.environ['CFLAGS'] = '-std=c99'
-    os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.so')
+    if torch_ver == '0.3':
+        os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.so.1')
+    else:
+        os.environ['TH_LIBRARIES'] = os.path.join(lib_path,'libATen.so')
     ENCODING_LIB = os.path.join(cwd, 'lib/libENCODING.so')
 
 build_all_cmd = ['bash', 'encoding/make.sh']
