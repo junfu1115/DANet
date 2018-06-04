@@ -11,13 +11,15 @@
 """Encoding Custermized NN Module"""
 import torch
 from torch.nn import Module, Sequential, Conv2d, ReLU, AdaptiveAvgPool2d, \
-    NLLLoss, BCELoss, CrossEntropyLoss
+    NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter
 from torch.nn import functional as F
-
+from torch.autograd import Variable
 from .syncbn import BatchNorm2d
 
+torch_ver = torch.__version__[:3]
+
 __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
-           'Normalize', 'PyramidPooling']
+           'Normalize']
 
 
 class GramMatrix(Module):
@@ -39,39 +41,51 @@ def softmax_crossentropy(input, target, weight, size_average, ignore_index, redu
 
 class SegmentationLosses(CrossEntropyLoss):
     """2D Cross Entropy Loss with Auxilary Loss"""
-    def __init__(self, aux, aux_weight=0.2, weight=None, size_average=True, ignore_index=-1):
+    def __init__(self, se_loss=False, se_weight=0.1, nclass=-1,
+                 aux=False, aux_weight=0.2, weight=None,
+                 size_average=True, ignore_index=-1):
         super(SegmentationLosses, self).__init__(weight, size_average, ignore_index)
+        self.se_loss = se_loss
         self.aux = aux
+        self.nclass = nclass
+        self.se_weight = se_weight
         self.aux_weight = aux_weight
+        self.bceloss = BCELoss(weight, size_average) 
 
     def forward(self, *inputs):
-        if not self.aux:
+        if not self.se_loss and not self.aux:
             return super(SegmentationLosses, self).forward(*inputs)
-        pred1, pred2, target = tuple(inputs)
-        loss1 = super(SegmentationLosses, self).forward(pred1, target)
-        loss2 = super(SegmentationLosses, self).forward(pred2, target)
-        return loss1 + self.aux_weight * loss2
+        elif not self.se_loss:
+            pred1, pred2, target = tuple(inputs)
+            loss1 = super(SegmentationLosses, self).forward(pred1, target)
+            loss2 = super(SegmentationLosses, self).forward(pred2, target)
+            return loss1 + self.aux_weight * loss2
+        elif not self.aux:
+            pred, se_pred, target = tuple(inputs)
+            se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred)
+            loss1 = super(SegmentationLosses, self).forward(pred, target)
+            loss2 = self.bceloss(F.sigmoid(se_pred), se_target)
+            return loss1 + self.se_weight * loss2
+        else:
+            pred1, se_pred, pred2, target = tuple(inputs)
+            se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred1)
+            loss1 = super(SegmentationLosses, self).forward(pred1, target)
+            loss2 = super(SegmentationLosses, self).forward(pred2, target)
+            loss3 = self.bceloss(F.sigmoid(se_pred), se_target)
+            return loss1 + self.aux_weight * loss2 + self.se_weight * loss3
 
-"""
-class SegmentationLosses(Module):
-    def __init__(self, aux, aux_weight=0.2, weight=None, size_average=True, ignore_index=-1):
-        super(SegmentationLosses, self).__init__()
-        self.aux = aux
-        self.aux_weight = aux_weight
-        # Somehow the size averge is not handled correctly on multi-gpu, so we average by ourself.
-        self.nll_loss = NLLLoss(weight, ignore_index=ignore_index, reduce=True)
-
-    def _forward_each(self, inputs, targets):
-        return self.nll_loss(F.log_softmax(inputs, dim=1), targets)
-
-    def forward(self, *inputs):
-        if not self.aux:
-            return self._forward_each(*inputs)
-        pred1, pred2, target = tuple(inputs)
-        loss1 = self._forward_each(pred1, target)
-        loss2 = self._forward_each(pred2, target)
-        return loss1 + self.aux_weight * loss2
-"""
+    @staticmethod
+    def _get_batch_label_vector(target, nclass):
+        # target is a 3D Variable BxHxW, output is 2D BxnClass
+        batch = target.size(0)
+        tvect = Variable(torch.zeros(batch, nclass))
+        for i in range(batch):
+            hist = torch.histc(target[i].cpu().data.float(), 
+                               bins=nclass, min=0,
+                               max=nclass-1)
+            vect = hist>0
+            tvect[i] = vect
+        return tvect
 
 
 class View(Module):
@@ -135,45 +149,3 @@ class Normalize(Module):
 
     def forward(self, x):
         return F.normalize(x, self.p, self.dim, eps=1e-10)
-
-
-class PyramidPooling(Module):
-    """
-    Reference:
-        Zhao, Hengshuang, et al. *"Pyramid scene parsing network."*
-    """
-    def __init__(self, in_channels):
-        super(PyramidPooling, self).__init__()
-        self.pool1 = AdaptiveAvgPool2d(1)
-        self.pool2 = AdaptiveAvgPool2d(2)
-        self.pool3 = AdaptiveAvgPool2d(3)
-        self.pool4 = AdaptiveAvgPool2d(6)
-
-        out_channels = int(in_channels/4)
-        self.conv1 = Sequential(Conv2d(in_channels, out_channels, 1),
-                                BatchNorm2d(out_channels),
-                                ReLU(True))
-        self.conv2 = Sequential(Conv2d(in_channels, out_channels, 1),
-                                BatchNorm2d(out_channels),
-                                ReLU(True))
-        self.conv3 = Sequential(Conv2d(in_channels, out_channels, 1),
-                                BatchNorm2d(out_channels),
-                                ReLU(True))
-        self.conv4 = Sequential(Conv2d(in_channels, out_channels, 1),
-                                BatchNorm2d(out_channels),
-                                ReLU(True))
-
-    def _cat_each(self, x, feat1, feat2, feat3, feat4):
-        assert(len(x) == len(feat1))
-        z = []
-        for i in range(len(x)):
-            z.append(torch.cat((x[i], feat1[i], feat2[i], feat3[i], feat4[i]), 1))
-        return z
-
-    def forward(self, x):
-        _, _, h, w = x.size()
-        feat1 = F.upsample(self.conv1(self.pool1(x)), (h, w), mode='bilinear')
-        feat2 = F.upsample(self.conv2(self.pool2(x)), (h, w), mode='bilinear')
-        feat3 = F.upsample(self.conv3(self.pool3(x)), (h, w), mode='bilinear')
-        feat4 = F.upsample(self.conv4(self.pool4(x)), (h, w), mode='bilinear')
-        return torch.cat((x, feat1, feat2, feat3, feat4), 1)

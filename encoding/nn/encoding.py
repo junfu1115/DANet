@@ -15,9 +15,9 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.nn.modules.utils import _pair
 
-from ..functions import scaledL2, aggregate, dilatedavgpool2d
+from ..functions import scaledL2, aggregate
 
-__all__ = ['Encoding', 'EncodingDrop', 'Inspiration', 'DilatedAvgPool2d', 'UpsampleConv2d']
+__all__ = ['Encoding', 'EncodingDrop', 'Inspiration', 'UpsampleConv2d']
 
 class Encoding(Module):
     r"""
@@ -201,82 +201,6 @@ class Inspiration(Module):
     def __repr__(self):
         return self.__class__.__name__ + '(' \
             + 'N x ' + str(self.C) + ')'
-
-
-class DilatedAvgPool2d(Module):
-    r"""We provide Dilated Average Pooling for the dilation of Densenet as
-    in :class:`encoding.dilated.DenseNet`.
-
-    Reference:
-
-        Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi,
-        Amit Agrawal. “Context Encoding for Semantic Segmentation.
-        *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2018*
-
-    Applies a 2D average pooling over an input signal composed of several input planes.
-
-    In the simplest case, the output value of the layer with input size :math:`(N, C, H, W)`,
-    output :math:`(B, C, H_{out}, W_{out})`, :attr:`kernel_size` :math:`(k_H,k_W)`,
-    :attr:`stride` :math:`(s_H,s_W)` :attr:`dilation` :math:`(d_H,d_W)`
-    can be precisely described as:
-
-    .. math::
-
-        \begin{array}{ll}
-        out(b, c, h, w)  = 1 / (k_H \cdot k_W) \cdot
-        \sum_{{m}=0}^{k_H-1} \sum_{{n}=0}^{k_W-1}
-        input(b, c, s_H \cdot h + d_H \cdot m, s_W \cdot w + d_W \cdot n)
-        \end{array}
-
-    | If :attr:`padding` is non-zero, then the input is implicitly zero-padded on both sides
-      for :attr:`padding` number of points
-
-    | The parameters :attr:`kernel_size`, :attr:`stride`, :attr:`padding`,
-      :attr:`dilation` can either be:
-
-        - a single ``int`` -- in which case the same value is used for the height
-          and width dimension
-        - a ``tuple`` of two ints -- in which case, the first `int` is used for
-          the height dimension, and the second `int` for the width dimension
-
-    Args:
-        kernel_size: the size of the window
-        stride: the stride of the window. Default value is :attr:`kernel_size`
-        padding: implicit zero padding to be added on both sides
-        dilation: the dilation parameter similar to Conv2d
-
-    Shape:
-        - Input: :math:`(B, C, H_{in}, W_{in})`
-        - Output: :math:`(B, C, H_{out}, W_{out})` where
-          :math:`H_{out} = floor((H_{in}  + 2 * padding[0] - kernel\_size[0]) / stride[0] + 1)`
-          :math:`W_{out} = floor((W_{in}  + 2 * padding[1] - kernel\_size[1]) / stride[1] + 1)`
-          For :attr:`stride=1`, the output featuremap preserves the same size as input.
-
-    Examples::
-
-        >>> # pool of square window of size=3, stride=2, dilation=2
-        >>> m = nn.DilatedAvgPool2d(3, stride=2, dilation=2)
-        >>> input = autograd.Variable(torch.randn(20, 16, 50, 32))
-        >>> output = m(input)
-
-    """
-    def __init__(self, kernel_size, stride=None, padding=0, dilation=1):
-        super(DilatedAvgPool2d, self).__init__()
-        self.kernel_size = kernel_size
-        self.stride = stride or kernel_size
-        self.padding = padding
-        self.dilation = dilation
-
-    def forward(self, input):
-        return dilatedavgpool2d(input, self.kernel_size, self.stride,
-                                self.padding, self.dilation)
-
-    def __repr__(self):
-        return self.__class__.__name__ + ' (' \
-            + 'size=' + str(self.kernel_size) \
-            + ', stride=' + str(self.stride) \
-            + ', padding=' + str(self.padding) \
-            + ', dilation=' + str(self.dilation) + ')'
 
 
 class UpsampleConv2d(Module):

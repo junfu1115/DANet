@@ -4,7 +4,7 @@
 encoding.nn
 ===========
 
-Customized NN modules in Encoding Package. For Synchronized Cross-GPU Batch Normalization, please visit :class:`encoding.nn.SyncBatchNorm2d`.
+Customized NN modules in Encoding Package. For Synchronized Cross-GPU Batch Normalization, please visit :class:`encoding.nn.BatchNorm2d`.
 
 .. currentmodule:: encoding.nn
 
@@ -14,22 +14,22 @@ Customized NN modules in Encoding Package. For Synchronized Cross-GPU Batch Norm
 .. autoclass:: Encoding
     :members:
 
-:hidden:`SyncBatchNorm2d`
+:hidden:`BatchNorm2d`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: SyncBatchNorm2d
+.. autoclass:: BatchNorm2d
     :members:
 
-:hidden:`SyncBatchNorm1d`
+:hidden:`BatchNorm1d`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: SyncBatchNorm1d
+.. autoclass:: BatchNorm1d
     :members:
 
-:hidden:`SyncBatchNorm3d`
+:hidden:`BatchNorm3d`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: SyncBatchNorm3d
+.. autoclass:: BatchNorm3d
     :members:
 
 :hidden:`Inspiration`
@@ -42,12 +42,6 @@ Customized NN modules in Encoding Package. For Synchronized Cross-GPU Batch Norm
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: UpsampleConv2d
-    :members:
-
-:hidden:`DilatedAvgPool2d`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: DilatedAvgPool2d
     :members:
 
 :hidden:`GramMatrix`

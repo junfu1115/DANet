@@ -26,15 +26,15 @@ class BasicBlock(nn.Module):
     """ResNet BasicBlock
     """
     expansion = 1
-    def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, first_dilation=1,
+    def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, previous_dilation=1,
                  norm_layer=None):
         super(BasicBlock, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=3, stride=stride,
                                padding=dilation, dilation=dilation, bias=False)
         self.bn1 = norm_layer(planes)
-        self.relu = nn.ReLU(inplace=False)
+        self.relu = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1,
-                               padding=first_dilation, dilation=first_dilation, bias=False)
+                               padding=previous_dilation, dilation=previous_dilation, bias=False)
         self.bn2 = norm_layer(planes)
         self.downsample = downsample
         self.stride = stride
@@ -64,7 +64,7 @@ class Bottleneck(nn.Module):
     # pylint: disable=unused-argument
     expansion = 4
     def __init__(self, inplanes, planes, stride=1, dilation=1,
-                 downsample=None, first_dilation=1, norm_layer=None):
+                 downsample=None, previous_dilation=1, norm_layer=None):
         super(Bottleneck, self).__init__()
         self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
         self.bn1 = norm_layer(planes)
@@ -75,7 +75,7 @@ class Bottleneck(nn.Module):
         self.conv3 = nn.Conv2d(
             planes, planes * 4, kernel_size=1, bias=False)
         self.bn3 = norm_layer(planes * 4)
-        self.relu = nn.ReLU(inplace=False)
+        self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
         self.dilation = dilation
         self.stride = stride
@@ -113,6 +113,21 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
     """Dilated Pre-trained ResNet Model, which preduces the stride of 8 featuremaps at conv5.
 
+    Parameters
+    ----------
+    block : Block
+        Class for the residual block. Options are BasicBlockV1, BottleneckV1.
+    layers : list of int
+        Numbers of layers in each block
+    classes : int, default 1000
+        Number of classification classes.
+    dilated : bool, default False
+        Applying dilation strategy to pretrained ResNet yielding a stride-8 model,
+        typically used in Semantic Segmentation.
+    norm_layer : object
+        Normalization layer used in backbone network (default: :class:`mxnet.gluon.nn.BatchNorm`;
+        for Synchronized Cross-GPU BachNormalization).
+
     Reference:
 
         - He, Kaiming, et al. "Deep residual learning for image recognition." Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.
@@ -120,18 +135,26 @@ class ResNet(nn.Module):
         - Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions."
     """
     # pylint: disable=unused-variable
-    def __init__(self, block, layers, num_classes=1000, norm_layer=None):
+    def __init__(self, block, layers, num_classes=1000, dilated=True, norm_layer=nn.BatchNorm2d):
         self.inplanes = 64
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
                                bias=False)
         self.bn1 = norm_layer(64)
-        self.relu = nn.ReLU(inplace=False)
+        self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0], norm_layer=norm_layer)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2, norm_layer=norm_layer)
-        self.layer3 = self._make_layer(block, 256, layers[2], stride=1, dilation=2, norm_layer=norm_layer)
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=1, dilation=4, norm_layer=norm_layer)
+        if dilated:
+            self.layer3 = self._make_layer(block, 256, layers[2], stride=1,
+                                           dilation=2, norm_layer=norm_layer)
+            self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
+                                           dilation=4, norm_layer=norm_layer)
+        else:
+            self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
+                                           norm_layer=norm_layer)
+            self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
+                                           norm_layer=norm_layer)
         self.avgpool = nn.AvgPool2d(7)
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -155,16 +178,16 @@ class ResNet(nn.Module):
         layers = []
         if dilation == 1 or dilation == 2:
             layers.append(block(self.inplanes, planes, stride, dilation=1,
-                                downsample=downsample, first_dilation=dilation, norm_layer=norm_layer))
+                                downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         elif dilation == 4:
             layers.append(block(self.inplanes, planes, stride, dilation=2,
-                                downsample=downsample, first_dilation=dilation, norm_layer=norm_layer))
+                                downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         else:
             raise RuntimeError("=> unknown dilation size: {}".format(dilation))
 
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, dilation=dilation, first_dilation=dilation,
+            layers.append(block(self.inplanes, planes, dilation=dilation, previous_dilation=dilation,
                                 norm_layer=norm_layer))
 
         return nn.Sequential(*layers)

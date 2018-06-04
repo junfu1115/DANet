@@ -189,10 +189,11 @@ def _criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices
         outputs.append(output)
     return outputs
 
+
 ###########################################################################
 # Adapted from Synchronized-BatchNorm-PyTorch.
 # https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
-
+#
 class CallbackContext(object):
     pass
 
