@@ -34,13 +34,15 @@ Test Pre-trained Model
 .. role:: raw-html(raw)
    :format: html
 
-+----------------------------------+-----------+-----------+---------------------------------------------------------------------------------------------+
-| Model                            | pixAcc    | mIoU      | Command                                                                                     |
-+==================================+===========+===========+=============================================================================================+
-| FCN_ResNet50_PContext            | 76.0%     | 45.7      | :raw-html:`<a href="javascript:toggleblock('cmd_fcn50_pcont')" class="toggleblock">cmd</a>` |
-+----------------------------------+-----------+-----------+---------------------------------------------------------------------------------------------+
-| Encnet_ResNet50_PContext         | 78.6%     | 49.5      | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>` |
-+----------------------------------+-----------+-----------+---------------------------------------------------------------------------------------------+
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| Model                            | pixAcc    | mIoU      | Command                                                                                      |
++==================================+===========+===========+==============================================================================================+
+| FCN_ResNet50_PContext            | 76.0%     | 45.7      | :raw-html:`<a href="javascript:toggleblock('cmd_fcn50_pcont')" class="toggleblock">cmd</a>`  |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| Encnet_ResNet50_PContext         | 78.6%     | 49.5      | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| Encnet_ResNet101_PContext        | 80.0%     | 52.1      | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
 
 .. raw:: html
 
@@ -50,6 +52,10 @@ Test Pre-trained Model
 
     <code xml:space="preserve" id="cmd_enc50_pcont" style="display: none; text-align: left; white-space: pre-wrap">
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset PContext --model EncNet --aux --se-loss
+    </code>
+
+    <code xml:space="preserve" id="cmd_enc101_pcont" style="display: none; text-align: left; white-space: pre-wrap">
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset PContext --model EncNet --aux --se-loss --backbone resnet101
     </code>
 
 Quick Demo

@@ -9,6 +9,7 @@ from ..utils import download, check_sha1
 _model_sha1 = {name: checksum for checksum, name in [
     ('eeed8e582f0fdccdba8579e7490570adc6d85c7c', 'fcn_resnet50_pcontext'),
     ('969062a5aad2d1d983bae2f9e412578b62610114', 'encnet_resnet50_pcontext'),
+    ('3062cec955670690d3481d75e7e6368c721a46ce', 'encnet_resnet101_pcontext'),
     ('fc8c0b795abf0133700c2d4265d2f9edab7eb6cc', 'fcn_resnet50_ade'),
     ]}
 

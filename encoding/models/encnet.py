@@ -13,7 +13,8 @@ import encoding
 from .base import BaseNet
 from .fcn import FCNHead
 
-__all__ = ['EncNet', 'EncModule', 'get_encnet', 'get_encnet_resnet50_pcontext']
+__all__ = ['EncNet', 'EncModule', 'get_encnet', 'get_encnet_resnet50_pcontext',
+           'get_encnet_resnet101_pcontext']
 
 class EncNet(BaseNet):
     def __init__(self, nclass, backbone, aux=True, se_loss=True,
@@ -144,3 +145,22 @@ def get_encnet_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **
     >>> print(model)
     """
     return get_encnet('pcontext', 'resnet50', pretrained)
+
+def get_encnet_resnet101_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = get_encnet_resnet101_pcontext(pretrained=True)
+    >>> print(model)
+    """
+    return get_encnet('pcontext', 'resnet101', pretrained)
