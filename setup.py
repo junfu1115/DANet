@@ -18,28 +18,34 @@ import setuptools.command.install
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
-# run test scrip after installation
-class install(setuptools.command.install.install):
-    def run(self):
-        self.create_version_file()
-        setuptools.command.install.install.run(self)
-        #subprocess.check_call("python tests/unit_test.py".split())
-    @staticmethod
-    def create_version_file():
-        global version, cwd
-        print('-- Building version ' + version)
-        version_path = os.path.join(cwd, 'encoding', 'version.py')
-        with open(version_path, 'w') as f:
-            f.write('"""This is encoding version file."""\n')
-            f.write("__version__ = '{}'\n".format(version))
-
-version = '0.4.0'
+version = '0.4.2'
 try:
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], 
         cwd=cwd).decode('ascii').strip()
     version += '+' + sha[:7]
 except Exception:
     pass
+
+def create_version_file():
+    global version, cwd
+    print('-- Building version ' + version)
+    version_path = os.path.join(cwd, 'encoding', 'version.py')
+    with open(version_path, 'w') as f:
+        f.write('"""This is encoding version file."""\n')
+        f.write("__version__ = '{}'\n".format(version))
+
+# run test scrip after installation
+class install(setuptools.command.install.install):
+    def run(self):
+        create_version_file()
+        setuptools.command.install.install.run(self)
+        #subprocess.check_call("python tests/unit_test.py".split())
+
+class develop(setuptools.command.develop.develop):
+    def run(self):
+        create_version_file()
+        setuptools.command.develop.develop.run(self)
+        #subprocess.check_call("python tests/unit_test.py".split())
 
 try:
     import pypandoc
@@ -51,8 +57,18 @@ requirements = [
     'numpy',
     'tqdm',
     'nose',
-    'torch>=0.3.1',
+    'torch>=0.5.0',
     'cffi>=1.0.0',
+]
+
+requirements = [
+    'numpy',
+    'tqdm',
+    'nose',
+    'torch>=0.4.0',
+    'Pillow',
+    'scipy',
+    'requests',
 ]
 
 setup(
@@ -67,17 +83,14 @@ setup(
     install_requires=requirements,
     packages=find_packages(exclude=["tests", "experiments"]),
     package_data={ 'encoding': [
-        'lib/*.so*', 'lib/*.dylib*',
-        '_ext/encoding_lib/*.so', '_ext/encoding_lib/*.dylib',
-        'kernel/*.h', 'kernel/generic/*h',
-        'src/*.h',
+        'lib/cpu/*.h',
+        'lib/cpu/*.cpp',
+        'lib/gpu/*.h',
+        'lib/gpu/*.cpp',
+        'lib/gpu/*.cu',
     ]},
-    ext_package="",
-    # Extensions to compile.
-    cffi_modules=[
-        os.path.join(cwd, "build.py:ffi")
-    ],
     cmdclass={
         'install': install,
+        'develop': develop,
     },
 )

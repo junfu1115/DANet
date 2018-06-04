@@ -23,34 +23,28 @@ from ..functions import *
 from ..parallel import allreduce
 from .comm import SyncMaster
 
+
 __all__ = ['BatchNorm1d', 'BatchNorm2d', 'BatchNorm3d', 'Module', 'Sequential', 'Conv1d',
            'Conv2d', 'ConvTranspose2d', 'ReLU', 'Sigmoid', 'MaxPool2d', 'AvgPool2d',
            'AdaptiveAvgPool2d', 'Dropout2d', 'Linear']
 
-# Adapt from https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
-_ChildMessage = collections.namedtuple('Message', ['sum', 'ssum', 'sum_size'])
-_MasterMessage = collections.namedtuple('_MasterMessage', ['sum', 'inv_std'])
-
 class _SyncBatchNorm(_BatchNorm):
-    def __init__(self, num_features, eps=1e-5, momentum=0.001, affine=True):
+    def __init__(self, num_features, eps=1e-5, momentum=0.1, affine=True):
         super(_SyncBatchNorm, self).__init__(num_features, eps=eps, momentum=momentum, affine=affine)
 
         self._sync_master = SyncMaster(self._data_parallel_master)
-
-        self._is_parallel = False
         self._parallel_id = None
         self._slave_pipe = None
 
     def forward(self, input):
-        # If it is not parallel computation or is in evaluation mode, use PyTorch's implementation.
-        if not (self._is_parallel and self.training):
+        if not self.training:
             return batch_norm(
                 input, self.running_mean, self.running_var, self.weight, self.bias,
                 self.training, self.momentum, self.eps)
 
         # Resize the input to (B, C, -1).
         input_shape = input.size()
-        input = input.view(input.size(0), self.num_features, -1)
+        input = input.view(input_shape[0], self.num_features, -1)
 
         # sum(x) and sum(x^2)
         N = input.size(0) * input.size(2)
@@ -62,11 +56,9 @@ class _SyncBatchNorm(_BatchNorm):
         else:
             mean, inv_std = self._slave_pipe.run_slave(_ChildMessage(xsum, xsqsum, N))
         # forward
-        return batchnormtrain(input, self.weight, self.bias, mean, 1.0/inv_std).view(input_shape)
-
+        return batchnormtrain(input, mean, 1.0/inv_std, self.weight, self.bias).view(input_shape)
 
     def __data_parallel_replicate__(self, ctx, copy_id):
-        self._is_parallel = True
         self._parallel_id = copy_id
 
         # parallel_id == 0 means master device.
@@ -110,7 +102,12 @@ class _SyncBatchNorm(_BatchNorm):
         self.running_mean = (1 - self.momentum) * self.running_mean + self.momentum * mean.data
         self.running_var = (1 - self.momentum) * self.running_var + self.momentum * unbias_var.data
 
-        return mean, bias_var.clamp(self.eps) ** -0.5
+        return mean, (bias_var + self.eps) ** -0.5
+
+
+# API adapted from https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
+_ChildMessage = collections.namedtuple('Message', ['sum', 'ssum', 'sum_size'])
+_MasterMessage = collections.namedtuple('_MasterMessage', ['sum', 'inv_std'])
 
 
 class BatchNorm1d(_SyncBatchNorm):
@@ -193,12 +190,11 @@ class BatchNorm3d(_SyncBatchNorm):
 
 class SharedTensor(object):
     """Shared Tensor for cross GPU all reduce operation"""
-    def __init__(self, nGPUs, op):
+    def __init__(self, nGPUs):
         self.mutex = threading.Lock()
         self.all_tasks_done = threading.Condition(self.mutex)
         self.nGPUs = nGPUs
         self._clear()
-        self.op = op
 
     def _clear(self):
         self.N = 0
@@ -206,9 +202,7 @@ class SharedTensor(object):
         self.push_tasks = self.nGPUs
         self.reduce_tasks = self.nGPUs
 
-    def __call__(self, *inputs):
-        if self.nGPUs <= 1:
-            return tuple(inputs)
+    def push(self, *inputs):
         # push from device
         with self.mutex:
             if self.push_tasks == 0:
@@ -223,13 +217,15 @@ class SharedTensor(object):
                 self.all_tasks_done.notify_all()
             while self.push_tasks:
                 self.all_tasks_done.wait()
+
+    def pull(self, igpu):
         # pull from device
         with self.mutex:
             if igpu == 0:
                 assert(len(self.dict) == self.nGPUs)
                 # flatten the tensors
                 self.list = [t for i in range(len(self.dict)) for t in self.dict[i]]
-                self.outlist = self.op(2, *self.list)
+                self.outlist = allreduce(2, *self.list)
                 self.reduce_tasks -= 1
             else:
                 self.reduce_tasks -= 1

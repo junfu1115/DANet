@@ -50,37 +50,3 @@ ResNet
 ~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: resnet152
-
-
-DenseNet
---------
-
-:hidden:`DenseNet`
-~~~~~~~~~~~~~~~~~~
-
-.. autoclass:: DenseNet
-    :members:
-
-
-:hidden:`densenet161`
-~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: densenet161
-
-
-:hidden:`densenet121`
-~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: densenet121
-
-
-:hidden:`densenet169`
-~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: densenet169
-
-
-:hidden:`densenet201`
-~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: densenet201

@@ -9,19 +9,10 @@ encoding.functions
 .. currentmodule:: encoding.functions
 
 
-:hidden:`batchnorm`
+:hidden:`batchnormtrain`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: batchnorm
-
-:hidden:`batchnormeval`
-~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: batchnormeval
-:hidden:`dilatedavgpool2d`
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. autofunction:: dilatedavgpool2d
+.. autofunction:: batchnormtrain
 
 :hidden:`aggregate`
 ~~~~~~~~~~~~~~~~~~~

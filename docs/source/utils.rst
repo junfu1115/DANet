@@ -9,10 +9,11 @@ Useful util functions.
 .. automodule:: encoding.utils
 .. currentmodule:: encoding.utils
 
-:hidden:`get_optimizer`
-~~~~~~~~~~~~~~~~~~~~~~~
+:hidden:`LR_Scheduler`
+~~~~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: get_optimizer
+.. autoclass:: LR_Scheduler
+    :members:
 
 :hidden:`save_checkpoint`
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,11 +21,11 @@ Useful util functions.
 .. autofunction:: save_checkpoint
 
 :hidden:`batch_pix_accuracy`
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: batch_pix_accuracy
 
 :hidden:`batch_intersection_union`
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autofunction:: batch_intersection_union
