@@ -6,7 +6,7 @@ created by [Hang Zhang](http://hangzh.com/)
 
 - Please visit the [**Docs**](http://hangzh.com/PyTorch-Encoding/) for detail instructions of installation and usage. 
 
-- How to use Synchronized Batch Normalization (SyncBN)? See the [examples](https://github.com/zhanghang1989/PyTorch-SyncBatchNorm).
+- Please visit the [link](http://hangzh.com/PyTorch-Encoding/experiments/segmentation.html) to examples of semantic segmentation.
 
 ## Citations
 

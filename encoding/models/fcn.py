@@ -122,7 +122,7 @@ def get_fcn_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **kwa
     >>> model = get_fcn_resnet50_pcontext(pretrained=True)
     >>> print(model)
     """
-    return get_fcn('pcontext', 'resnet50', pretrained)
+    return get_fcn('pcontext', 'resnet50', pretrained, aux=False)
 
 def get_fcn_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"

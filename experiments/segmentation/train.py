@@ -60,18 +60,6 @@ class Trainer():
                     lr=args.lr,
                     momentum=args.momentum,
                     weight_decay=args.weight_decay)
-        # resuming checkpoint
-        if args.resume is not None:
-            if not os.path.isfile(args.resume):
-                raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
-            checkpoint = torch.load(args.resume)
-            args.start_epoch = checkpoint['epoch']
-            model.load_state_dict(checkpoint['state_dict'])
-            if not args.ft:
-                optimizer.load_state_dict(checkpoint['optimizer'])
-            best_pred = checkpoint['best_pred']
-            print("=> loaded checkpoint '{}' (epoch {})"
-                  .format(args.resume, checkpoint['epoch']))
         # clear start epoch if fine-tuning
         if args.ft:
             args.start_epoch = 0
@@ -82,6 +70,21 @@ class Trainer():
         if args.cuda:
             self.model = DataParallelModel(self.model).cuda()
             self.criterion = DataParallelCriterion(self.criterion).cuda()
+        # resuming checkpoint
+        if args.resume is not None:
+            if not os.path.isfile(args.resume):
+                raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
+            checkpoint = torch.load(args.resume)
+            args.start_epoch = checkpoint['epoch']
+            if args.cuda:
+                self.model.module.load_state_dict(checkpoint['state_dict'])
+            else:
+                self.model.load_state_dict(checkpoint['state_dict'])
+            if not args.ft:
+                self.optimizer.load_state_dict(checkpoint['optimizer'])
+            self.best_pred = checkpoint['best_pred']
+            print("=> loaded checkpoint '{}' (epoch {})"
+                  .format(args.resume, checkpoint['epoch']))
         # lr scheduler
         self.scheduler = utils.LR_Scheduler(args, len(self.trainloader))
         self.best_pred = 0.0

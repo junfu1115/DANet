@@ -106,7 +106,4 @@ def test_batchify_fn(data):
     elif isinstance(data[0], (tuple, list)):
         data = zip(*data)
         return [test_batchify_fn(i) for i in data]
-    elif isinstance(data[0], ):
-        data = np.asarray(data)
-        return mx.nd.array(data, dtype=data.dtype)
     raise TypeError((error_msg.format(type(batch[0]))))

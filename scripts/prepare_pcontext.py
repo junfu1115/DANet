@@ -32,6 +32,17 @@ def download_ade(path, overwrite=False):
         else:
             shutil.move(filename, os.path.join(path, 'VOCdevkit/VOC2010/'+os.path.basename(filename)))
 
+def install_pcontext_api():
+    repo_url = "https://github.com/zhanghang1989/detail-api"
+    os.system("git clone " + repo_url)
+    os.system("cd detail-api/PythonAPI/ && python setup.py install")
+    shutil.rmtree('detail-api')
+    try:
+        import detail
+    except Exception:
+        print("Installing PASCAL Context API failed, please install it manually %s"%(repo_url))
+
+
 if __name__ == '__main__':
     args = parse_args()
     mkdir(os.path.expanduser('~/.encoding/data'))
@@ -42,3 +53,4 @@ if __name__ == '__main__':
         os.symlink(args.download_dir, _TARGET_DIR)
     else:
         download_ade(_TARGET_DIR, overwrite=False)
+    install_pcontext_api()

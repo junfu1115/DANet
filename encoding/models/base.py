@@ -20,7 +20,7 @@ from ..utils import batch_pix_accuracy, batch_intersection_union
 
 up_kwargs = {'mode': 'bilinear', 'align_corners': True}
 
-__all__ = ['BaseNet', 'EvalModule', 'MultiEvalModule']
+__all__ = ['BaseNet', 'MultiEvalModule']
 
 class BaseNet(nn.Module):
     def __init__(self, nclass, backbone, aux, se_loss, dilated=True, norm_layer=None,
@@ -63,16 +63,6 @@ class BaseNet(nn.Module):
         correct, labeled = batch_pix_accuracy(pred.data, target.data)
         inter, union = batch_intersection_union(pred.data, target.data, self.nclass)
         return correct, labeled, inter, union
-
-
-class EvalModule(nn.Module):
-    """Segmentation Eval Module"""
-    def __init__(self, module):
-        super(EvalModule, self).__init__()
-        self.module = module
-
-    def forward(self, *inputs, **kwargs):
-        return self.module.evaluate(*inputs, **kwargs)
 
 
 class MultiEvalModule(DataParallel):
@@ -125,11 +115,11 @@ class MultiEvalModule(DataParallel):
                 height = int(1.0 * h * long_size / w + 0.5)
                 short_size = height
             # resize image to current size
-            cur_img = resize_image(image, height, width)
-            if scale <= 1.25 or long_size <= crop_size:# #
+            cur_img = resize_image(image, height, width, **self.module._up_kwargs)
+            if long_size <= crop_size:
                 pad_img = pad_image(cur_img, self.module.mean,
                                     self.module.std, crop_size)
-                outputs = self.module_inference(pad_img)
+                outputs = module_inference(self.module, pad_img, self.flip)
                 outputs = crop_image(outputs, 0, height, 0, width)
             else:
                 if short_size < crop_size:
@@ -157,7 +147,7 @@ class MultiEvalModule(DataParallel):
                         # pad if needed
                         pad_crop_img = pad_image(crop_img, self.module.mean,
                                                  self.module.std, crop_size)
-                        output = self.module_inference(pad_crop_img)
+                        output = module_inference(self.module, pad_crop_img, self.flip)
                         outputs[:,:,h0:h1,w0:w1] += crop_image(output,
                             0, h1-h0, 0, w1-w0)
                         count_norm[:,:,h0:h1,w0:w1] += 1
@@ -165,21 +155,21 @@ class MultiEvalModule(DataParallel):
                 outputs = outputs / count_norm
                 outputs = outputs[:,:,:height,:width]
 
-            score = resize_image(outputs, h, w)
+            score = resize_image(outputs, h, w, **self.module._up_kwargs)
             scores += score
 
         return scores
 
-    def module_inference(self, image):
-        output = self.module.evaluate(image)
-        if self.flip:
-            fimg = flip_image(image)
-            foutput = self.module.evaluate(fimg)
-            output += flip_image(foutput)
-        return output.exp()
 
+def module_inference(module, image, flip=True):
+    output = module.evaluate(image)
+    if flip:
+        fimg = flip_image(image)
+        foutput = module.evaluate(fimg)
+        output += flip_image(foutput)
+    return output.exp()
 
-def resize_image(img, h, w, mode='bilinear'):
+def resize_image(img, h, w, **up_kwargs):
     return F.upsample(img, (h, w), **up_kwargs)
 
 def pad_image(img, mean, std, crop_size):
@@ -189,11 +179,9 @@ def pad_image(img, mean, std, crop_size):
     padw = crop_size - w if w < crop_size else 0
     pad_values = -np.array(mean) / np.array(std)
     img_pad = img.new().resize_(b,c,h+padh,w+padw)
-    #img_pad = F.pad(img, (0,padw,0,padh))
     for i in range(c):
         # note that pytorch pad params is in reversed orders
-        img_pad[:,i,:,:] = F.pad(img[:,i,:,:], (0, padw, 0, padh), 
-            value=pad_values[i])
+        img_pad[:,i,:,:] = F.pad(img[:,i,:,:], (0, padw, 0, padh), value=pad_values[i])
     assert(img_pad.size(2)>=crop_size and img_pad.size(3)>=crop_size)
     return img_pad
 

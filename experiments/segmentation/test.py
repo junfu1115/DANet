@@ -44,7 +44,7 @@ def test(args):
     # dataloader
     kwargs = {'num_workers': args.workers, 'pin_memory': True} \
         if args.cuda else {}
-    test_data = data.DataLoader(testset, batch_size=args.batch_size,
+    test_data = data.DataLoader(testset, batch_size=args.test_batch_size,
                                 drop_last=False, shuffle=False,
                                 collate_fn=test_batchify_fn, **kwargs)
     # model
@@ -105,8 +105,8 @@ def test(args):
             with torch.no_grad():
                 correct, labeled, inter, union = eval_batch(image, dst, evaluator, args.eval)
         if args.eval:
-            total_correct += correct
-            total_label += labeled
+            total_correct += correct.astype('int64')
+            total_label += labeled.astype('int64')
             total_inter += inter.astype('int64')
             total_union += union.astype('int64')
             pixAcc = np.float64(1.0) * total_correct / (np.spacing(1, dtype=np.float64) + total_label)
