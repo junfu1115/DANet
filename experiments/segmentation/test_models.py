@@ -12,6 +12,7 @@ if __name__ == "__main__":
     
     print(model)
     model.cuda()
+    model.eval()
     x = Variable(torch.Tensor(4, 3, 480, 480)).cuda()
     with torch.no_grad():
         out = model(x)

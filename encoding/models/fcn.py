@@ -62,7 +62,7 @@ class FCNHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer):
         super(FCNHead, self).__init__()
         inter_channels = in_channels // 4
-        self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1),
+        self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
                                    norm_layer(inter_channels),
                                    nn.ReLU(),
                                    nn.Dropout2d(0.1, False),
@@ -122,7 +122,7 @@ def get_fcn_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **kwa
     >>> model = get_fcn_resnet50_pcontext(pretrained=True)
     >>> print(model)
     """
-    return get_fcn('pcontext', 'resnet50', pretrained, aux=False)
+    return get_fcn('pcontext', 'resnet50', pretrained, aux=False, **kwargs)
 
 def get_fcn_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
@@ -141,4 +141,4 @@ def get_fcn_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     >>> model = get_fcn_resnet50_ade(pretrained=True)
     >>> print(model)
     """
-    return get_fcn('ade20k', 'resnet50', pretrained)
+    return get_fcn('ade20k', 'resnet50', pretrained, **kwargs)

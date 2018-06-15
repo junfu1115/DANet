@@ -14,12 +14,11 @@ from torch.nn import Module, Sequential, Conv2d, ReLU, AdaptiveAvgPool2d, \
     NLLLoss, BCELoss, CrossEntropyLoss, AvgPool2d, MaxPool2d, Parameter
 from torch.nn import functional as F
 from torch.autograd import Variable
-from .syncbn import BatchNorm2d
 
 torch_ver = torch.__version__[:3]
 
 __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
-           'Normalize']
+           'Normalize', 'PyramidPooling']
 
 class GramMatrix(Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
@@ -147,4 +146,48 @@ class Normalize(Module):
         self.dim = dim
 
     def forward(self, x):
-        return F.normalize(x, self.p, self.dim, eps=1e-10)
+        return F.normalize(x, self.p, self.dim, eps=1e-8)
+
+
+class PyramidPooling(Module):
+    """
+    Reference:
+        Zhao, Hengshuang, et al. *"Pyramid scene parsing network."*
+    """
+    def __init__(self, in_channels, norm_layer, up_kwargs):
+        super(PyramidPooling, self).__init__()
+        self.pool1 = AdaptiveAvgPool2d(1)
+        self.pool2 = AdaptiveAvgPool2d(2)
+        self.pool3 = AdaptiveAvgPool2d(3)
+        self.pool4 = AdaptiveAvgPool2d(6)
+
+        out_channels = int(in_channels/4)
+        self.conv1 = Sequential(Conv2d(in_channels, out_channels, 1, bias=False),
+                                norm_layer(out_channels),
+                                ReLU(True))
+        self.conv2 = Sequential(Conv2d(in_channels, out_channels, 1, bias=False),
+                                norm_layer(out_channels),
+                                ReLU(True))
+        self.conv3 = Sequential(Conv2d(in_channels, out_channels, 1, bias=False),
+                                norm_layer(out_channels),
+                                ReLU(True))
+        self.conv4 = Sequential(Conv2d(in_channels, out_channels, 1, bias=False),
+                                norm_layer(out_channels),
+                                ReLU(True))
+        # bilinear upsample options
+        self._up_kwargs = up_kwargs
+
+    def _cat_each(self, x, feat1, feat2, feat3, feat4):
+        assert(len(x) == len(feat1))
+        z = []
+        for i in range(len(x)):
+            z.append(torch.cat((x[i], feat1[i], feat2[i], feat3[i], feat4[i]), 1))
+        return z
+
+    def forward(self, x):
+        _, _, h, w = x.size()
+        feat1 = F.upsample(self.conv1(self.pool1(x)), (h, w), **self._up_kwargs)
+        feat2 = F.upsample(self.conv2(self.pool2(x)), (h, w), **self._up_kwargs)
+        feat3 = F.upsample(self.conv3(self.pool3(x)), (h, w), **self._up_kwargs)
+        feat4 = F.upsample(self.conv4(self.pool4(x)), (h, w), **self._up_kwargs)
+        return torch.cat((x, feat1, feat2, feat3, feat4), 1)

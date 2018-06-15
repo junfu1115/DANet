@@ -5,6 +5,7 @@
 ###########################################################################
 
 import os
+import copy
 import numpy as np
 from tqdm import tqdm
 
@@ -64,7 +65,8 @@ class Trainer():
         if args.ft:
             args.start_epoch = 0
         # criterions
-        self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux, nclass=self.nclass)
+        self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,
+                                            nclass=self.nclass)
         self.model, self.optimizer = model, optimizer
         # using cuda
         if args.cuda:
@@ -86,7 +88,8 @@ class Trainer():
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
         # lr scheduler
-        self.scheduler = utils.LR_Scheduler(args, len(self.trainloader))
+        self.scheduler = utils.LR_Scheduler(args.lr_scheduler, args.lr,
+                                            args.epochs, len(self.trainloader))
         self.best_pred = 0.0
 
     def training(self, epoch):
@@ -106,19 +109,21 @@ class Trainer():
             train_loss += loss.item()
             tbar.set_description('Train loss: %.3f' % (train_loss / (i + 1)))
 
-        # save checkpoint every epoch
-        is_best = False
-        utils.save_checkpoint({
-            'epoch': epoch + 1,
-            'state_dict': self.model.module.state_dict(),
-            'optimizer': self.optimizer.state_dict(),
-            'best_pred': self.best_pred,
-        }, self.args, is_best)
+        if self.args.no_val:
+            # save checkpoint every epoch
+            is_best = False
+            utils.save_checkpoint({
+                'epoch': epoch + 1,
+                'state_dict': self.model.module.state_dict(),
+                'optimizer': self.optimizer.state_dict(),
+                'best_pred': self.best_pred,
+            }, self.args, is_best)
+
 
     def validation(self, epoch):
         # Fast test during the training
-        def eval_batch(image, target):
-            outputs = self.model(image)
+        def eval_batch(model, image, target):
+            outputs = model(image)
             outputs = gather(outputs, 0, dim=0)
             pred = outputs[0]
             target = target.cuda()
@@ -133,10 +138,10 @@ class Trainer():
         for i, (image, target) in enumerate(tbar):
             if torch_ver == "0.3":
                 image = Variable(image, volatile=True)
-                correct, labeled, inter, union = eval_batch(image, target)
+                correct, labeled, inter, union = eval_batch(self.model, image, target)
             else:
                 with torch.no_grad():
-                    correct, labeled, inter, union = eval_batch(image, target)
+                    correct, labeled, inter, union = eval_batch(self.model, image, target)
 
             total_correct += correct
             total_label += labeled

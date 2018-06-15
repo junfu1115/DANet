@@ -76,7 +76,8 @@ def main():
         else:
             raise RuntimeError ("=> no resume checkpoint found at '{}'".\
                 format(args.resume))
-    scheduler = LR_Scheduler(args, len(train_loader))
+    scheduler = LR_Scheduler(args.lr_scheduler, args.lr, args.epochs,
+                             len(train_loader), args.lr_step)
     def train(epoch):
         model.train()
         global best_pred, errlist_train

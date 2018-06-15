@@ -23,7 +23,7 @@ class Options():
                             default=os.path.join(os.environ['HOME'], 'data'),
                             help='training dataset folder (default: \
                             $(HOME)/data)')
-        parser.add_argument('--workers', type=int, default=4,
+        parser.add_argument('--workers', type=int, default=16,
                             metavar='N', help='dataloader threads')
         # training hyper params
         parser.add_argument('--aux', action='store_true', default= False,
@@ -37,12 +37,12 @@ class Options():
         parser.add_argument('--batch-size', type=int, default=None,
                             metavar='N', help='input batch size for \
                             training (default: auto)')
-        parser.add_argument('--test-batch-size', type=int, default=16,
+        parser.add_argument('--test-batch-size', type=int, default=None,
                             metavar='N', help='input batch size for \
-                            testing (default: 32)')
+                            testing (default: same as batch size)')
         parser.add_argument('--lr', type=float, default=None, metavar='LR',
                             help='learning rate (default: auto)')
-        parser.add_argument('--lr-scheduler', type=str, default='poly', 
+        parser.add_argument('--lr-scheduler', type=str, default='poly',
                             help='learning rate scheduler (default: poly)')
         parser.add_argument('--momentum', type=float, default=0.9,
                             metavar='M', help='momentum (default: 0.9)')
@@ -67,6 +67,8 @@ class Options():
                             help='num of pre-trained classes \
                             (default: None)')
         # evaluation option
+        parser.add_argument('--ema', action='store_true', default= False,
+                            help='using EMA evaluation')
         parser.add_argument('--eval', action='store_true', default= False,
                             help='evaluating mIoU')
         parser.add_argument('--no-val', action='store_true', default= False,
@@ -85,12 +87,14 @@ class Options():
             epoches = {
                 'pascal_voc': 50,
                 'pascal_aug': 50,
-                'pcontext': 50,
+                'pcontext': 80,
                 'ade20k': 120,
             }
             args.epochs = epoches[args.dataset.lower()]
         if args.batch_size is None:
             args.batch_size = 4 * torch.cuda.device_count()
+        if args.test_batch_size is None:
+            args.test_batch_size = args.batch_size
         if args.lr is None:
             lrs = {
                 'pascal_voc': 0.0001,

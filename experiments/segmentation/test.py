@@ -59,7 +59,7 @@ def test(args):
             raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
         checkpoint = torch.load(args.resume)
         # strict=False, so that it is compatible with old pytorch saved models
-        model.load_state_dict(checkpoint['state_dict'], strict=False)
+        model.load_state_dict(checkpoint['state_dict'])
         print("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
 
     print(model)

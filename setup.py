@@ -18,7 +18,7 @@ import setuptools.command.install
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
-version = '0.4.2'
+version = '0.4.3'
 try:
     sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], 
         cwd=cwd).decode('ascii').strip()
@@ -83,6 +83,7 @@ setup(
     install_requires=requirements,
     packages=find_packages(exclude=["tests", "experiments"]),
     package_data={ 'encoding': [
+        'LICENSE',
         'lib/cpu/*.h',
         'lib/cpu/*.cpp',
         'lib/gpu/*.h',

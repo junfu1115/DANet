@@ -27,22 +27,27 @@ Test Pre-trained Model
     for example ``Encnet_ResNet50_PContext``::
 
         python test.py --dataset PContext --model-zoo Encnet_ResNet50_PContext --eval
-        # pixAcc: 0.7862, mIoU: 0.4946: 100%|████████████████████████| 319/319 [09:44<00:00,  1.83s/it]
+        # pixAcc: 0.7838, mIoU: 0.4958: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
 
     The command for training the model can be found by clicking ``cmd`` in the table.
 
 .. role:: raw-html(raw)
    :format: html
 
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| Model                            | pixAcc    | mIoU      | Command                                                                                      |
-+==================================+===========+===========+==============================================================================================+
-| FCN_ResNet50_PContext            | 76.0%     | 45.7      | :raw-html:`<a href="javascript:toggleblock('cmd_fcn50_pcont')" class="toggleblock">cmd</a>`  |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| Encnet_ResNet50_PContext         | 78.6%     | 49.5      | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| Encnet_ResNet101_PContext        | 80.0%     | 52.1      | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
++----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| Model                            | pixAcc    | mIoU      | Note      | Command                                                                                      | Logs       |
++==================================+===========+===========+===========+==============================================================================================+============+
+| Encnet_ResNet50_PContext         | 78.4%     | 49.6%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  | ENC50PC_   |
++----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| EncNet_ResNet101_PContext        | 79.9%     | 51.8%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` | ENC101PC_  |
++----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| EncNet_ResNet50_ADE              | 79.8%     | 41.3%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    | ENC50ADE_  |
++----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+
+.. _ENC50PC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet50_pcontext.log?raw=true
+.. _ENC101PC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet101_pcontext.log?raw=true
+.. _ENC50ADE: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet50_ade.log?raw=true
+
 
 .. raw:: html
 
@@ -56,6 +61,14 @@ Test Pre-trained Model
 
     <code xml:space="preserve" id="cmd_enc101_pcont" style="display: none; text-align: left; white-space: pre-wrap">
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset PContext --model EncNet --aux --se-loss --backbone resnet101
+    </code>
+
+    <code xml:space="preserve" id="cmd_psp50_ade" style="display: none; text-align: left; white-space: pre-wrap">
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model PSP --aux
+    </code>
+
+    <code xml:space="preserve" id="cmd_enc50_ade" style="display: none; text-align: left; white-space: pre-wrap">
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss
     </code>
 
 Quick Demo
@@ -104,6 +117,12 @@ Train Your Own Model
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset pcontext --model encnet --aux --se-loss
 
 - Detail training options, please run ``python train.py -h``.
+
+- The validation metrics during the training only using center-crop is just for monitoring the
+  training correctness purpose. For evaluating the pretrained model on validation set using MS,
+  please use the command::
+
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset pcontext --model encnet --aux --se-loss --resume mycheckpoint --eval
 
 Citation
 --------

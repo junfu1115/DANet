@@ -7,10 +7,15 @@ import zipfile
 from ..utils import download, check_sha1
 
 _model_sha1 = {name: checksum for checksum, name in [
+    ('853f2fb07aeb2927f7696e166b215609a987fd44', 'resnet50'),
+    #('bbba8e79b6bd131e82e2edf2ac0f119b3c6b8f87', 'resnet50'),
+    ('5be5422ad7cb6a2e5f5a54070d0aa9affe69a9a4', 'resnet101'),
     ('eeed8e582f0fdccdba8579e7490570adc6d85c7c', 'fcn_resnet50_pcontext'),
-    ('969062a5aad2d1d983bae2f9e412578b62610114', 'encnet_resnet50_pcontext'),
-    ('3062cec955670690d3481d75e7e6368c721a46ce', 'encnet_resnet101_pcontext'),
+    ('425a7b15176105be0c0ae522aefde02bdcb3b9f5', 'encnet_resnet50_pcontext'),
+    ('abf1472fde53b7b41d7801a1f715765e1ef6f86e', 'encnet_resnet101_pcontext'),
+    ('167f05f69df94d4066dad155d1a71dc6493747eb', 'encnet_resnet50_ade'),
     ('fc8c0b795abf0133700c2d4265d2f9edab7eb6cc', 'fcn_resnet50_ade'),
+    ('54f70c772505064e30efd1ddd3a14e1759faa363', 'psp_resnet50_ade'),
     ]}
 
 encoding_repo_url = 'https://hangzh.s3.amazonaws.com/'

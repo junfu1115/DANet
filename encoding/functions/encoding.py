@@ -10,9 +10,10 @@
 """Functions for Encoding Layer"""
 import torch
 from torch.autograd import Function, Variable
+import torch.nn.functional as F
 from .. import lib
 
-__all__ = ['aggregate', 'scaledL2']
+__all__ = ['aggregate', 'scaledL2', 'pairwise_cosine']
 
 class _aggregate(Function):
     @staticmethod
@@ -93,3 +94,18 @@ def scaledL2(X, C, S):
         - Output: :math:`E\in\mathcal{R}^{B\times N\times K}`
     """
     return _scaledL2.apply(X, C, S)
+
+# Experimental
+def pairwise_cosine(X, C, normalize=False):
+    r"""Pairwise Cosine Similarity or Dot-product Similarity
+    Shape:
+        - Input: :math:`X\in\mathcal{R}^{B\times N\times D}`
+          :math:`C\in\mathcal{R}^{K\times D}` :math:`S\in \mathcal{R}^K`
+          (where :math:`B` is batch, :math:`N` is total number of features,
+          :math:`K` is number is codewords, :math:`D` is feature dimensions.)
+        - Output: :math:`E\in\mathcal{R}^{B\times N\times K}`
+    """
+    if normalize:
+        X = F.normalize(X, dim=2, eps=1e-8)
+        C = F.normalize(C, dim=1, eps=1e-8)
+    return torch.matmul(X, C.t())

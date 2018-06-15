@@ -19,8 +19,16 @@ def parse_args():
 
 def download_ade(path, overwrite=False):
     _AUG_DOWNLOAD_URLS = [
-        ('http://host.robots.ox.ac.uk/pascal/VOC/voc2010/VOCtrainval_03-May-2010.tar', 'bf9985e9f2b064752bf6bd654d89f017c76c395a'),
-        ('https://codalabuser.blob.core.windows.net/public/trainval_merged.json', '169325d9f7e9047537fedca7b04de4dddf10b881')]
+        ('http://host.robots.ox.ac.uk/pascal/VOC/voc2010/VOCtrainval_03-May-2010.tar',
+         'bf9985e9f2b064752bf6bd654d89f017c76c395a'),
+        ('https://codalabuser.blob.core.windows.net/public/trainval_merged.json',
+         '169325d9f7e9047537fedca7b04de4dddf10b881'),
+        # You can skip these if the network is slow, the dataset will automatically generate them.
+        ('https://hangzh.s3.amazonaws.com/encoding/data/pcontext/train.pth',
+         '4bfb49e8c1cefe352df876c9b5434e655c9c1d07'),
+        ('https://hangzh.s3.amazonaws.com/encoding/data/pcontext/val.pth',
+         'ebedc94247ec616c57b9a2df15091784826a7b0c'),
+        ]
     download_dir = os.path.join(path, 'downloads')
     mkdir(download_dir)
     for url, checksum in _AUG_DOWNLOAD_URLS:

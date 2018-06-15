@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.nn.modules.utils import _pair
 
-from ..functions import scaledL2, aggregate
+from ..functions import scaledL2, aggregate, pairwise_cosine
 
 __all__ = ['Encoding', 'EncodingDrop', 'Inspiration', 'UpsampleConv2d']
 
@@ -110,6 +110,7 @@ class Encoding(Module):
         return self.__class__.__name__ + '(' \
             + 'N x ' + str(self.D) + '=>' + str(self.K) + 'x' \
             + str(self.D) + ')'
+
 
 class EncodingDrop(Module):
     r"""Dropout regularized Encoding Layer.

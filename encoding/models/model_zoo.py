@@ -1,6 +1,7 @@
 # pylint: disable=wildcard-import, unused-wildcard-import
 
 from .fcn import *
+from .psp import *
 from .encnet import *
 
 __all__ = ['get_model']
@@ -27,7 +28,9 @@ def get_model(name, **kwargs):
         'fcn_resnet50_pcontext': get_fcn_resnet50_pcontext,
         'encnet_resnet50_pcontext': get_encnet_resnet50_pcontext,
         'encnet_resnet101_pcontext': get_encnet_resnet101_pcontext,
+        'encnet_resnet50_ade': get_encnet_resnet50_ade,
         'fcn_resnet50_ade': get_fcn_resnet50_ade,
+        'psp_resnet50_ade': get_psp_resnet50_ade,
         }
     name = name.lower()
     if name not in models:

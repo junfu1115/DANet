@@ -6,10 +6,10 @@
 
 from PIL import Image, ImageOps, ImageFilter
 import os
-import os.path
 import math
 import random
 import numpy as np
+from tqdm import trange
 
 import torch
 from .base import BaseDataset
@@ -26,20 +26,13 @@ class ContextSegmentation(BaseDataset):
         root = os.path.join(root, self.BASE_DIR)
         annFile = os.path.join(root, 'trainval_merged.json')
         imgDir = os.path.join(root, 'JPEGImages')
+        mask_file = os.path.join(root, self.split+'.pth')
         # training mode
-        if split == 'train':
-            phase = 'train'
-        elif split == 'val':
-            phase = 'val'
-        elif split == 'test':
-            phase = 'val'
-            #phase = 'test'
-        print('annFile', annFile)
-        print('imgDir', imgDir)
-        self.detail = Detail(annFile, imgDir, phase)
+        self.detail = Detail(annFile, imgDir, split)
         self.transform = transform
         self.target_transform = target_transform
         self.ids = self.detail.getImgs()
+        # generate masks
         self._mapping = np.sort(np.array([
             0, 2, 259, 260, 415, 324, 9, 258, 144, 18, 19, 22, 
             23, 397, 25, 284, 158, 159, 416, 33, 162, 420, 454, 295, 296, 
@@ -47,6 +40,10 @@ class ContextSegmentation(BaseDataset):
             68, 326, 72, 458, 34, 207, 80, 355, 85, 347, 220, 349, 360, 
             98, 187, 104, 105, 366, 189, 368, 113, 115]))
         self._key = np.array(range(len(self._mapping))).astype('uint8')
+        if os.path.exists(mask_file):
+            self.masks = torch.load(mask_file)
+        else:
+            self.masks = self._preprocess(mask_file)
 
     def _class_to_index(self, mask):
         # assert the values
@@ -57,19 +54,33 @@ class ContextSegmentation(BaseDataset):
         index = np.digitize(mask.ravel(), self._mapping, right=True)
         return self._key[index].reshape(mask.shape)
 
+    def _preprocess(self, mask_file):
+        masks = {}
+        tbar = trange(len(self.ids))
+        print("Preprocessing mask, this will take a while." + \
+            "But don't worry, it only run once for each split.")
+        for i in tbar:
+            img_id = self.ids[i]
+            mask = Image.fromarray(self._class_to_index(
+                self.detail.getMask(img_id)))
+            masks[img_id['image_id']] = mask
+            tbar.set_description("Preprocessing masks {}".format(img_id['image_id']))
+        torch.save(masks, mask_file)
+        return masks
+
     def __getitem__(self, index):
-        detail = self.detail
         img_id = self.ids[index]
         path = img_id['file_name']
         iid = img_id['image_id']
-        img = Image.open(os.path.join(detail.img_folder, path)).convert('RGB')
+        img = Image.open(os.path.join(self.detail.img_folder, path)).convert('RGB')
         if self.mode == 'test':
             if self.transform is not None:
                 img = self.transform(img)
             return img, os.path.basename(path)
         # convert mask to 60 categories
-        mask = Image.fromarray(self._class_to_index(
-            detail.getMask(img_id)))
+        #mask = Image.fromarray(self._class_to_index(
+        #    self.detail.getMask(img_id)))
+        mask = self.masks[iid]
         # synchrosized transform
         if self.mode == 'train':
             img, mask = self._sync_transform(img, mask)

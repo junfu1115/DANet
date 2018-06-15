@@ -1,7 +1,7 @@
 """Dilated ResNet"""
 import math
+import torch
 import torch.utils.model_zoo as model_zoo
-#from .. import nn
 import torch.nn as nn
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
@@ -234,7 +234,7 @@ def resnet34(pretrained=False, **kwargs):
     return model
 
 
-def resnet50(pretrained=False, **kwargs):
+def resnet50(pretrained=False, root='~/.encoding/models', **kwargs):
     """Constructs a ResNet-50 model.
 
     Args:
@@ -242,11 +242,13 @@ def resnet50(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
+        from ..models.model_store import get_model_file
+        model.load_state_dict(torch.load(
+            get_model_file('resnet50', root=root)), strict=False)
     return model
 
 
-def resnet101(pretrained=False, **kwargs):
+def resnet101(pretrained=False, root='~/.encoding/models', **kwargs):
     """Constructs a ResNet-101 model.
 
     Args:
@@ -254,11 +256,13 @@ def resnet101(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet101']))
+        from ..models.model_store import get_model_file
+        model.load_state_dict(torch.load(
+            get_model_file('resnet101', root=root)), strict=False)
     return model
 
 
-def resnet152(pretrained=False, **kwargs):
+def resnet152(pretrained=False, root='~/.encoding/models', **kwargs):
     """Constructs a ResNet-152 model.
 
     Args:
