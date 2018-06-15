@@ -16,7 +16,7 @@ from ..nn import PyramidPooling
 
 class PSP(BaseNet):
     def __init__(self, nclass, backbone, aux=True, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
-        super(PSP, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer)
+        super(PSP, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
         self.head = PSPHead(2048, nclass, norm_layer, self._up_kwargs)
         if aux:
             self.auxlayer = FCNHead(1024, nclass, norm_layer)
@@ -59,7 +59,7 @@ def get_psp(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     }
     # infer number of classes
     from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
-    model = PSP(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, **kwargs)
+    model = PSP(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file
         model.load_state_dict(torch.load(
@@ -83,4 +83,4 @@ def get_psp_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     >>> model = get_psp_resnet50_ade(pretrained=True)
     >>> print(model)
     """
-    return get_psp('ade20k', 'resnet50', pretrained)
+    return get_psp('ade20k', 'resnet50', pretrained, root=root, **kwargs)

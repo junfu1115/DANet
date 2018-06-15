@@ -19,7 +19,8 @@ __all__ = ['EncNet', 'EncModule', 'get_encnet', 'get_encnet_resnet50_pcontext',
 class EncNet(BaseNet):
     def __init__(self, nclass, backbone, aux=True, se_loss=True, lateral=False,
                  norm_layer=nn.BatchNorm2d, **kwargs):
-        super(EncNet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer)
+        super(EncNet, self).__init__(nclass, backbone, aux, se_loss,
+                                     norm_layer=norm_layer, **kwargs)
         self.head = EncHead(self.nclass, in_channels=2048, se_loss=se_loss,
                             lateral=lateral, norm_layer=norm_layer,
                             up_kwargs=self._up_kwargs)
@@ -142,7 +143,7 @@ def get_encnet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     kwargs['lateral'] = True if dataset.lower() == 'pcontext' else False
     # infer number of classes
     from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
-    model = EncNet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, **kwargs)
+    model = EncNet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file
         model.load_state_dict(torch.load(

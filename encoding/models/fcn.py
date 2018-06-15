@@ -39,7 +39,7 @@ class FCN(BaseNet):
     >>> print(model)
     """
     def __init__(self, nclass, backbone, aux=True, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
-        super(FCN, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer)
+        super(FCN, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
         self.head = FCNHead(2048, nclass, norm_layer)
         if aux:
             self.auxlayer = FCNHead(1024, nclass, norm_layer)
@@ -97,7 +97,7 @@ def get_fcn(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     }
     # infer number of classes
     from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
-    model = FCN(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, **kwargs)
+    model = FCN(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file
         model.load_state_dict(torch.load(
@@ -122,7 +122,7 @@ def get_fcn_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **kwa
     >>> model = get_fcn_resnet50_pcontext(pretrained=True)
     >>> print(model)
     """
-    return get_fcn('pcontext', 'resnet50', pretrained, aux=False, **kwargs)
+    return get_fcn('pcontext', 'resnet50', pretrained, root=root, aux=False, **kwargs)
 
 def get_fcn_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
@@ -141,4 +141,4 @@ def get_fcn_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     >>> model = get_fcn_resnet50_ade(pretrained=True)
     >>> print(model)
     """
-    return get_fcn('ade20k', 'resnet50', pretrained, **kwargs)
+    return get_fcn('ade20k', 'resnet50', pretrained, root=root, **kwargs)

@@ -24,7 +24,7 @@ __all__ = ['BaseNet', 'MultiEvalModule']
 
 class BaseNet(nn.Module):
     def __init__(self, nclass, backbone, aux, se_loss, dilated=True, norm_layer=None,
-                 mean=[.485, .456, .406], std=[.229, .224, .225]):
+                 mean=[.485, .456, .406], std=[.229, .224, .225], root='~/.encoding/models'):
         super(BaseNet, self).__init__()
         self.nclass = nclass
         self.aux = aux
@@ -33,11 +33,14 @@ class BaseNet(nn.Module):
         self.std = std
         # copying modules from pretrained models
         if backbone == 'resnet50':
-            self.pretrained = resnet.resnet50(pretrained=True, dilated=dilated, norm_layer=norm_layer)
+            self.pretrained = resnet.resnet50(pretrained=True, dilated=dilated,
+                                              norm_layer=norm_layer, root=root)
         elif backbone == 'resnet101':
-            self.pretrained = resnet.resnet101(pretrained=True, dilated=dilated, norm_layer=norm_layer)
+            self.pretrained = resnet.resnet101(pretrained=True, dilated=dilated,
+                                               norm_layer=norm_layer, root=root)
         elif backbone == 'resnet152':
-            self.pretrained = resnet.resnet152(pretrained=True, dilated=dilated, norm_layer=norm_layer)
+            self.pretrained = resnet.resnet152(pretrained=True, dilated=dilated,
+                                               norm_layer=norm_layer, root=root)
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
         # bilinear upsample options
