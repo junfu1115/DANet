@@ -177,13 +177,6 @@ class PyramidPooling(Module):
         # bilinear upsample options
         self._up_kwargs = up_kwargs
 
-    def _cat_each(self, x, feat1, feat2, feat3, feat4):
-        assert(len(x) == len(feat1))
-        z = []
-        for i in range(len(x)):
-            z.append(torch.cat((x[i], feat1[i], feat2[i], feat3[i], feat4[i]), 1))
-        return z
-
     def forward(self, x):
         _, _, h, w = x.size()
         feat1 = F.upsample(self.conv1(self.pool1(x)), (h, w), **self._up_kwargs)

@@ -166,7 +166,7 @@ def get_encnet_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **
     >>> model = get_encnet_resnet50_pcontext(pretrained=True)
     >>> print(model)
     """
-    return get_encnet('pcontext', 'resnet50', pretrained, aux=False, **kwargs)
+    return get_encnet('pcontext', 'resnet50', pretrained, root=root, aux=False, **kwargs)
 
 def get_encnet_resnet101_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
@@ -185,7 +185,7 @@ def get_encnet_resnet101_pcontext(pretrained=False, root='~/.encoding/models', *
     >>> model = get_encnet_resnet101_pcontext(pretrained=True)
     >>> print(model)
     """
-    return get_encnet('pcontext', 'resnet101', pretrained, aux=False, **kwargs)
+    return get_encnet('pcontext', 'resnet101', pretrained, root=root, aux=False, **kwargs)
 
 def get_encnet_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
@@ -204,4 +204,4 @@ def get_encnet_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwarg
     >>> model = get_encnet_resnet50_ade(pretrained=True)
     >>> print(model)
     """
-    return get_encnet('ade20k', 'resnet50', pretrained, aux=True, **kwargs)
+    return get_encnet('ade20k', 'resnet50', pretrained, root=root, aux=True, **kwargs)
