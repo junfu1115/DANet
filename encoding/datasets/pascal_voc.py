@@ -17,8 +17,9 @@ class VOCSegmentation(BaseDataset):
     NUM_CLASS = 21
     BASE_DIR = 'VOCdevkit/VOC2012'
     def __init__(self, root, split='train', mode=None, transform=None, 
-                 target_transform=None):
-        super(VOCSegmentation, self).__init__(root, split, mode, transform, target_transform)
+                 target_transform=None, **kwargs):
+        super(VOCSegmentation, self).__init__(root, split, mode, transform,
+                                              target_transform, **kwargs)
         _voc_root = os.path.join(self.root, self.BASE_DIR)
         _mask_dir = os.path.join(_voc_root, 'SegmentationClass')
         _image_dir = os.path.join(_voc_root, 'JPEGImages')

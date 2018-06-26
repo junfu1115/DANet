@@ -39,7 +39,7 @@ def softmax_crossentropy(input, target, weight, size_average, ignore_index, redu
 
 class SegmentationLosses(CrossEntropyLoss):
     """2D Cross Entropy Loss with Auxilary Loss"""
-    def __init__(self, se_loss=False, se_weight=0.1, nclass=-1,
+    def __init__(self, se_loss=False, se_weight=0.2, nclass=-1,
                  aux=False, aux_weight=0.2, weight=None,
                  size_average=True, ignore_index=-1):
         super(SegmentationLosses, self).__init__(weight, size_average, ignore_index)

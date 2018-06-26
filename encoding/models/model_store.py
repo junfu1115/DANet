@@ -8,14 +8,13 @@ from ..utils import download, check_sha1
 
 _model_sha1 = {name: checksum for checksum, name in [
     ('853f2fb07aeb2927f7696e166b215609a987fd44', 'resnet50'),
-    #('bbba8e79b6bd131e82e2edf2ac0f119b3c6b8f87', 'resnet50'),
     ('5be5422ad7cb6a2e5f5a54070d0aa9affe69a9a4', 'resnet101'),
-    ('eeed8e582f0fdccdba8579e7490570adc6d85c7c', 'fcn_resnet50_pcontext'),
-    ('425a7b15176105be0c0ae522aefde02bdcb3b9f5', 'encnet_resnet50_pcontext'),
-    ('abf1472fde53b7b41d7801a1f715765e1ef6f86e', 'encnet_resnet101_pcontext'),
-    ('167f05f69df94d4066dad155d1a71dc6493747eb', 'encnet_resnet50_ade'),
     ('fc8c0b795abf0133700c2d4265d2f9edab7eb6cc', 'fcn_resnet50_ade'),
+    ('eeed8e582f0fdccdba8579e7490570adc6d85c7c', 'fcn_resnet50_pcontext'),
     ('54f70c772505064e30efd1ddd3a14e1759faa363', 'psp_resnet50_ade'),
+    ('558e8904e123813f23dc0347acba85224650fe5f', 'encnet_resnet50_ade'),
+    ('7846a2f065e90ce70d268ba8ada1a92251587734', 'encnet_resnet50_pcontext'),
+    ('6f7c372259988bc2b6d7fc0007182e7835c31a11', 'encnet_resnet101_pcontext'),
     ]}
 
 encoding_repo_url = 'https://hangzh.s3.amazonaws.com/'

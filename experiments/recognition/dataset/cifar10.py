@@ -12,7 +12,7 @@ import torch
 import torchvision
 import torchvision.transforms as transforms
 
-class Dataloder():
+class Dataloader():
     def __init__(self, args):
         transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),

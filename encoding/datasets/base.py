@@ -22,6 +22,9 @@ class BaseDataset(data.Dataset):
         self.mode = mode if mode is not None else split
         self.base_size = base_size
         self.crop_size = crop_size
+        if self.mode == 'train':
+            print('BaseDataset: base_size {}, crop_size {}'. \
+                format(base_size, crop_size))
 
     def __getitem__(self, index):
         raise NotImplemented

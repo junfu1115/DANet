@@ -18,9 +18,9 @@ class ContextSegmentation(BaseDataset):
     BASE_DIR = 'VOCdevkit/VOC2010'
     NUM_CLASS = 59
     def __init__(self, root=os.path.expanduser('~/.encoding/data'), split='train',
-                 mode=None, transform=None, target_transform=None):
+                 mode=None, transform=None, target_transform=None, **kwargs):
         super(ContextSegmentation, self).__init__(
-            root, split, mode, transform, target_transform)
+            root, split, mode, transform, target_transform, **kwargs)
         from detail import Detail
         #from detail import mask
         root = os.path.join(root, self.BASE_DIR)
@@ -78,8 +78,6 @@ class ContextSegmentation(BaseDataset):
                 img = self.transform(img)
             return img, os.path.basename(path)
         # convert mask to 60 categories
-        #mask = Image.fromarray(self._class_to_index(
-        #    self.detail.getMask(img_id)))
         mask = self.masks[iid]
         # synchrosized transform
         if self.mode == 'train':

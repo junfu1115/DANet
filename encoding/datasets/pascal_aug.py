@@ -16,8 +16,9 @@ class VOCAugSegmentation(BaseDataset):
     NUM_CLASS = 21
     TRAIN_BASE_DIR = 'VOCaug/dataset/'
     def __init__(self, root, split='train', mode=None, transform=None, 
-                 target_transform=None):
-        super(VOCAugSegmentation, self).__init__(root, split, mode, transform, target_transform)
+                 target_transform=None, **kwargs):
+        super(VOCAugSegmentation, self).__init__(root, split, mode, transform,
+                                                 target_transform, **kwargs)
         # train/val/test splits are pre-cut
         _voc_root = os.path.join(root, self.TRAIN_BASE_DIR)
         _mask_dir = os.path.join(_voc_root, 'cls')

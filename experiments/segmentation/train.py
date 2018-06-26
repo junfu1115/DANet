@@ -34,10 +34,12 @@ class Trainer():
             transform.ToTensor(),
             transform.Normalize([.485, .456, .406], [.229, .224, .225])])
         # dataset
-        trainset = get_segmentation_dataset(args.dataset, split='train',
-                                            transform=input_transform)
-        testset = get_segmentation_dataset(args.dataset, split='val',
-                                           transform=input_transform)
+        data_kwargs = {'transform': input_transform, 'base_size': args.base_size,
+                       'crop_size': args.crop_size}
+        trainset = get_segmentation_dataset(args.dataset, split='train', mode='train',
+                                           **data_kwargs)
+        testset = get_segmentation_dataset(args.dataset, split='val', mode ='val',
+                                           **data_kwargs)
         # dataloader
         kwargs = {'num_workers': args.workers, 'pin_memory': True} \
             if args.cuda else {}
@@ -49,7 +51,8 @@ class Trainer():
         # model
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone = args.backbone, aux = args.aux,
-                                       se_loss = args.se_loss, norm_layer = BatchNorm2d)
+                                       se_loss = args.se_loss, norm_layer = BatchNorm2d,
+                                       base_size=args.base_size, crop_size=args.crop_size)
         print(model)
         # optimizer using different LR
         params_list = [{'params': model.pretrained.parameters(), 'lr': args.lr},]

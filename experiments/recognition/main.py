@@ -82,7 +82,6 @@ def main():
         model.train()
         global best_pred, errlist_train
         train_loss, correct, total = 0,0,0
-        #adjust_learning_rate(optimizer, args, epoch, best_pred)
         tbar = tqdm(train_loader, desc='\r')
         for batch_idx, (data, target) in enumerate(tbar):
             scheduler(optimizer, batch_idx, epoch, best_pred)

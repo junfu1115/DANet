@@ -6,20 +6,18 @@ Install from Source
 -------------------
 
     * Install PyTorch by following the `PyTorch instructions <http://pytorch.org/>`_.
+      This package relies on PyTorch master branch (higher than stable released v0.4.0), please follow
+      `the instruction <https://github.com/pytorch/pytorch#from-source>`_ to install
+      PyTorch from source.
  
-    * Install from source
+    * PIP Install::
 
-        - Clone the repo::
+        pip install torch-encoding
 
-            git clone https://github.com/zhanghang1989/PyTorch-Encoding && cd PyTorch-Encoding
+    * Install from source:: 
 
-        - On Linux::
-
-            python setup.py install
-
-        - On Mac OSX::
-
-            MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
+        git clone https://github.com/zhanghang1989/PyTorch-Encoding && cd PyTorch-Encoding
+        python setup.py install
 
 Citations
 ---------

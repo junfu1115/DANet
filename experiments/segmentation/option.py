@@ -25,6 +25,10 @@ class Options():
                             $(HOME)/data)')
         parser.add_argument('--workers', type=int, default=16,
                             metavar='N', help='dataloader threads')
+        parser.add_argument('--base-size', type=int, default=608,
+                            help='base image size')
+        parser.add_argument('--crop-size', type=int, default=576,
+                            help='crop image size')
         # training hyper params
         parser.add_argument('--aux', action='store_true', default= False,
                             help='Auxilary Loss')
@@ -40,6 +44,7 @@ class Options():
         parser.add_argument('--test-batch-size', type=int, default=None,
                             metavar='N', help='input batch size for \
                             testing (default: same as batch size)')
+        # optimizer params
         parser.add_argument('--lr', type=float, default=None, metavar='LR',
                             help='learning rate (default: auto)')
         parser.add_argument('--lr-scheduler', type=str, default='poly',
@@ -88,7 +93,7 @@ class Options():
                 'pascal_voc': 50,
                 'pascal_aug': 50,
                 'pcontext': 80,
-                'ade20k': 120,
+                'ade20k': 160,
             }
             args.epochs = epoches[args.dataset.lower()]
         if args.batch_size is None:

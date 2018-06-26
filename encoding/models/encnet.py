@@ -21,7 +21,7 @@ class EncNet(BaseNet):
                  norm_layer=nn.BatchNorm2d, **kwargs):
         super(EncNet, self).__init__(nclass, backbone, aux, se_loss,
                                      norm_layer=norm_layer, **kwargs)
-        self.head = EncHead(self.nclass, in_channels=2048, se_loss=se_loss,
+        self.head = EncHead(2048, self.nclass, se_loss=se_loss,
                             lateral=lateral, norm_layer=norm_layer,
                             up_kwargs=self._up_kwargs)
         if aux:
@@ -43,15 +43,15 @@ class EncNet(BaseNet):
 class EncModule(nn.Module):
     def __init__(self, in_channels, nclass, ncodes=32, se_loss=True, norm_layer=None):
         super(EncModule, self).__init__()
-        norm_layer = nn.BatchNorm1d if isinstance(norm_layer, nn.BatchNorm2d) else \
-            encoding.nn.BatchNorm1d
+        #norm_layer = nn.BatchNorm1d if isinstance(norm_layer, nn.BatchNorm2d) else \
+        #    encoding.nn.BatchNorm1d
         self.se_loss = se_loss
         self.encoding = nn.Sequential(
             nn.Conv2d(in_channels, in_channels, 1, bias=False),
-            nn.BatchNorm2d(in_channels),
+            norm_layer(in_channels),
             nn.ReLU(inplace=True),
             encoding.nn.Encoding(D=in_channels, K=ncodes),
-            norm_layer(ncodes),
+            encoding.nn.BatchNorm1d(ncodes),
             nn.ReLU(inplace=True),
             encoding.nn.Mean(dim=1))
         self.fc = nn.Sequential(
@@ -72,7 +72,7 @@ class EncModule(nn.Module):
 
 
 class EncHead(nn.Module):
-    def __init__(self, out_channels, in_channels, se_loss=True, lateral=True,
+    def __init__(self, in_channels, out_channels, se_loss=True, lateral=True,
                  norm_layer=None, up_kwargs=None):
         super(EncHead, self).__init__()
         self.se_loss = se_loss
@@ -167,7 +167,7 @@ def get_encnet_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **
     >>> model = get_encnet_resnet50_pcontext(pretrained=True)
     >>> print(model)
     """
-    return get_encnet('pcontext', 'resnet50', pretrained, root=root, aux=False, **kwargs)
+    return get_encnet('pcontext', 'resnet50', pretrained, root=root, aux=True, **kwargs)
 
 def get_encnet_resnet101_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
@@ -186,7 +186,7 @@ def get_encnet_resnet101_pcontext(pretrained=False, root='~/.encoding/models', *
     >>> model = get_encnet_resnet101_pcontext(pretrained=True)
     >>> print(model)
     """
-    return get_encnet('pcontext', 'resnet101', pretrained, root=root, aux=False, **kwargs)
+    return get_encnet('pcontext', 'resnet101', pretrained, root=root, aux=True, **kwargs)
 
 def get_encnet_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"

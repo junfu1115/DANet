@@ -6,7 +6,7 @@ Install Package
 
 - Clone the GitHub repo::
     
-    git clone git@github.com:zhanghang1989/PyTorch-Encoding.git
+    git clone https://github.com/zhanghang1989/PyTorch-Encoding
 
 - Install PyTorch Encoding (if not yet). Please follow the installation guide `Installing PyTorch Encoding <../notes/compile.html>`_.
 
@@ -27,7 +27,7 @@ Test Pre-trained Model
     for example ``Encnet_ResNet50_PContext``::
 
         python test.py --dataset PContext --model-zoo Encnet_ResNet50_PContext --eval
-        # pixAcc: 0.7838, mIoU: 0.4958: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
+        # pixAcc: 0.7888, mIoU: 0.5056: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
 
     The command for training the model can be found by clicking ``cmd`` in the table.
 
@@ -37,11 +37,11 @@ Test Pre-trained Model
 +----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
 | Model                            | pixAcc    | mIoU      | Note      | Command                                                                                      | Logs       |
 +==================================+===========+===========+===========+==============================================================================================+============+
-| Encnet_ResNet50_PContext         | 78.4%     | 49.6%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  | ENC50PC_   |
+| Encnet_ResNet50_PContext         | 78.9%     | 50.6%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  | ENC50PC_   |
 +----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet101_PContext        | 79.9%     | 51.8%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` | ENC101PC_  |
+| EncNet_ResNet101_PContext        | 80.3%     | 53.2%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` | ENC101PC_  |
 +----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet50_ADE              | 79.8%     | 41.3%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    | ENC50ADE_  |
+| EncNet_ResNet50_ADE              | 79.9%     | 41.2%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    | ENC50ADE_  |
 +----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
 
 .. _ENC50PC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet50_pcontext.log?raw=true
@@ -68,7 +68,7 @@ Test Pre-trained Model
     </code>
 
     <code xml:space="preserve" id="cmd_enc50_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ade20k --model encnetv2 --aux --se-loss
     </code>
 
 Quick Demo

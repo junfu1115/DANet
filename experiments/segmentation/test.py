@@ -42,18 +42,19 @@ def test(args):
         testset = get_segmentation_dataset(args.dataset, split='test', mode='test',
                                            transform=input_transform)
     # dataloader
-    kwargs = {'num_workers': args.workers, 'pin_memory': True} \
+    loader_kwargs = {'num_workers': args.workers, 'pin_memory': True} \
         if args.cuda else {}
     test_data = data.DataLoader(testset, batch_size=args.test_batch_size,
                                 drop_last=False, shuffle=False,
-                                collate_fn=test_batchify_fn, **kwargs)
+                                collate_fn=test_batchify_fn, **loader_kwargs)
     # model
     if args.model_zoo is not None:
         model = get_model(args.model_zoo, pretrained=True)
     else:
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone = args.backbone, aux = args.aux,
-                                       se_loss = args.se_loss, norm_layer = BatchNorm2d)
+                                       se_loss = args.se_loss, norm_layer = BatchNorm2d,
+                                       base_size=args.base_size, crop_size=args.crop_size)
         # resuming checkpoint
         if args.resume is None or not os.path.isfile(args.resume):
             raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))

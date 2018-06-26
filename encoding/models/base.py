@@ -24,13 +24,16 @@ __all__ = ['BaseNet', 'MultiEvalModule']
 
 class BaseNet(nn.Module):
     def __init__(self, nclass, backbone, aux, se_loss, dilated=True, norm_layer=None,
-                 mean=[.485, .456, .406], std=[.229, .224, .225], root='~/.encoding/models'):
+                 base_size=576, crop_size=608, mean=[.485, .456, .406],
+                 std=[.229, .224, .225], root='~/.encoding/models'):
         super(BaseNet, self).__init__()
         self.nclass = nclass
         self.aux = aux
         self.se_loss = se_loss
         self.mean = mean
         self.std = std
+        self.base_size = base_size
+        self.crop_size = crop_size
         # copying modules from pretrained models
         if backbone == 'resnet50':
             self.pretrained = resnet.resnet50(pretrained=True, dilated=dilated,
@@ -70,15 +73,16 @@ class BaseNet(nn.Module):
 
 class MultiEvalModule(DataParallel):
     """Multi-size Segmentation Eavluator"""
-    def __init__(self, module, nclass, device_ids=None,
-                 base_size=520, crop_size=480, flip=True,
+    def __init__(self, module, nclass, device_ids=None, flip=True,
                  scales=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75]):
         super(MultiEvalModule, self).__init__(module, device_ids)
         self.nclass = nclass
-        self.base_size = base_size
-        self.crop_size = crop_size
+        self.base_size = module.base_size
+        self.crop_size = module.crop_size
         self.scales = scales
         self.flip = flip
+        print('MultiEvalModule: base_size {}, crop_size {}'. \
+            format(self.base_size, self.crop_size))
 
     def parallel_forward(self, inputs, **kwargs):
         """Multi-GPU Mult-size Evaluation
@@ -86,7 +90,8 @@ class MultiEvalModule(DataParallel):
         Args:
             inputs: list of Tensors
         """
-        inputs = [(input.unsqueeze(0).cuda(device),) for input, device in zip(inputs, self.device_ids)]
+        inputs = [(input.unsqueeze(0).cuda(device),)
+                  for input, device in zip(inputs, self.device_ids)]
         replicas = self.replicate(self, self.device_ids[:len(inputs)])
         kwargs = scatter(kwargs, target_gpus, dim) if kwargs else []
         if len(inputs) < len(kwargs):
@@ -134,8 +139,8 @@ class MultiEvalModule(DataParallel):
                 _,_,ph,pw = pad_img.size()
                 assert(ph >= height and pw >= width)
                 # grid forward and normalize
-                h_grids = int(math.ceil(1.0*(ph-crop_size)/stride)) + 1
-                w_grids = int(math.ceil(1.0*(pw-crop_size)/stride)) + 1
+                h_grids = int(math.ceil(1.0 * (ph-crop_size)/stride)) + 1
+                w_grids = int(math.ceil(1.0 * (pw-crop_size)/stride)) + 1
                 with torch.cuda.device_of(image):
                     outputs = image.new().resize_(batch,self.nclass,ph,pw).zero_().cuda()
                     count_norm = image.new().resize_(batch,1,ph,pw).zero_().cuda()
