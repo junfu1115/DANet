@@ -14,7 +14,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 import encoding
-import torchvision.models as resnet
+import encoding.dilated.resnet as resnet
 
 class Net(nn.Module):
     def __init__(self, args):
@@ -23,11 +23,11 @@ class Net(nn.Module):
         self.backbone = args.backbone
         # copying modules from pretrained models
         if self.backbone == 'resnet50':
-            self.pretrained = resnet.resnet50(pretrained=True)
+            self.pretrained = resnet.resnet50(pretrained=True, dilated=False)
         elif self.backbone == 'resnet101':
-            self.pretrained = resnet.resnet101(pretrained=True)
+            self.pretrained = resnet.resnet101(pretrained=True, dilated=False)
         elif self.backbone == 'resnet152':
-            self.pretrained = resnet.resnet152(pretrained=True)
+            self.pretrained = resnet.resnet152(pretrained=True, dilated=False)
         else:
             raise RuntimeError('unknown backbone: {}'.format(self.backbone))
         n_codes = 32

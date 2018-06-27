@@ -66,7 +66,7 @@ class Bottleneck(nn.Module):
         conv_block = []
         conv_block += [norm_layer(inplanes),
                        nn.ReLU(inplace=True),
-                       nn.Conv2d(inplanes, planes, kernel_size=1, 
+                       nn.Conv2d(inplanes, planes, kernel_size=1,
                                  stride=1, bias=False)]
         conv_block += [norm_layer(planes),
                        nn.ReLU(inplace=True),

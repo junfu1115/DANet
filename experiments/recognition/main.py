@@ -94,11 +94,11 @@ def main():
             loss.backward()
             optimizer.step()
 
-            train_loss += loss.data[0]
+            train_loss += loss.data.item()
             pred = output.data.max(1)[1] 
             correct += pred.eq(target.data).cpu().sum()
             total += target.size(0)
-            err = 100-100.*correct/total
+            err = 100.0 - 100.0 * correct / total
             tbar.set_description('\rLoss: %.3f | Err: %.3f%% (%d/%d)' % \
                 (train_loss/(batch_idx+1), err, total-correct, total))
 
@@ -122,7 +122,7 @@ def main():
                 correct += pred.eq(target.data).cpu().sum().item()
                 total += target.size(0)
 
-            err = 100-100.0*correct/total
+            err = 100.0 - 100.0 * correct / total
             tbar.set_description('Loss: %.3f | Err: %.3f%% (%d/%d)'% \
                 (test_loss/(batch_idx+1), err, total-correct, total))
 

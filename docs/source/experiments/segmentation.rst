@@ -68,7 +68,7 @@ Test Pre-trained Model
     </code>
 
     <code xml:space="preserve" id="cmd_enc50_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ade20k --model encnetv2 --aux --se-loss
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss
     </code>
 
 Quick Demo
