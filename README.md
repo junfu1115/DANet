@@ -56,7 +56,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
    CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset cityscapes --model danet --resume-dir cityscapes/model --base-size 2048 --crop-size 768 --workers 1 --backbone resnet101 --multi-grid --multi-dilation 4 8 16
    ```
    
-4. Result:
+5. Result:
 
    The expected scores will show as follows:
    
@@ -64,6 +64,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
    
    DANet101 on cityscapes val set (mIoU/pAcc): **79.93/95.97** (ss) and **81.49/96.41** (ms)
 
+## We will release the code for training in the next few days!
 
 ## Citation
 If DANet is useful for your research, please consider citing:
