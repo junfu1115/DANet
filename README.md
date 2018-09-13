@@ -76,3 +76,5 @@ If DANet is useful for your research, please consider citing:
   year={2018}
 }
 ```
+## Acknowledgement
+Thanks [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding), especially the Synchronized BN!
