@@ -9,6 +9,7 @@
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 """Encoding Package Core NN Modules."""
+import math
 import torch
 from torch.nn import Module, Parameter
 import torch.nn.functional as F
