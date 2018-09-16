@@ -62,7 +62,7 @@ class Options():
         parser.add_argument('--seed', type=int, default=1, metavar='S',
                             help='random seed (default: 1)')
         parser.add_argument('--log-root', type=str,
-                            default='./log', help='set a log path folder')
+                            default='./cityscapes/log', help='set a log path folder')
 
         # checking point
         parser.add_argument('--resume', type=str, default=None,
@@ -76,9 +76,12 @@ class Options():
         # finetuning pre-trained models
         parser.add_argument('--ft', action='store_true', default= False,
                             help='finetuning on a different dataset')
+        parser.add_argument('--ft-resume', type=str, default=None,
+                            help='put the path of trained model to finetune if needed ')
         parser.add_argument('--pre-class', type=int, default=None,
                             help='num of pre-trained classes \
                             (default: None)')
+
         # evaluation option
         parser.add_argument('--ema', action='store_true', default= False,
                             help='using EMA evaluation')

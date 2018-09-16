@@ -14,7 +14,8 @@ __all__ = ['BaseDataset', 'test_batchify_fn']
 
 class BaseDataset(data.Dataset):
     def __init__(self, root, split, mode=None, transform=None, 
-                 target_transform=None, base_size=520, crop_size=480):
+                 target_transform=None, base_size=520, crop_size=480,
+                 logger=None, scale=True):
         self.root = root
         self.transform = transform
         self.target_transform = target_transform
@@ -22,9 +23,17 @@ class BaseDataset(data.Dataset):
         self.mode = mode if mode is not None else split
         self.base_size = base_size
         self.crop_size = crop_size
+        self.logger = logger
+        self.scale = scale
+
         if self.mode == 'train':
             print('BaseDataset: base_size {}, crop_size {}'. \
                 format(base_size, crop_size))
+
+        if not self.scale:
+            if self.logger is not None:
+                self.logger.info('single scale training!!!')
+
 
     def __getitem__(self, index):
         raise NotImplemented
@@ -64,8 +73,10 @@ class BaseDataset(data.Dataset):
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
             mask = mask.transpose(Image.FLIP_LEFT_RIGHT)
         crop_size = self.crop_size
-        # random scale (short edge from 480 to 720)
-        short_size = random.randint(int(self.base_size*0.5), int(self.base_size*2.0))
+        if self.scale:
+            short_size = random.randint(int(self.base_size*0.75), int(self.base_size*2.0))
+        else:
+            short_size = self.base_size
         w, h = img.size
         if h > w:
             ow = short_size
@@ -76,15 +87,15 @@ class BaseDataset(data.Dataset):
         img = img.resize((ow, oh), Image.BILINEAR)
         mask = mask.resize((ow, oh), Image.NEAREST)
         # random rotate -10~10, mask using NN rotate
-        deg = random.uniform(-10, 10)
-        img = img.rotate(deg, resample=Image.BILINEAR)
-        mask = mask.rotate(deg, resample=Image.NEAREST)
+        # deg = random.uniform(-10, 10)
+        # img = img.rotate(deg, resample=Image.BILINEAR)
+        # mask = mask.rotate(deg, resample=Image.NEAREST)
         # pad crop
         if short_size < crop_size:
             padh = crop_size - oh if oh < crop_size else 0
             padw = crop_size - ow if ow < crop_size else 0
             img = ImageOps.expand(img, border=(0, 0, padw, padh), fill=0)
-            mask = ImageOps.expand(mask, border=(0, 0, padw, padh), fill=0)
+            mask = ImageOps.expand(mask, border=(0, 0, padw, padh), fill=255)#pad 255 for cityscapes
         # random crop crop_size
         w, h = img.size
         x1 = random.randint(0, w - crop_size)
@@ -92,9 +103,9 @@ class BaseDataset(data.Dataset):
         img = img.crop((x1, y1, x1+crop_size, y1+crop_size))
         mask = mask.crop((x1, y1, x1+crop_size, y1+crop_size))
         # gaussian blur as in PSP
-        if random.random() < 0.5:
-            img = img.filter(ImageFilter.GaussianBlur(
-                radius=random.random()))
+        # if random.random() < 0.5:
+        #     img = img.filter(ImageFilter.GaussianBlur(
+        #         radius=random.random()))
         # final transform
         return img, self._mask_transform(mask)
 

@@ -25,7 +25,7 @@ __all__ = ['BaseNet', 'MultiEvalModule']
 class BaseNet(nn.Module):
     def __init__(self, nclass, backbone, aux, se_loss, dilated=True, norm_layer=None,
                  base_size=576, crop_size=608, mean=[.485, .456, .406],
-                 std=[.229, .224, .225], root='~/.encoding/models',
+                 std=[.229, .224, .225], root='./pretrain_models',
                  multi_grid=False, multi_dilation=None):
         super(BaseNet, self).__init__()
         self.nclass = nclass
@@ -38,14 +38,16 @@ class BaseNet(nn.Module):
         # copying modules from pretrained models
         if backbone == 'resnet50':
             self.pretrained = resnet.resnet50(pretrained=True, dilated=dilated,
-                                              norm_layer=norm_layer, root=root)
+                                              norm_layer=norm_layer, root=root,
+                                              multi_grid=multi_grid, multi_dilation=multi_dilation)
         elif backbone == 'resnet101':
             self.pretrained = resnet.resnet101(pretrained=True, dilated=dilated,
                                                norm_layer=norm_layer, root=root,
                                                multi_grid=multi_grid,multi_dilation=multi_dilation)
         elif backbone == 'resnet152':
             self.pretrained = resnet.resnet152(pretrained=True, dilated=dilated,
-                                               norm_layer=norm_layer, root=root)
+                                               norm_layer=norm_layer, root=root,
+                                               multi_grid=multi_grid, multi_dilation=multi_dilation)
         else:
             raise RuntimeError('unknown backbone: {}'.format(backbone))
         # bilinear upsample options
@@ -84,7 +86,7 @@ class MultiEvalModule(DataParallel):
         if not multi_scales:
             self.scales = [1.0]
         else:
-            self.scales = [0.5,0.75,1.0, 1.25, 1.5, 1.75, 2.0, 2.2]
+            self.scales = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.2]
         self.flip = flip
         print('MultiEvalModule: base_size {}, crop_size {}'. \
             format(self.base_size, self.crop_size))

@@ -18,7 +18,7 @@ from torch.autograd import Variable
 torch_ver = torch.__version__[:3]
 
 __all__ = ['GramMatrix', 'SegmentationLosses', 'View', 'Sum', 'Mean',
-           'Normalize', 'PyramidPooling']
+           'Normalize', 'PyramidPooling','SegmentationMultiLosses']
 
 class GramMatrix(Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
@@ -84,6 +84,27 @@ class SegmentationLosses(CrossEntropyLoss):
             vect = hist>0
             tvect[i] = vect
         return tvect
+
+
+
+class SegmentationMultiLosses(CrossEntropyLoss):
+    """2D Cross Entropy Loss with Multi-L1oss"""
+    def __init__(self, nclass=-1, weight=None,size_average=True, ignore_index=-1):
+        super(SegmentationMultiLosses, self).__init__(weight, size_average, ignore_index)
+        self.nclass = nclass
+
+
+    def forward(self, *inputs):
+
+        *preds, target = tuple(inputs)
+        pred1, pred2 ,pred3= tuple(preds)
+
+
+        loss1 = super(SegmentationMultiLosses, self).forward(pred1, target)
+        loss2 = super(SegmentationMultiLosses, self).forward(pred2, target)
+        loss3 = super(SegmentationMultiLosses, self).forward(pred3, target)
+        loss = loss1 + loss2 + loss3
+        return loss
 
 
 class View(Module):
@@ -184,3 +205,6 @@ class PyramidPooling(Module):
         feat3 = F.upsample(self.conv3(self.pool3(x)), (h, w), **self._up_kwargs)
         feat4 = F.upsample(self.conv4(self.pool4(x)), (h, w), **self._up_kwargs)
         return torch.cat((x, feat1, feat2, feat3, feat4), 1)
+
+
+

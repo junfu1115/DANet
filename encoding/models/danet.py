@@ -36,11 +36,9 @@ class DANet(BaseNet):
         for semantic segmentation." *CVPR*, 2015
 
     """
-    def __init__(self, nclass, backbone, aux=True, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
+    def __init__(self, nclass, backbone, aux=False, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
         super(DANet, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
         self.head = DANetHead(2048, nclass, norm_layer)
-        if aux:
-            self.auxlayer = DANetHead(1024, nclass, norm_layer)
 
     def forward(self, x):
         imsize = x.size()[2:]
@@ -49,9 +47,13 @@ class DANet(BaseNet):
         x = self.head(c4)
         x = list(x)
         x[0] = upsample(x[0], imsize, **self._up_kwargs)
+        x[1] = upsample(x[1], imsize, **self._up_kwargs)
+        x[2] = upsample(x[2], imsize, **self._up_kwargs)
 
         outputs = [x[0]]
-        return outputs
+        outputs.append(x[1])
+        outputs.append(x[2])
+        return tuple(outputs)
         
 class DANetHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer):
@@ -74,30 +76,34 @@ class DANetHead(nn.Module):
                                    norm_layer(inter_channels),
                                    nn.ReLU())
 
-        
-        
+        self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
+        self.conv7 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
+
         self.conv8 = nn.Sequential(nn.Dropout2d(0.1, False), nn.Conv2d(512, out_channels, 1))
 
     def forward(self, x):
         feat1 = self.conv5a(x)
         sa_feat = self.sa(feat1)
-        sa_conv = self.conv51(sa_feat) 
+        sa_conv = self.conv51(sa_feat)
+        sa_output = self.conv6(sa_conv)
 
         feat2 = self.conv5c(x)
         sc_feat = self.sc(feat2)
         sc_conv = self.conv52(sc_feat)
+        sc_output = self.conv7(sc_conv)
 
         feat_sum = sa_conv+sc_conv
         
-        x = self.conv8(feat_sum)
+        sasc_output = self.conv8(feat_sum)
 
-
-        output = [x]
-        return output
+        output = [sasc_output]
+        output.append(sa_output)
+        output.append(sc_output)
+        return tuple(output)
 
 
 def get_danet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
-            root='~/.encoding/models', **kwargs):
+            root='./pretrain_models', **kwargs):
     r"""DANet model from the paper `"Dual Attention Network for Scene Segmentation"
     <https://arxiv.org/abs/1809.02983.pdf>`
     """
@@ -115,6 +121,6 @@ def get_danet(dataset='pascal_voc', backbone='resnet50', pretrained=False,
         from .model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('fcn_%s_%s'%(backbone, acronyms[dataset]), root=root)),
-            strict= False)
+            strict=False)
     return model
 

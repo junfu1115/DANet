@@ -5,8 +5,6 @@ import time
 import io
 
 
-
-
 def create_logger(log_root_path,log_name):
     if not osp.exists(log_root_path):
         os.makedirs(log_root_path)

@@ -250,7 +250,7 @@ def resnet34(pretrained=False, **kwargs):
     return model
 
 
-def resnet50(pretrained=False, root='~/.encoding/models', **kwargs):
+def resnet50(pretrained=False, root='./pretrain_models', **kwargs):
     """Constructs a ResNet-50 model.
 
     Args:
@@ -264,7 +264,7 @@ def resnet50(pretrained=False, root='~/.encoding/models', **kwargs):
     return model
 
 
-def resnet101(pretrained=False, root='~/.encoding/models', **kwargs):
+def resnet101(pretrained=False, root='./pretrain_models', **kwargs):
     """Constructs a ResNet-101 model.
 
     Args:
@@ -273,10 +273,10 @@ def resnet101(pretrained=False, root='~/.encoding/models', **kwargs):
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     #Remove the following lines of comments
     #if u want to train from a pretrained model
-    #if pretrained:
-    #    from ..models.model_store import get_model_file
-    #    model.load_state_dict(torch.load(
-    #        get_model_file('resnet101', root=root)), strict=False)
+    if pretrained:
+       from ..models.model_store import get_model_file
+       model.load_state_dict(torch.load(
+           get_model_file('resnet101', root=root)), strict=False)
     return model
 
 
@@ -290,5 +290,5 @@ def resnet152(pretrained=False, root='~/.encoding/models', **kwargs):
     if pretrained:
        # model.load_state_dict(model_zoo.load_url(model_urls['resnet152']))
         model.load_state_dict(torch.load(
-            '~/.encoding/models/resnet152-b121ed2d.pth'), strict=False)
+            './pretrain_models/resnet152-b121ed2d.pth'), strict=False)
     return model

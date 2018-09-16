@@ -26,10 +26,8 @@ class CityscapesSegmentation(BaseDataset):
         super(CityscapesSegmentation, self).__init__(
             root, split, mode, transform, target_transform, **kwargs)
         # assert exists
-        
         root = os.path.join(root, self.BASE_DIR)
         assert os.path.exists(root), "Please download the dataset!!"
-       
 
         self.images, self.masks = _get_cityscapes_pairs(root, split)
         if split != 'vis':

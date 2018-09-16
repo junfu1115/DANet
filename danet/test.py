@@ -26,7 +26,7 @@ if torch_ver == '0.3':
 
 def test(args):
     # output folder
-    outdir = 'danet_outputs'
+    outdir = '%s/danet_vis'%(args.dataset)
     if not os.path.exists(outdir):
         os.makedirs(outdir)
     # data transforms
@@ -37,7 +37,7 @@ def test(args):
     if args.eval:
         testset = get_segmentation_dataset(args.dataset, split='val', mode='testval',
                                            transform=input_transform)
-    else:
+    else:#set split='test' for test set
         testset = get_segmentation_dataset(args.dataset, split='val', mode='vis',
                                            transform=input_transform)
     # dataloader
@@ -50,8 +50,8 @@ def test(args):
         model = get_model(args.model_zoo, pretrained=True)
     else:
         model = get_segmentation_model(args.model, dataset=args.dataset,
-                                       backbone = args.backbone, aux = args.aux,
-                                       se_loss = args.se_loss, norm_layer = BatchNorm2d,
+                                       backbone=args.backbone, aux=args.aux,
+                                       se_loss=args.se_loss, norm_layer=BatchNorm2d,
                                        base_size=args.base_size, crop_size=args.crop_size,
                                        multi_grid=args.multi_grid, multi_dilation=args.multi_dilation)
         # resuming checkpoint
@@ -59,7 +59,7 @@ def test(args):
             raise RuntimeError("=> no checkpoint found at '{}'" .format(args.resume))
         checkpoint = torch.load(args.resume)
         # strict=False, so that it is compatible with old pytorch saved models
-        model.load_state_dict(checkpoint['state_dict'],strict=False)
+        model.load_state_dict(checkpoint['state_dict'], strict=False)
 
     print(model)
     num_class = testset.num_class
@@ -123,8 +123,8 @@ def eval_multi_models(args):
     for resume_file in os.listdir(args.resume_dir):
         if os.path.splitext(resume_file)[1] == '.tar':
             args.resume = os.path.join(args.resume_dir, resume_file)
-            
             assert os.path.exists(args.resume)
+
             pixAcc, mIoU, IoU, num_class = test(args)
         
             txtfile = args.resume

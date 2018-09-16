@@ -26,7 +26,7 @@ def short_hash(name):
         raise ValueError('Pretrained model for {name} is not available.'.format(name=name))
     return _model_sha1[name][:8]
 
-def get_model_file(name, root=os.path.join('~', '.encoding', 'models')):
+def get_model_file(name, root='./pretrain_models'):
     r"""Return location for the pretrained on local file system.
 
     This function will download from online model zoo when model cannot be found or has mismatch.
@@ -36,7 +36,7 @@ def get_model_file(name, root=os.path.join('~', '.encoding', 'models')):
     ----------
     name : str
         Name of the model.
-    root : str, default '~/.encoding/models'
+    root : str, default './pretrain_models'
         Location for keeping the model parameters.
 
     Returns
@@ -75,12 +75,12 @@ def get_model_file(name, root=os.path.join('~', '.encoding', 'models')):
     else:
         raise ValueError('Downloaded file has different hash. Please try again.')
 
-def purge(root=os.path.join('~', '.encoding', 'models')):
+def purge(root='./pretrain_models'):
     r"""Purge all pretrained model files in local file store.
 
     Parameters
     ----------
-    root : str, default '~/.encoding/models'
+    root : str, default './pretrain_models'
         Location for keeping the model parameters.
     """
     root = os.path.expanduser(root)

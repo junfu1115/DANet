@@ -32,7 +32,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
   - Download the [Cityscapes](https://www.cityscapes-dataset.com/) dataset and convert the dataset to [19 categories](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/helpers/labels.py). 
   - Please put dataset in folder `./datasets`
 
-4. Evaluation
+4 . Evaluation
 
   - Download trained model [DANet101](https://drive.google.com/open?id=1XmpFEF-tbPH0Rmv4eKRxYJngr3pTbj6p) and put it in folder `./danet/cityscapes/model`
   - Evaluation code is in folder `./danet/cityscapes`
@@ -56,7 +56,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
    CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset cityscapes --model danet --resume-dir cityscapes/model --base-size 2048 --crop-size 768 --workers 1 --backbone resnet101 --multi-grid --multi-dilation 4 8 16
    ```
    
-5. Result:
+5. Evaluation Result:
 
    The expected scores will show as follows:
    
@@ -64,7 +64,20 @@ We train our DANet-101 with only fine annotated data and submit our test results
    
    DANet101 on cityscapes val set (mIoU/pAcc): **79.93/95.97** (ss) and **81.49/96.41** (ms)
 
-## We will release the code for training in the next few days!
+
+6. Training:
+
+  - Training code is in folder `./danet/cityscapes`
+  - `cd danet`
+  
+   You can reproduce our result by run:
+
+  ```shell
+   CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset cityscapes --model  danet --backbone resnet101 --checkname danet101  --base-size 1024 --crop-size 768 --epochs 240 --batch-size 8 --lr 0.003 --workers 2 --multi-grid --multi-dilation 4 8 16
+   ```
+ 
+   Note that: We adopt multiple losses in end of the network for better training. 
+   
 
 ## Citation
 If DANet is useful for your research, please consider citing:

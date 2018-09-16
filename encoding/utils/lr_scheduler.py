@@ -27,7 +27,7 @@ class LR_Scheduler(object):
         iters_per_epoch: number of iterations per epoch
     """
     def __init__(self, mode, base_lr, num_epochs, iters_per_epoch=0,
-                 lr_step=0, warmup_epochs=0):
+                 lr_step=0, warmup_epochs=0, logger=None):
         self.mode = mode
         print('Using {} LR Scheduler!'.format(self.mode))
         self.lr = base_lr
@@ -38,6 +38,8 @@ class LR_Scheduler(object):
         self.N = num_epochs * iters_per_epoch
         self.epoch = -1
         self.warmup_iters = warmup_epochs * iters_per_epoch
+        self.logger = logger
+        self.logger.info('Using {} LR Scheduler!'.format(self.mode))
 
     def __call__(self, optimizer, i, epoch, best_pred):
         T = epoch * self.iters_per_epoch + i
@@ -53,7 +55,7 @@ class LR_Scheduler(object):
         if self.warmup_iters > 0 and T < self.warmup_iters:
             lr = lr * 1.0 * T / self.warmup_iters
         if epoch > self.epoch:
-            print('\n=>Epoches %i, learning rate = %.4f, \
+            self.logger.info('\n=>Epoches %i, learning rate = %.4f, \
                 previous best = %.4f' % (epoch, lr, best_pred))
             self.epoch = epoch
         assert lr >= 0
