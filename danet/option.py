@@ -17,7 +17,7 @@ class Options():
                             help='model name (default: encnet)')
         parser.add_argument('--backbone', type=str, default='resnet50',
                             help='backbone name (default: resnet50)')
-        parser.add_argument('--dataset', type=str, default='ade20k',
+        parser.add_argument('--dataset', type=str, default='cityscapes',
                             help='dataset name (default: pascal12)')
         parser.add_argument('--data-folder', type=str,
                             default=os.path.join(os.environ['HOME'], 'data'),
