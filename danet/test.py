@@ -7,7 +7,7 @@
 import os
 import numpy as np
 from tqdm import tqdm
-
+from PIL import Image
 import torch
 from torch.utils import data
 import torchvision.transforms as transform
@@ -31,8 +31,10 @@ def test(args):
         os.makedirs(outdir)
     # data transforms
     input_transform = transform.Compose([
+        transform.Resize((1024,2048),Image.BILINEAR),
         transform.ToTensor(),
         transform.Normalize([.485, .456, .406], [.229, .224, .225])])
+        # Edit transform.Resize() to add your custom sizes
     # dataset
     if args.eval:
         testset = get_segmentation_dataset(args.dataset, split='val', mode='testval',
