@@ -3,7 +3,6 @@
 from .fcn import *
 from .psp import *
 from .encnet import *
-from .deeplab import *
 
 __all__ = ['get_model']
 
@@ -33,7 +32,6 @@ def get_model(name, **kwargs):
         'encnet_resnet101_ade': get_encnet_resnet101_ade,
         'fcn_resnet50_ade': get_fcn_resnet50_ade,
         'psp_resnet50_ade': get_psp_resnet50_ade,
-        'deeplab_resnet50_ade': get_deeplab_resnet50_ade,
         }
     name = name.lower()
     if name not in models:
