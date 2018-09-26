@@ -21,10 +21,9 @@ def get_mask_pallete(npimg, dataset='detail'):
         out_img.putpalette(adepallete)
     elif dataset == 'cityscapes':
         out_img.putpalette(citypallete)
-    else:
+    elif dataset in ('detail', 'pascal_voc', 'pascal_aug'):
         out_img.putpalette(vocpallete)
     return out_img
-
 
 def _get_voc_pallete(num_cls):
     n = num_cls

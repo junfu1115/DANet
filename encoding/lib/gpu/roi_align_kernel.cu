@@ -1,4 +1,5 @@
 #include <ATen/ATen.h>
+#include <ATen/cuda/CUDAContext.h>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -346,7 +347,7 @@ __global__ void RoIAlignBackwardKernel(
 } // namespace
 
 
-at::Tensor ROIAlignForwardCUDA(
+at::Tensor ROIAlign_Forward_CUDA(
     const at::Tensor input,
     const at::Tensor rois,
     int64_t pooled_height,
@@ -370,12 +371,12 @@ at::Tensor ROIAlignForwardCUDA(
 
   auto count = output.numel();
   
-  AT_DISPATCH_FLOATING_TYPES(input.type(), "ROIAlignForwardCUDA", ([&] {
+  AT_DISPATCH_FLOATING_TYPES(input.type(), "ROIAlign_Forward_CUDA", ([&] {
     RoIAlignForwardKernel<scalar_t>
       <<<ROI_GET_BLOCKS(count),
          ROI_CUDA_NUM_THREADS,
          0,
-         at::globalContext().getCurrentCUDAStream()>>>(
+         at::cuda::getCurrentCUDAStream()>>>(
           count,
           input.data<scalar_t>(),
           static_cast<scalar_t>(spatial_scale),
@@ -392,7 +393,7 @@ at::Tensor ROIAlignForwardCUDA(
   return output;
 }
 
-at::Tensor ROIAlignBackwardCUDA(
+at::Tensor ROIAlign_Backward_CUDA(
     const at::Tensor rois,
     const at::Tensor grad_output,
     int64_t b_size,
@@ -417,12 +418,12 @@ at::Tensor ROIAlignBackwardCUDA(
   auto num_rois = rois.size(0);
   auto count = grad_output.numel();
 
-  AT_DISPATCH_FLOATING_TYPES(rois.type(), "ROIAlignBackwardCUDA", ([&] {
+  AT_DISPATCH_FLOATING_TYPES(rois.type(), "ROIAlign_Backward_CUDA", ([&] {
     RoIAlignBackwardKernel<scalar_t>
       <<<ROI_GET_BLOCKS(count),
          ROI_CUDA_NUM_THREADS,
          0,
-         at::globalContext().getCurrentCUDAStream()>>>(
+         at::cuda::getCurrentCUDAStream()>>>(
           count,
           grad_output.data<scalar_t>(),
           num_rois,

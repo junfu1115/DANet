@@ -8,18 +8,70 @@
 ## LICENSE file in the root directory of this source tree
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import threading
 import numpy as np
 import torch
 
-def batch_pix_accuracy(predict, target):
+class SegmentationMetric(object):
+    """Computes pixAcc and mIoU metric scroes
+    """
+    def __init__(self, nclass):
+        self.nclass = nclass
+        self.lock = threading.Lock()
+        self.reset()
+
+    def update(self, labels, preds):
+        def evaluate_worker(self, label, pred):
+            correct, labeled = batch_pix_accuracy(
+                pred, label)
+            inter, union = batch_intersection_union(
+                pred, label, self.nclass)
+            with self.lock:
+                self.total_correct += correct
+                self.total_label += labeled
+                self.total_inter += inter
+                self.total_union += union
+            return
+
+        if isinstance(preds, torch.Tensor):
+            evaluate_worker(self, labels, preds)
+        elif isinstance(preds, (list, tuple)):
+            threads = [threading.Thread(target=evaluate_worker,
+                                        args=(self, label, pred),
+                                       )
+                       for (label, pred) in zip(labels, preds)]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join()
+        else:
+            raise NotImplemented
+
+    def get(self):
+        pixAcc = 1.0 * self.total_correct / (np.spacing(1) + self.total_label)
+        IoU = 1.0 * self.total_inter / (np.spacing(1) + self.total_union)
+        mIoU = IoU.mean()
+        return pixAcc, mIoU
+ 
+    def reset(self):
+        self.total_inter = 0
+        self.total_union = 0
+        self.total_correct = 0
+        self.total_label = 0
+        return
+
+
+def batch_pix_accuracy(output, target):
     """Batch Pixel Accuracy
     Args:
         predict: input 4D tensor
         target: label 3D tensor
     """
-    _, predict = torch.max(predict, 1)
-    predict = predict.cpu().numpy() + 1
-    target = target.cpu().numpy() + 1
+    _, predict = torch.max(output, 1)
+
+    predict = predict.cpu().numpy().astype('int64') + 1
+    target = target.cpu().numpy().astype('int64') + 1
+
     pixel_labeled = np.sum(target > 0)
     pixel_correct = np.sum((predict == target)*(target > 0))
     assert pixel_correct <= pixel_labeled, \
@@ -27,19 +79,19 @@ def batch_pix_accuracy(predict, target):
     return pixel_correct, pixel_labeled
 
 
-def batch_intersection_union(predict, target, nclass):
+def batch_intersection_union(output, target, nclass):
     """Batch Intersection of Union
     Args:
         predict: input 4D tensor
         target: label 3D tensor
         nclass: number of categories (int)
     """
-    _, predict = torch.max(predict, 1)
+    _, predict = torch.max(output, 1)
     mini = 1
     maxi = nclass
     nbins = nclass
-    predict = predict.cpu().numpy() + 1
-    target = target.cpu().numpy() + 1
+    predict = predict.cpu().numpy().astype('int64') + 1
+    target = target.cpu().numpy().astype('int64') + 1
 
     predict = predict * (target > 0).astype(predict.dtype)
     intersection = predict * (predict == target)

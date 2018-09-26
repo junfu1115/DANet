@@ -77,3 +77,148 @@ static __device__ __forceinline__ Float2<DType, Acctype> warpSum(Float2<DType, A
   return value;
 }
 
+template<typename T, typename Op>
+__device__ T reduceD(
+    Op op, int b, int i, int k, int D) {
+  T sum = 0;
+  for (int x = threadIdx.x; x < D; x += blockDim.x) {
+      sum += op(b,i,k,x);
+  }
+  // sum over NumThreads within a warp
+  sum = warpSum(sum);
+
+  // 'transpose', and reduce within warp again
+  __shared__ T shared[32];
+
+  __syncthreads();
+  if (threadIdx.x % WARP_SIZE == 0) {
+      if (threadIdx.x / WARP_SIZE < 32) {
+              shared[threadIdx.x / WARP_SIZE] = sum;
+      }
+  }
+  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
+      // zero out the other entries in shared
+      shared[threadIdx.x] = (T) 0;
+  }
+  __syncthreads();
+  if (threadIdx.x / WARP_SIZE == 0) {
+      sum = warpSum(shared[threadIdx.x]);
+      if (threadIdx.x == 0) {
+          shared[0] = sum;
+      }
+  }
+  __syncthreads();
+
+  // Everyone picks it up, should be broadcast into the whole gradInput
+  return shared[0];
+}
+
+template<typename T, typename Op>
+__device__ T reduceN(
+    Op op, int b, int k, int d, int N) {
+  T sum = 0;
+  for (int x = threadIdx.x; x < N; x += blockDim.x) {
+      sum += op(b,x,k,d);
+  }
+  // sum over NumThreads within a warp
+  sum = warpSum(sum);
+
+  // 'transpose', and reduce within warp again
+  __shared__ T shared[32];
+
+  __syncthreads();
+  if (threadIdx.x % WARP_SIZE == 0) {
+      if (threadIdx.x / WARP_SIZE < 32) {
+              shared[threadIdx.x / WARP_SIZE] = sum;
+      }
+  }
+  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
+      // zero out the other entries in shared
+      shared[threadIdx.x] = (T) 0;
+  }
+  __syncthreads();
+  if (threadIdx.x / WARP_SIZE == 0) {
+      sum = warpSum(shared[threadIdx.x]);
+      if (threadIdx.x == 0) {
+          shared[0] = sum;
+      }
+  }
+  __syncthreads();
+
+  // Everyone picks it up, should be broadcast into the whole gradInput
+  return shared[0];
+}
+
+template<typename T, typename Op>
+__device__ T reduceK(
+    Op op, int b, int i, int d, int K) {
+  T sum = 0;
+  for (int x = threadIdx.x; x < K; x += blockDim.x) {
+    sum += op(b,i,x,d);
+  }
+  // sum over NumThreads within a warp
+  sum = warpSum(sum);
+
+  // 'transpose', and reduce within warp again
+  __shared__ T shared[32];
+
+  __syncthreads();
+  if (threadIdx.x % WARP_SIZE == 0) {
+    if (threadIdx.x / WARP_SIZE < 32) {
+            shared[threadIdx.x / WARP_SIZE] = sum;
+    }
+  }
+  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
+    // zero out the other entries in shared
+    shared[threadIdx.x] = (T) 0;
+  }
+  __syncthreads();
+  if (threadIdx.x / WARP_SIZE == 0) {
+    sum = warpSum(shared[threadIdx.x]);
+    if (threadIdx.x == 0) {
+      shared[0] = sum;
+    }
+  }
+  __syncthreads();
+
+  // Everyone picks it up, should be broadcast into the whole gradInput
+  return shared[0];
+}
+
+template<typename T, typename Op>
+__device__ T reduceBN(
+    Op op, 
+    int k, int d, int B, int N) {
+  T sum = 0;
+  for (int batch = 0; batch < B; ++batch) {
+    for (int x = threadIdx.x; x < N; x += blockDim.x) {
+        sum += op(batch,x,k,d);
+    }
+  }
+  // sum over NumThreads within a warp
+  sum = warpSum(sum);
+  // 'transpose', and reduce within warp again
+  __shared__ T shared[32];
+
+  __syncthreads();
+  if (threadIdx.x % WARP_SIZE == 0) {
+    if (threadIdx.x / WARP_SIZE < 32) {
+            shared[threadIdx.x / WARP_SIZE] = sum;
+    }
+  }
+  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
+    // zero out the other entries in shared
+    shared[threadIdx.x] = (T) 0;
+  }
+  __syncthreads();
+  if (threadIdx.x / WARP_SIZE == 0) {
+    sum = warpSum(shared[threadIdx.x]);
+    if (threadIdx.x == 0) {
+      shared[0] = sum;
+    }
+  }
+  __syncthreads();
+
+  // Everyone picks it up, should be broadcast into the whole gradInput
+  return shared[0];
+}

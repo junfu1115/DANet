@@ -94,9 +94,9 @@ class Dataloader():
             normalize,
         ])
 
-        trainset = MINCDataloder(root=os.path.expanduser('~/data/minc-2500/'), 
+        trainset = MINCDataloder(root=os.path.expanduser('~/.encoding/data/minc-2500/'), 
             train=True, transform=transform_train)
-        testset = MINCDataloder(root=os.path.expanduser('~/data/minc-2500/'), 
+        testset = MINCDataloder(root=os.path.expanduser('~/.encoding/data/minc-2500/'), 
             train=False, transform=transform_test)
     
         kwargs = {'num_workers': 8, 'pin_memory': True} if args.cuda else {}

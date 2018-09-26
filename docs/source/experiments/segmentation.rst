@@ -23,26 +23,34 @@ Test Pre-trained Model
 
         model = encoding.models.get_model('FCN_ResNet50_PContext', pretrained=True)
 
+    Prepare the datasets by runing the scripts in the ``scripts/`` folder, for example preparing ``PASCAL Context`` dataset::
+
+        python scripts/prepare_pcontext.py
+    
     The test script is in the ``experiments/segmentation/`` folder. For evaluating the model (using MS),
     for example ``Encnet_ResNet50_PContext``::
 
         python test.py --dataset PContext --model-zoo Encnet_ResNet50_PContext --eval
-        # pixAcc: 0.7888, mIoU: 0.5056: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
+        # pixAcc: 0.792, mIoU: 0.510: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
 
     The command for training the model can be found by clicking ``cmd`` in the table.
 
 .. role:: raw-html(raw)
    :format: html
 
-+----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| Model                            | pixAcc    | mIoU      | Note      | Command                                                                                      | Logs       |
-+==================================+===========+===========+===========+==============================================================================================+============+
-| Encnet_ResNet50_PContext         | 78.9%     | 50.6%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  | ENC50PC_   |
-+----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet101_PContext        | 80.3%     | 53.2%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` | ENC101PC_  |
-+----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet50_ADE              | 79.9%     | 41.2%     |           | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    | ENC50ADE_  |
-+----------------------------------+-----------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| Model                            | pixAcc    | mIoU      | Command                                                                                      | Logs       |
++==================================+===========+===========+==============================================================================================+============+
+| Encnet_ResNet50_PContext         | 79.2%     | 51.0%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  | ENC50PC_   |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| EncNet_ResNet101_PContext        | 80.7%     | 54.1%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` | ENC101PC_  |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| EncNet_ResNet50_ADE              | 80.1%     | 41.5%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    | ENC50ADE_  |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| EncNet_ResNet101_ADE             | 81.3%     | 44.4%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_ade')" class="toggleblock">cmd</a>`   | ENC101ADE_ |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
+| EncNet_ResNet101_VOC             | N/A       | 85.9%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_voc')" class="toggleblock">cmd</a>`   | ENC101VOC_ |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
 
 .. _ENC50PC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet50_pcontext.log?raw=true
 .. _ENC101PC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet101_pcontext.log?raw=true
@@ -69,6 +77,19 @@ Test Pre-trained Model
 
     <code xml:space="preserve" id="cmd_enc50_ade" style="display: none; text-align: left; white-space: pre-wrap">
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss
+    </code>
+
+
+    <code xml:space="preserve" id="cmd_enc101_ade" style="display: none; text-align: left; white-space: pre-wrap">
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss --backbone resnet101 
+    </code>
+
+    <code xml:space="preserve" id="cmd_enc101_voc" style="display: none; text-align: left; white-space: pre-wrap">
+    # First finetuning COCO dataset pretrained model on augmented set
+    # You can also train from scratch on COCO by yourself
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_aug --model-zoo EncNet_Resnet101_COCO --aux --se-loss --lr 0.001 --syncbn --ngpus 4 --checkname res101
+    # Finetuning on original set
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_voc --model encnet --aux  --se-loss --backbone resnet101 --lr 0.0001 --syncbn --ngpus 4 --checkname res101 --resume runs/Pascal_aug/encnet/res101/checkpoint.params
     </code>
 
 Quick Demo
@@ -116,13 +137,14 @@ Train Your Own Model
 
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset pcontext --model encnet --aux --se-loss
 
-- Detail training options, please run ``python train.py -h``.
+- Detail training options, please run ``python train.py -h``. Commands for reproducing pre-trained models can be found in the table.
 
-- The validation metrics during the training only using center-crop is just for monitoring the
-  training correctness purpose. For evaluating the pretrained model on validation set using MS,
-  please use the command::
+.. hint::
+    The validation metrics during the training only using center-crop is just for monitoring the
+    training correctness purpose. For evaluating the pretrained model on validation set using MS,
+    please use the command::
 
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset pcontext --model encnet --aux --se-loss --resume mycheckpoint --eval
+        CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset pcontext --model encnet --aux --se-loss --resume mycheckpoint --eval
 
 Citation
 --------

@@ -20,10 +20,10 @@ encoding.functions
 .. autofunction:: aggregate
 
 
-:hidden:`scaledL2`
+:hidden:`scaled_l2`
 ~~~~~~~~~~~~~~~~~~~
 
-.. autofunction:: scaledL2
+.. autofunction:: scaled_l2
 
 
 :hidden:`sum_square`

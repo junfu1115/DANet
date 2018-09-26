@@ -24,10 +24,10 @@ def download_coco(path, overwrite=False):
          '8551ee4bb5860311e79dace7e79cb91e432e78b3'),
         ('http://images.cocodataset.org/zips/val2017.zip',
          '4950dc9d00dbe1c933ee0170f5797584351d2a41'),
-        ('http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip',
-         'e7aa0f7515c07e23873a9f71d9095b06bcea3e12'),
-        ('http://images.cocodataset.org/zips/test2017.zip',
-         '99813c02442f3c112d491ea6f30cecf421d0e6b3'),
+        #('http://images.cocodataset.org/annotations/stuff_annotations_trainval2017.zip',
+        # '46cdcf715b6b4f67e980b529534e79c2edffe084'),
+        #('http://images.cocodataset.org/zips/test2017.zip',
+        # '99813c02442f3c112d491ea6f30cecf421d0e6b3'),
     ]
     mkdir(path)
     for url, checksum in _DOWNLOAD_URLS:

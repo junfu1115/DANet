@@ -1,0 +1,24 @@
+ninja_required_version = 1.3
+cxx = c++
+
+cflags = -DTORCH_EXTENSION_NAME=enclib_cpu -I/anaconda3/lib/python3.6/site-packages/torch/lib/include -I/anaconda3/lib/python3.6/site-packages/torch/lib/include/TH -I/anaconda3/lib/python3.6/site-packages/torch/lib/include/THC -I/anaconda3/include/python3.6m -fPIC -std=c++11
+ldflags = -shared -undefined dynamic_lookup
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out
+  depfile = $out.d
+  deps = gcc
+
+rule link
+  command = $cxx $ldflags $in -o $out
+
+build operator.o: compile /Users/hzaws/git/PyTorch-Encoding-Layer-/encoding/lib/cpu/operator.cpp
+build encoding_cpu.o: compile /Users/hzaws/git/PyTorch-Encoding-Layer-/encoding/lib/cpu/encoding_cpu.cpp
+build syncbn_cpu.o: compile /Users/hzaws/git/PyTorch-Encoding-Layer-/encoding/lib/cpu/syncbn_cpu.cpp
+build roi_align_cpu.o: compile /Users/hzaws/git/PyTorch-Encoding-Layer-/encoding/lib/cpu/roi_align_cpu.cpp
+build nms_cpu.o: compile /Users/hzaws/git/PyTorch-Encoding-Layer-/encoding/lib/cpu/nms_cpu.cpp
+
+build enclib_cpu.so: link operator.o encoding_cpu.o syncbn_cpu.o roi_align_cpu.o nms_cpu.o
+
+default enclib_cpu.so
+

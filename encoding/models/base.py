@@ -24,7 +24,7 @@ __all__ = ['BaseNet', 'MultiEvalModule']
 
 class BaseNet(nn.Module):
     def __init__(self, nclass, backbone, aux, se_loss, dilated=True, norm_layer=None,
-                 base_size=576, crop_size=608, mean=[.485, .456, .406],
+                 base_size=520, crop_size=480, mean=[.485, .456, .406],
                  std=[.229, .224, .225], root='~/.encoding/models'):
         super(BaseNet, self).__init__()
         self.nclass = nclass
@@ -99,6 +99,8 @@ class MultiEvalModule(DataParallel):
         elif len(kwargs) < len(inputs):
             kwargs.extend([{} for _ in range(len(inputs) - len(kwargs))])
         outputs = self.parallel_apply(replicas, inputs, kwargs)
+        #for out in outputs:
+        #    print('out.size()', out.size())
         return outputs
 
     def forward(self, image):

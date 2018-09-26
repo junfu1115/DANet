@@ -1,5 +1,6 @@
-#include <ATen/ATen.h>
 #include <vector>
+#include <ATen/ATen.h>
+#include <ATen/cuda/CUDAContext.h>
 
 #include "common.h"
 #include "device_tensor.h"
@@ -64,153 +65,6 @@ struct SL2GradXOp {
   DeviceTensor<DType, 1> S;
 };
 
-
-template<typename T, typename Op>
-__device__ T reduceN(
-    Op op, int b, int k, int d, int N) {
-  T sum = 0;
-  for (int x = threadIdx.x; x < N; x += blockDim.x) {
-      sum += op(b,x,k,d);
-  }
-  // sum over NumThreads within a warp
-  sum = warpSum(sum);
-
-  // 'transpose', and reduce within warp again
-  __shared__ T shared[32];
-
-  __syncthreads();
-  if (threadIdx.x % WARP_SIZE == 0) {
-      if (threadIdx.x / WARP_SIZE < 32) {
-              shared[threadIdx.x / WARP_SIZE] = sum;
-      }
-  }
-  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
-      // zero out the other entries in shared
-      shared[threadIdx.x] = (T) 0;
-  }
-  __syncthreads();
-  if (threadIdx.x / WARP_SIZE == 0) {
-      sum = warpSum(shared[threadIdx.x]);
-      if (threadIdx.x == 0) {
-          shared[0] = sum;
-      }
-  }
-  __syncthreads();
-
-  // Everyone picks it up, should be broadcast into the whole gradInput
-  return shared[0];
-}
-
-template<typename T, typename Op>
-__device__ T reduceD(
-    Op op, int b, int i, int k, int D) {
-  T sum = 0;
-  for (int x = threadIdx.x; x < D; x += blockDim.x) {
-      sum += op(b,i,k,x);
-  }
-  // sum over NumThreads within a warp
-  sum = warpSum(sum);
-
-  // 'transpose', and reduce within warp again
-  __shared__ T shared[32];
-
-  __syncthreads();
-  if (threadIdx.x % WARP_SIZE == 0) {
-      if (threadIdx.x / WARP_SIZE < 32) {
-              shared[threadIdx.x / WARP_SIZE] = sum;
-      }
-  }
-  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
-      // zero out the other entries in shared
-      shared[threadIdx.x] = (T) 0;
-  }
-  __syncthreads();
-  if (threadIdx.x / WARP_SIZE == 0) {
-      sum = warpSum(shared[threadIdx.x]);
-      if (threadIdx.x == 0) {
-          shared[0] = sum;
-      }
-  }
-  __syncthreads();
-
-  // Everyone picks it up, should be broadcast into the whole gradInput
-  return shared[0];
-}
-
-template<typename T, typename Op>
-__device__ T reduceK(
-    Op op, int b, int i, int d, int K) {
-  T sum = 0;
-  for (int x = threadIdx.x; x < K; x += blockDim.x) {
-    sum += op(b,i,x,d);
-  }
-  // sum over NumThreads within a warp
-  sum = warpSum(sum);
-
-  // 'transpose', and reduce within warp again
-  __shared__ T shared[32];
-
-  __syncthreads();
-  if (threadIdx.x % WARP_SIZE == 0) {
-    if (threadIdx.x / WARP_SIZE < 32) {
-            shared[threadIdx.x / WARP_SIZE] = sum;
-    }
-  }
-  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
-    // zero out the other entries in shared
-    shared[threadIdx.x] = (T) 0;
-  }
-  __syncthreads();
-  if (threadIdx.x / WARP_SIZE == 0) {
-    sum = warpSum(shared[threadIdx.x]);
-    if (threadIdx.x == 0) {
-      shared[0] = sum;
-    }
-  }
-  __syncthreads();
-
-  // Everyone picks it up, should be broadcast into the whole gradInput
-  return shared[0];
-}
-
-template<typename T, typename Op>
-__device__ T reduceBN(
-    Op op, 
-    int k, int d, int B, int N) {
-  T sum = 0;
-  for (int batch = 0; batch < B; ++batch) {
-    for (int x = threadIdx.x; x < N; x += blockDim.x) {
-        sum += op(batch,x,k,d);
-    }
-  }
-  // sum over NumThreads within a warp
-  sum = warpSum(sum);
-  // 'transpose', and reduce within warp again
-  __shared__ T shared[32];
-
-  __syncthreads();
-  if (threadIdx.x % WARP_SIZE == 0) {
-    if (threadIdx.x / WARP_SIZE < 32) {
-            shared[threadIdx.x / WARP_SIZE] = sum;
-    }
-  }
-  if (threadIdx.x >= blockDim.x / WARP_SIZE && threadIdx.x < WARP_SIZE) {
-    // zero out the other entries in shared
-    shared[threadIdx.x] = (T) 0;
-  }
-  __syncthreads();
-  if (threadIdx.x / WARP_SIZE == 0) {
-    sum = warpSum(shared[threadIdx.x]);
-    if (threadIdx.x == 0) {
-      shared[0] = sum;
-    }
-  }
-  __syncthreads();
-
-  // Everyone picks it up, should be broadcast into the whole gradInput
-  return shared[0];
-}
-
 template<typename DType, typename Acctype>
 __global__ void Aggregate_Forward_kernel (
     DeviceTensor<DType, 3> E,
@@ -225,7 +79,7 @@ __global__ void Aggregate_Forward_kernel (
   k = blockIdx.y;
   N = X.getSize(1);
   /* main operation */
-  AggOp<DType, Acctype> g(A,X,C);
+  AggOp<DType, Acctype> g(A, X, C);
   E[b][k][d] = reduceN<Acctype>(g, b, k, d, N);
 }
 
@@ -244,7 +98,7 @@ __global__ void Aggregate_Backward_kernel (
   k = blockIdx.x;
   D = GE.getSize(2);
   /* main operation */
-  AggBackOp<DType, Acctype> g(GE,X,C);
+  AggBackOp<DType, Acctype> g(GE, X, C);
   GA[b][i][k] = reduceD<Acctype>(g, b, i, k, D);
 }
 
@@ -312,7 +166,7 @@ at::Tensor Aggregate_Forward_CUDA(
     const at::Tensor C_) {
   /* Device tensors */
   auto E_ = A_.type().tensor({A_.size(0), C_.size(0), C_.size(1)}).zero_(); 
-  cudaStream_t stream = at::globalContext().getCurrentCUDAStream();
+  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   // B, K, D
   dim3 blocks(C_.size(1), C_.size(0), X_.size(0));
   dim3 threads(getNumThreads(X_.size(1)));
@@ -338,7 +192,7 @@ std::vector<at::Tensor> Aggregate_Backward_CUDA(
   auto gradA_ = at::zeros_like(A_);
   auto gradX_ = at::bmm(A_, GE_);
   auto gradC_ = (-GE_ * A_.sum(1).unsqueeze(2)).sum(0);
-  cudaStream_t stream = at::globalContext().getCurrentCUDAStream();
+  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   // B, K, D
   dim3 blocks(C_.size(0), X_.size(1), X_.size(0));
   dim3 threads(getNumThreads(C_.size(1)));
@@ -361,7 +215,7 @@ at::Tensor ScaledL2_Forward_CUDA(
     const at::Tensor C_,
     const at::Tensor S_) {
   auto SL_ = X_.type().tensor({X_.size(0), X_.size(1), C_.size(0)}).zero_();
-  cudaStream_t stream = at::globalContext().getCurrentCUDAStream();
+  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   dim3 blocks(C_.size(0), X_.size(1), X_.size(0));
   dim3 threads(getNumThreads(C_.size(1)));
 
@@ -388,13 +242,11 @@ std::vector<at::Tensor> ScaledL2_Backward_CUDA(
   auto GX_ = at::zeros_like(X_);
   auto GC_ = at::zeros_like(C_);
   /* kernel function */
-  cudaStream_t stream = at::globalContext().getCurrentCUDAStream();
+  cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   dim3 blocks1(X_.size(2), X_.size(1), X_.size(0));
   dim3 threads1(getNumThreads(C_.size(0)));
   dim3 blocks2(C_.size(1), C_.size(0));
   dim3 threads2(getNumThreads(X_.size(1)));
-  //std::vector<int> size{ 1, 1, K};
-  //auto GS_ = GSL_ * (SL_ / at::_unsafe_view(S_, size))
   auto GS_ = (GSL_ * (SL_ / S_.view({1, 1, C_.size(0)}))).sum(0).sum(0);
   AT_DISPATCH_FLOATING_TYPES(X_.type(), "ScaledL2_Backward_CUDA", ([&] {
     /* Device tensors */

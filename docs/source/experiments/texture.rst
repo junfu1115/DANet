@@ -17,16 +17,21 @@ Test Pre-trained Model
 
 - Install PyTorch Encoding (if not yet). Please follow the installation guide `Installing PyTorch Encoding <../notes/compile.html>`_.
 
-- Download the `MINC-2500 <http://opensurfaces.cs.cornell.edu/publications/minc/>`_ dataset to ``$HOME/data/minc-2500/`` folder. Download pre-trained model (pre-trained on train-1 split using single training size of 224, with an error rate of :math:`19.70\%` using single crop on test-1 set)::
+- Download the `MINC-2500 <http://opensurfaces.cs.cornell.edu/publications/minc/>`_ dataset using the providied script::
 
-    cd PyTorch-Encoding/experiments/recognition
+    cd PyTorch-Encoding/
+    python scripts/prepare_minc.py
+
+- Download pre-trained model (pre-trained on train-1 split using single training size of 224, with an error rate of :math:`19.70\%` using single crop on test-1 set)::
+
+    cd experiments/recognition
     python model/download_models.py
 
 - Test pre-trained model on MINC-2500::
 
     python main.py --dataset minc --model deepten --nclass 23 --resume deepten_minc.pth --eval
     # Teriminal Output:
-    # Loss: 1.005 | Err: 19.704% (1133/5750): 100%|████████████████████| 23/23 [00:18<00:00,  1.26it/s]
+    # Loss: 1.005 | Err: 18.96% (1090/5750): 100%|████████████████████| 23/23 [00:18<00:00,  1.26it/s]
 
 
 Train Your Own Model
@@ -34,7 +39,7 @@ Train Your Own Model
 
 - Example training command for training above model::
 
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --dataset minc --model deepten --nclass 23 --model deepten --batch-size 512 --lr 0.004 --epochs 80 --lr-step 60
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --dataset minc --model deepten --nclass 23 --model deepten --batch-size 512 --lr 0.004 --epochs 80 --lr-step 60 --lr-scheduler step
 
 - Detail training options::
 
@@ -56,8 +61,6 @@ Train Your Own Model
   --checkname           set the checkpoint name
   --eval                evaluating
 
-.. todo::
-    Provide example code for extracting features.
 
 Extending the Software
 ----------------------

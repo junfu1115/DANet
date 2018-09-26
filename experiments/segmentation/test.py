@@ -21,10 +21,6 @@ from encoding.models import get_model, get_segmentation_model, MultiEvalModule
 
 from option import Options
 
-torch_ver = torch.__version__[:3]
-if torch_ver == '0.3':
-    from torch.autograd import Variable
-
 def test(args):
     # output folder
     outdir = 'outdir'
@@ -64,58 +60,29 @@ def test(args):
         print("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
 
     print(model)
-    evaluator = MultiEvalModule(model, testset.num_class).cuda()
+    scales = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25] if args.dataset == 'citys' else \
+        [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]
+    evaluator = MultiEvalModule(model, testset.num_class, scales=scales).cuda()
     evaluator.eval()
+    metric = utils.SegmentationMetric(testset.num_class)
 
     tbar = tqdm(test_data)
-    def eval_batch(image, dst, evaluator, eval_mode):
-        if eval_mode:
-            # evaluation mode on validation set
-            targets = dst
-            outputs = evaluator.parallel_forward(image)
-            batch_inter, batch_union, batch_correct, batch_label = 0, 0, 0, 0
-            for output, target in zip(outputs, targets):
-                correct, labeled = utils.batch_pix_accuracy(output.data.cpu(), target)
-                inter, union = utils.batch_intersection_union(
-                    output.data.cpu(), target, testset.num_class)
-                batch_correct += correct
-                batch_label += labeled
-                batch_inter += inter
-                batch_union += union
-            return batch_correct, batch_label, batch_inter, batch_union
+    for i, (image, dst) in enumerate(tbar):
+        if args.eval:
+            with torch.no_grad():
+                predicts = evaluator.parallel_forward(image)
+                metric.update(dst, predicts)
+                pixAcc, mIoU = metric.get()
+                tbar.set_description( 'pixAcc: %.4f, mIoU: %.4f' % (pixAcc, mIoU))
         else:
-            # test mode, dump the results
-            im_paths = dst
-            outputs = evaluator.parallel_forward(image)
-            predicts = [torch.max(output, 1)[1].cpu().numpy() + testset.pred_offset
-                        for output in outputs]
-            for predict, impath in zip(predicts, im_paths):
+            with torch.no_grad():
+                outputs = evaluator.parallel_forward(image)
+                predicts = [testset.make_pred(torch.max(output, 1)[1].cpu().numpy())
+                            for output in outputs]
+            for predict, impath in zip(predicts, dst):
                 mask = utils.get_mask_pallete(predict, args.dataset)
                 outname = os.path.splitext(impath)[0] + '.png'
                 mask.save(os.path.join(outdir, outname))
-            # dummy outputs for compatible with eval mode
-            return 0, 0, 0, 0
-
-    total_inter, total_union, total_correct, total_label = \
-        np.int64(0), np.int64(0), np.int64(0), np.int64(0)
-    for i, (image, dst) in enumerate(tbar):
-        if torch_ver == "0.3":
-            image = Variable(image, volatile=True)
-            correct, labeled, inter, union = eval_batch(image, dst, evaluator, args.eval)
-        else:
-            with torch.no_grad():
-                correct, labeled, inter, union = eval_batch(image, dst, evaluator, args.eval)
-        if args.eval:
-            total_correct += correct.astype('int64')
-            total_label += labeled.astype('int64')
-            total_inter += inter.astype('int64')
-            total_union += union.astype('int64')
-            pixAcc = np.float64(1.0) * total_correct / (np.spacing(1, dtype=np.float64) + total_label)
-            IoU = np.float64(1.0) * total_inter / (np.spacing(1, dtype=np.float64) + total_union)
-            mIoU = IoU.mean()
-            tbar.set_description(
-                'pixAcc: %.4f, mIoU: %.4f' % (pixAcc, mIoU))
-
 
 if __name__ == "__main__":
     args = Options().parse()

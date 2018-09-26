@@ -25,15 +25,21 @@ class Options():
                             $(HOME)/data)')
         parser.add_argument('--workers', type=int, default=16,
                             metavar='N', help='dataloader threads')
-        parser.add_argument('--base-size', type=int, default=608,
+        parser.add_argument('--base-size', type=int, default=520,
                             help='base image size')
-        parser.add_argument('--crop-size', type=int, default=576,
+        parser.add_argument('--crop-size', type=int, default=480,
                             help='crop image size')
+        parser.add_argument('--train-split', type=str, default='train',
+                        help='dataset train split (default: train)')
         # training hyper params
         parser.add_argument('--aux', action='store_true', default= False,
                             help='Auxilary Loss')
+        parser.add_argument('--aux-weight', type=float, default=0.2,
+                            help='Auxilary loss weight (default: 0.2)')
         parser.add_argument('--se-loss', action='store_true', default= False,
                             help='Semantic Encoding Loss SE-loss')
+        parser.add_argument('--se-weight', type=float, default=0.2,
+                            help='SE-loss weight (default: 0.2)')
         parser.add_argument('--epochs', type=int, default=None, metavar='N',
                             help='number of epochs to train (default: auto)')
         parser.add_argument('--start_epoch', type=int, default=0,
@@ -68,12 +74,7 @@ class Options():
         # finetuning pre-trained models
         parser.add_argument('--ft', action='store_true', default= False,
                             help='finetuning on a different dataset')
-        parser.add_argument('--pre-class', type=int, default=None,
-                            help='num of pre-trained classes \
-                            (default: None)')
         # evaluation option
-        parser.add_argument('--ema', action='store_true', default= False,
-                            help='using EMA evaluation')
         parser.add_argument('--eval', action='store_true', default= False,
                             help='evaluating mIoU')
         parser.add_argument('--no-val', action='store_true', default= False,
@@ -90,10 +91,12 @@ class Options():
         # default settings for epochs, batch_size and lr
         if args.epochs is None:
             epoches = {
+                'coco': 30,
+                'citys': 180,
                 'pascal_voc': 50,
                 'pascal_aug': 50,
                 'pcontext': 80,
-                'ade20k': 160,
+                'ade20k': 120,
             }
             args.epochs = epoches[args.dataset.lower()]
         if args.batch_size is None:
@@ -102,10 +105,13 @@ class Options():
             args.test_batch_size = args.batch_size
         if args.lr is None:
             lrs = {
+                'coco': 0.01,
+                'citys': 0.01,
                 'pascal_voc': 0.0001,
                 'pascal_aug': 0.001,
                 'pcontext': 0.001,
                 'ade20k': 0.01,
             }
             args.lr = lrs[args.dataset.lower()] / 16 * args.batch_size
+        print(args)
         return args

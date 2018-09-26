@@ -40,8 +40,8 @@ class Options():
         # lr setting
         parser.add_argument('--lr', type=float, default=0.1, metavar='LR',
             help='learning rate (default: 0.1)')
-        parser.add_argument('--lr-scheduler', type=str, default='step', 
-            help='learning rate scheduler (default: step)')
+        parser.add_argument('--lr-scheduler', type=str, default='cos', 
+            help='learning rate scheduler (default: cos)')
         parser.add_argument('--lr-step', type=int, default=40, metavar='LR',
             help='learning rate step (default: 40)')
         # optimizer

@@ -86,6 +86,46 @@ class Bottleneck(nn.Module):
         return residual + self.conv_block(x)
         
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class EncLayerV2(nn.Module):
+    def __init__(self, channel, K=16, reduction=4):
+        super(EncLayerV2, self).__init__()
+        out_channel = int(channel / reduction)
+        self.fc = nn.Sequential(
+            nn.Conv2d(channel, out_channel, 1),
+            nn.BatchNorm2d(out_channel),
+            nn.ReLU(inplace=True),
+            encoding.nn.EncodingV2(D=out_channel,K=K),
+            encoding.nn.View(-1, out_channel*K),
+            encoding.nn.Normalize(),
+            nn.Linear(out_channel*K, channel),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.fc(x).view(b, c, 1, 1)
+        return x * y
+
+class EncLayerV3(nn.Module):
+    def __init__(self, channel, K=16, reduction=4):
+        super(EncLayerV3, self).__init__()
+        out_channel = int(channel / reduction)
+        self.fc = nn.Sequential(
+            nn.Conv2d(channel, out_channel, 1),
+            nn.BatchNorm2d(out_channel),
+            nn.ReLU(inplace=True),
+            encoding.nn.EncodingV3(D=out_channel,K=K),
+            encoding.nn.View(-1, out_channel*K),
+            encoding.nn.Normalize(),
+            nn.Linear(out_channel*K, channel),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.fc(x).view(b, c, 1, 1)
+        return x * y
+
 class EncLayer(nn.Module):
     def __init__(self, channel, K=16, reduction=4):
         super(EncLayer, self).__init__()

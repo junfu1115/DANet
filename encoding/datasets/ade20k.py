@@ -58,8 +58,8 @@ class ADE20KSegmentation(BaseDataset):
         return img, mask
 
     def _mask_transform(self, mask):
-        target = np.array(mask).astype('int32') - 1
-        return torch.from_numpy(target).long()
+        target = np.array(mask).astype('int64') - 1
+        return torch.from_numpy(target)
 
     def __len__(self):
         return len(self.images)
@@ -90,17 +90,22 @@ def _get_ade20k_pairs(folder, split='train'):
         img_folder = os.path.join(folder, 'images/training')
         mask_folder = os.path.join(folder, 'annotations/training')
         img_paths, mask_paths = get_path_pairs(img_folder, mask_folder)
+        print('len(img_paths):', len(img_paths))
+        assert len(img_paths) == 20210
     elif split == 'val':
         img_folder = os.path.join(folder, 'images/validation')
         mask_folder = os.path.join(folder, 'annotations/validation')
         img_paths, mask_paths = get_path_pairs(img_folder, mask_folder)
+        assert len(img_paths) == 2000
     else:
+        assert split == 'trainval'
         train_img_folder = os.path.join(folder, 'images/training')
         train_mask_folder = os.path.join(folder, 'annotations/training')
         val_img_folder = os.path.join(folder, 'images/validation')
         val_mask_folder = os.path.join(folder, 'annotations/validation')
         train_img_paths, train_mask_paths = get_path_pairs(train_img_folder, train_mask_folder)
         val_img_paths, val_mask_paths = get_path_pairs(val_img_folder, val_mask_folder)
-        return train_img_paths + val_img_paths, train_mask_paths + val_mask_paths
-
+        img_paths = train_img_paths + val_img_paths
+        mask_paths = train_mask_paths + val_mask_paths
+        assert len(img_paths) == 22210
     return img_paths, mask_paths

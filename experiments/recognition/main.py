@@ -96,7 +96,7 @@ def main():
 
             train_loss += loss.data.item()
             pred = output.data.max(1)[1] 
-            correct += pred.eq(target.data).cpu().sum()
+            correct += pred.eq(target.data).cpu().sum().item()
             total += target.size(0)
             err = 100.0 - 100.0 * correct / total
             tbar.set_description('\rLoss: %.3f | Err: %.3f%% (%d/%d)' % \

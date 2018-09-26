@@ -16,8 +16,8 @@ class VOCSegmentation(BaseDataset):
     ]
     NUM_CLASS = 21
     BASE_DIR = 'VOCdevkit/VOC2012'
-    def __init__(self, root, split='train', mode=None, transform=None, 
-                 target_transform=None, **kwargs):
+    def __init__(self, root=os.path.expanduser('~/.encoding/data'), split='train',
+                 mode=None, transform=None, target_transform=None, **kwargs):
         super(VOCSegmentation, self).__init__(root, split, mode, transform,
                                               target_transform, **kwargs)
         _voc_root = os.path.join(self.root, self.BASE_DIR)
@@ -65,10 +65,8 @@ class VOCSegmentation(BaseDataset):
             mask = self._mask_transform(mask)
         # general resize, normalize and toTensor
         if self.transform is not None:
-            #print("transform for input")
             img = self.transform(img)
         if self.target_transform is not None:
-            #print("transform for label")
             target = self.target_transform(target)
         return img, target
 
@@ -79,3 +77,7 @@ class VOCSegmentation(BaseDataset):
 
     def __len__(self):
         return len(self.images)
+
+    @property
+    def pred_offset(self):
+        return 0

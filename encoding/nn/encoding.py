@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 from torch.nn.modules.utils import _pair
 
-from ..functions import scaledL2, aggregate, pairwise_cosine
+from ..functions import scaled_l2, aggregate, pairwise_cosine
 
 __all__ = ['Encoding', 'EncodingDrop', 'Inspiration', 'UpsampleConv2d']
 
@@ -90,18 +90,17 @@ class Encoding(Module):
     def forward(self, X):
         # input X is a 4D tensor
         assert(X.size(1) == self.D)
+        B, D = X.size(0), self.D
         if X.dim() == 3:
-            # BxDxN
-            B, D = X.size(0), self.D
+            # BxDxN => BxNxD
             X = X.transpose(1, 2).contiguous()
         elif X.dim() == 4:
-            # BxDxHxW
-            B, D = X.size(0), self.D
+            # BxDxHxW => Bx(HW)xD
             X = X.view(B, D, -1).transpose(1, 2).contiguous()
         else:
             raise RuntimeError('Encoding Layer unknown input dims!')
-        # assignment weights NxKxD
-        A = F.softmax(scaledL2(X, self.codewords, self.scale), dim=1)
+        # assignment weights BxNxK
+        A = F.softmax(scaled_l2(X, self.codewords, self.scale), dim=2)
         # aggregate
         E = aggregate(A, X, self.codewords)
         return E
@@ -149,7 +148,7 @@ class EncodingDrop(Module):
             raise RuntimeError('Encoding Layer unknown input dims!')
         self._drop()
         # assignment weights
-        A = F.softmax(scaledL2(X, self.codewords, self.scale), dim=1)
+        A = F.softmax(scaled_l2(X, self.codewords, self.scale), dim=2)
         # aggregate
         E = aggregate(A, X, self.codewords)
         self._drop()

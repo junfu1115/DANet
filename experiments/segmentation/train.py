@@ -36,7 +36,7 @@ class Trainer():
         # dataset
         data_kwargs = {'transform': input_transform, 'base_size': args.base_size,
                        'crop_size': args.crop_size}
-        trainset = get_segmentation_dataset(args.dataset, split='train', mode='train',
+        trainset = get_segmentation_dataset(args.dataset, split=args.train_split, mode='train',
                                            **data_kwargs)
         testset = get_segmentation_dataset(args.dataset, split='val', mode ='val',
                                            **data_kwargs)
@@ -60,16 +60,13 @@ class Trainer():
             params_list.append({'params': model.head.parameters(), 'lr': args.lr*10})
         if hasattr(model, 'auxlayer'):
             params_list.append({'params': model.auxlayer.parameters(), 'lr': args.lr*10})
-        optimizer = torch.optim.SGD(params_list, 
-                    lr=args.lr,
-                    momentum=args.momentum,
-                    weight_decay=args.weight_decay)
-        # clear start epoch if fine-tuning
-        if args.ft:
-            args.start_epoch = 0
+        optimizer = torch.optim.SGD(params_list, lr=args.lr,
+            momentum=args.momentum, weight_decay=args.weight_decay)
         # criterions
         self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,
-                                            nclass=self.nclass)
+                                            nclass=self.nclass, 
+                                            se_weight=args.se_weight,
+                                            aux_weight=args.aux_weight)
         self.model, self.optimizer = model, optimizer
         # using cuda
         if args.cuda:
@@ -90,6 +87,9 @@ class Trainer():
             self.best_pred = checkpoint['best_pred']
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
+        # clear start epoch if fine-tuning
+        if args.ft:
+            args.start_epoch = 0
         # lr scheduler
         self.scheduler = utils.LR_Scheduler(args.lr_scheduler, args.lr,
                                             args.epochs, len(self.trainloader))
@@ -172,9 +172,9 @@ if __name__ == "__main__":
     args = Options().parse()
     torch.manual_seed(args.seed)
     trainer = Trainer(args)
-    print('Starting Epoch:', args.start_epoch)
-    print('Total Epoches:', args.epochs)
-    for epoch in range(args.start_epoch, args.epochs):
+    print('Starting Epoch:', trainer.args.start_epoch)
+    print('Total Epoches:', trainer.args.epochs)
+    for epoch in range(trainer.args.start_epoch, trainer.args.epochs):
         trainer.training(epoch)
-        if not args.no_val:
+        if not trainer.args.no_val:
             trainer.validation(epoch)

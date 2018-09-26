@@ -377,7 +377,7 @@ void ROIAlignBackwardCompute(
 }  // ROIAlignBackward
 
 
-at::Tensor ROIAlignForwardCPU(
+at::Tensor ROIAlign_Forward_CPU(
   const at::Tensor& input,
   const at::Tensor& bottom_rois,
   int64_t pooled_height,
@@ -409,7 +409,7 @@ at::Tensor ROIAlignForwardCPU(
   AT_ASSERT(input.is_contiguous());
   AT_ASSERT(bottom_rois.is_contiguous());
 
-  AT_DISPATCH_FLOATING_TYPES(input.type(), "ROIAlignForwardCPU", ([&] {
+  AT_DISPATCH_FLOATING_TYPES(input.type(), "ROIAlign_Forward_CPU", ([&] {
     ROIAlignForwardCompute<scalar_t>(
       output.numel(),
       input.data<scalar_t>(),
@@ -429,7 +429,7 @@ at::Tensor ROIAlignForwardCPU(
 }
 
 
-at::Tensor ROIAlignBackwardCPU(
+at::Tensor ROIAlign_Backward_CPU(
   const at::Tensor& bottom_rois,
   const at::Tensor& grad_output, // gradient of the output of the layer
   int64_t b_size,
@@ -455,7 +455,7 @@ at::Tensor ROIAlignBackwardCPU(
 
   AT_ASSERT(bottom_rois.is_contiguous());
 
-  AT_DISPATCH_FLOATING_TYPES(bottom_rois.type(), "ROIAlignBackwardCPU", ([&] {
+  AT_DISPATCH_FLOATING_TYPES(bottom_rois.type(), "ROIAlign_Backward_CPU", ([&] {
     ROIAlignBackwardCompute<scalar_t>(
       grad_output.numel(), 
       grad_output.data<scalar_t>(),

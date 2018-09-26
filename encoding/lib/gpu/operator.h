@@ -1,7 +1,7 @@
 #include <torch/torch.h>
 #include <vector>
 
-at::Tensor ROIAlignForwardCUDA(
+at::Tensor ROIAlign_Forward_CUDA(
   const at::Tensor input,
   const at::Tensor rois,
   int64_t pooled_height,
@@ -9,7 +9,7 @@ at::Tensor ROIAlignForwardCUDA(
   double spatial_scale,
   int64_t sample_ratio);
 
-at::Tensor ROIAlignBackwardCUDA(
+at::Tensor ROIAlign_Backward_CUDA(
   const at::Tensor rois,
   const at::Tensor grad_output,
   int64_t b_size,
@@ -20,6 +20,11 @@ at::Tensor ROIAlignBackwardCUDA(
   int64_t pooled_width,
   double spatial_scale,
   int64_t sampling_ratio);
+
+std::vector<at::Tensor> Non_Max_Suppression_CUDA(
+  const at::Tensor& input,
+  const at::Tensor& scores,
+  double thresh);
 
 at::Tensor Aggregate_Forward_CUDA(
   const at::Tensor A_,
@@ -67,3 +72,42 @@ at::Tensor Sum_Square_Backward_CUDA(
   const at::Tensor input_,
   const at::Tensor gradSum_,
   const at::Tensor gradSquare_);
+
+at::Tensor Encoding_Dist_Inference_Forward_CUDA(
+    const at::Tensor X_,
+    const at::Tensor C_,
+    const at::Tensor STD_);
+
+std::vector<at::Tensor> Encoding_Dist_Inference_Backward_CUDA(
+    const at::Tensor GKD_,
+    const at::Tensor KD_,
+    const at::Tensor X_,
+    const at::Tensor C_,
+    const at::Tensor STD_);
+
+std::vector<at::Tensor> Encoding_Dist_Forward_CUDA(
+  const at::Tensor X,
+  const at::Tensor C,
+  double eps);
+
+std::vector<at::Tensor> Encoding_Dist_Backward_CUDA(
+    const at::Tensor GKD_,
+    const at::Tensor GSTD_,
+    const at::Tensor KD_,
+    const at::Tensor X_,
+    const at::Tensor C_,
+    const at::Tensor STD_);
+
+at::Tensor AggregateV2_Forward_CUDA(
+  const at::Tensor A_,
+  const at::Tensor X_,
+  const at::Tensor C_,
+  const at::Tensor STD_);
+
+std::vector<at::Tensor> AggregateV2_Backward_CUDA(
+  const at::Tensor GE_,
+  const at::Tensor E_,
+  const at::Tensor A_,
+  const at::Tensor X_,
+  const at::Tensor C_,
+  const at::Tensor STD_);

@@ -40,7 +40,7 @@ def softmax_crossentropy(input, target, weight, size_average, ignore_index, redu
 class SegmentationLosses(CrossEntropyLoss):
     """2D Cross Entropy Loss with Auxilary Loss"""
     def __init__(self, se_loss=False, se_weight=0.2, nclass=-1,
-                 aux=False, aux_weight=0.2, weight=None,
+                 aux=False, aux_weight=0.4, weight=None,
                  size_average=True, ignore_index=-1):
         super(SegmentationLosses, self).__init__(weight, size_average, ignore_index)
         self.se_loss = se_loss
@@ -62,14 +62,14 @@ class SegmentationLosses(CrossEntropyLoss):
             pred, se_pred, target = tuple(inputs)
             se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred)
             loss1 = super(SegmentationLosses, self).forward(pred, target)
-            loss2 = self.bceloss(F.sigmoid(se_pred), se_target)
+            loss2 = self.bceloss(torch.sigmoid(se_pred), se_target)
             return loss1 + self.se_weight * loss2
         else:
             pred1, se_pred, pred2, target = tuple(inputs)
             se_target = self._get_batch_label_vector(target, nclass=self.nclass).type_as(pred1)
             loss1 = super(SegmentationLosses, self).forward(pred1, target)
             loss2 = super(SegmentationLosses, self).forward(pred2, target)
-            loss3 = self.bceloss(F.sigmoid(se_pred), se_target)
+            loss3 = self.bceloss(torch.sigmoid(se_pred), se_target)
             return loss1 + self.aux_weight * loss2 + self.se_weight * loss3
 
     @staticmethod

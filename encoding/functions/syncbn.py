@@ -26,7 +26,7 @@ class _sum_square(Function):
         if input.is_cuda:
             xsum, xsqusum = lib.gpu.sumsquare_forward(input)
         else:
-            raise NotImplemented
+            xsum, xsqusum = lib.cpu.sumsquare_forward(input)
         return xsum, xsqusum
 
     @staticmethod
@@ -46,7 +46,7 @@ class _batchnormtrain(Function):
         if input.is_cuda:
             output = lib.gpu.batchnorm_forward(input, mean, std, gamma, beta)
         else:
-            raise NotImplemented
+            output = lib.cpu.batchnorm_forward(input, mean, std, gamma, beta)
         return output
 
     @staticmethod

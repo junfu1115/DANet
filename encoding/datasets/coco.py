@@ -6,51 +6,26 @@ import torch
 
 from .base import BaseDataset
 
-"""
-NUM_CHANNEL = 91
-[] background
-[5] airplane
-[2] bicycle
-[16] bird
-[9] boat
-[44] bottle
-[6] bus
-[3] car
-[17] cat
-[62] chair
-[21] cow
-[67] dining table
-[18] dog
-[19] horse
-[4] motorcycle
-[1] person
-[64] potted plant
-[20] sheep
-[63] couch
-[7] train
-[72] tv
-"""
-CAT_LIST = [0, 5, 2, 16, 9, 44, 6, 3, 17, 62, 21, 67, 18, 19, 4,
-    1, 64, 20, 63, 7, 72]
-
-
 class COCOSegmentation(BaseDataset):
+    NUM_CLASS = 21
+    CAT_LIST = [0, 5, 2, 16, 9, 44, 6, 3, 17, 62, 21, 67, 18, 19, 4,
+        1, 64, 20, 63, 7, 72]
     def __init__(self, root=os.path.expanduser('~/.encoding/data'), split='train',
-                 mode=None, transform=None, target_transform=None):
+                 mode=None, transform=None, target_transform=None, **kwargs):
         super(COCOSegmentation, self).__init__(
-            root, split, mode, transform, target_transform)
+            root, split, mode, transform, target_transform, **kwargs)
         from pycocotools.coco import COCO
         from pycocotools import mask
-        if mode == 'train':
+        if split == 'train':
             print('train set')
-            ann_file = os.path.join(root, 'coco/annotations/instances_train2014.json')
-            ids_file = os.path.join(root, 'coco/annotations/train_ids.pth')
-            root = os.path.join(root, 'coco/train2014')
+            ann_file = os.path.join(root, 'annotations/instances_train2017.json')
+            ids_file = os.path.join(root, 'annotations/train_ids.pth')
+            self.root = os.path.join(root, 'train2017')
         else:
             print('val set')
-            ann_file = os.path.join(root, 'coco/annotations/instances_val2014.json')
-            ids_file = os.path.join(root, 'coco/annotations/val_ids.pth')
-            root = os.path.join(root, 'coco/val2014')
+            ann_file = os.path.join(root, 'annotations/instances_val2017.json')
+            ids_file = os.path.join(root, 'annotations/val_ids.pth')
+            self.root = os.path.join(root, 'val2017')
         self.coco = COCO(ann_file)
         self.coco_mask = mask
         if os.path.exists(ids_file):
@@ -68,8 +43,8 @@ class COCOSegmentation(BaseDataset):
         path = img_metadata['file_name']
         img = Image.open(os.path.join(self.root, path)).convert('RGB')
         cocotarget = coco.loadAnns(coco.getAnnIds(imgIds=img_id))
-        mask = Image.fromarray(self._gen_seg_mask(cocotarget, img_metadata['height'], 
-                               img_metadata['width']))
+        mask = Image.fromarray(self._gen_seg_mask(
+            cocotarget, img_metadata['height'], img_metadata['width']))
         # synchrosized transform
         if self.mode == 'train':
             img, mask = self._sync_transform(img, mask)
@@ -95,8 +70,8 @@ class COCOSegmentation(BaseDataset):
             rle = coco_mask.frPyObjects(instance['segmentation'], h, w)
             m = coco_mask.decode(rle)
             cat = instance['category_id']
-            if cat in CAT_LIST:
-                c = CAT_LIST.index(cat)
+            if cat in self.CAT_LIST:
+                c = self.CAT_LIST.index(cat)
             else:
                 continue
             if len(m.shape) < 3:
@@ -124,3 +99,28 @@ class COCOSegmentation(BaseDataset):
         print('Found number of qualified images: ', len(new_ids))
         torch.save(new_ids, ids_file)
         return new_ids
+"""
+NUM_CHANNEL = 91
+[] background
+[5] airplane
+[2] bicycle
+[16] bird
+[9] boat
+[44] bottle
+[6] bus
+[3] car
+[17] cat
+[62] chair
+[21] cow
+[67] dining table
+[18] dog
+[19] horse
+[4] motorcycle
+[1] person
+[64] potted plant
+[20] sheep
+[63] couch
+[7] train
+[72] tv
+"""
+
