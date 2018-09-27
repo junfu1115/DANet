@@ -129,7 +129,7 @@ def eval_multi_models(args):
         
             txtfile = args.resume
             txtfile = txtfile.replace('pth.tar', 'txt')
-            if len(args.test_scale) == 1:
+            if not args.multi_scales:
                 txtfile = txtfile.replace('.txt', 'result_mIoU_%.4f.txt'%mIoU)
             else:
                 txtfile = txtfile.replace('.txt', 'multi_scale_result_mIoU_%.4f.txt'%mIoU)
