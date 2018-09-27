@@ -31,7 +31,7 @@ def test(args):
         os.makedirs(outdir)
     # data transforms
     input_transform = transform.Compose([
-        transform.Resize((1024,2048),Image.BILINEAR),
+        #transform.Resize((1024,2048),Image.BILINEAR),
         transform.ToTensor(),
         transform.Normalize([.485, .456, .406], [.229, .224, .225])])
         # Edit transform.Resize() to add your custom sizes
@@ -74,17 +74,17 @@ def test(args):
             # evaluation mode on validation set
             targets = dst
             outputs = evaluator.parallel_forward(image)
-            
             batch_inter, batch_union, batch_correct, batch_label = 0, 0, 0, 0
-            for output, target in zip(outputs, targets):
-                correct, labeled = utils.batch_pix_accuracy(output.data.cpu(), target)
-                inter, union = utils.batch_intersection_union(
-                    output.data.cpu(), target, testset.num_class)
-                batch_correct += correct
-                batch_label += labeled
-                batch_inter += inter
-                batch_union += union
-            return batch_correct, batch_label, batch_inter, batch_union
+            for output in outputs:
+                for outPut, target in zip(output, targets):
+                    correct, labeled = utils.batch_pix_accuracy(outPut.data.cpu(), target)
+                    inter, union = utils.batch_intersection_union(
+                        outPut.data.cpu(), target, testset.num_class)
+                    batch_correct += correct
+                    batch_label += labeled
+                    batch_inter += inter
+                    batch_union += union
+                return batch_correct, batch_label, batch_inter, batch_union
         else:
             # Visualize and dump the results
             im_paths = dst
