@@ -1,4 +1,5 @@
 #include <vector>
+#include <torch/tensor.h>
 #include <ATen/ATen.h>
 #include <ATen/cuda/CUDAContext.h>
 
@@ -165,7 +166,7 @@ at::Tensor Aggregate_Forward_CUDA(
     const at::Tensor X_,
     const at::Tensor C_) {
   /* Device tensors */
-  auto E_ = A_.type().tensor({A_.size(0), C_.size(0), C_.size(1)}).zero_(); 
+  auto E_ = torch::zeros({A_.size(0), C_.size(0), C_.size(1)}, A_.options());
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   // B, K, D
   dim3 blocks(C_.size(1), C_.size(0), X_.size(0));
@@ -214,7 +215,7 @@ at::Tensor ScaledL2_Forward_CUDA(
     const at::Tensor X_,
     const at::Tensor C_,
     const at::Tensor S_) {
-  auto SL_ = X_.type().tensor({X_.size(0), X_.size(1), C_.size(0)}).zero_();
+  auto SL_ = torch::zeros({X_.size(0), X_.size(1), C_.size(0)}, X_.options());
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   dim3 blocks(C_.size(0), X_.size(1), X_.size(0));
   dim3 threads(getNumThreads(C_.size(1)));

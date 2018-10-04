@@ -1,4 +1,5 @@
 #include <vector>
+#include <torch/tensor.h>
 #include <ATen/ATen.h>
 #include <ATen/Functions.h>
 #include <ATen/cuda/CUDAContext.h>
@@ -239,7 +240,7 @@ at::Tensor Encoding_Dist_Inference_Forward_CUDA(
     const at::Tensor STD_) {
     // const at::Tensor S_,
   // X \in R^{B, N, D}, C \in R^{K, D}, S \in R^K
-  auto KD_ = X_.type().tensor({X_.size(0), X_.size(1), C_.size(0)}).zero_();
+  auto KD_ = torch::zeros({X_.size(0), X_.size(1), C_.size(0)}, X_.options());
   // E(x), E(x^2)
   int N = X_.size(0) * X_.size(1);
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
@@ -301,7 +302,7 @@ std::vector<at::Tensor> Encoding_Dist_Forward_CUDA(
     double eps) {
     // const at::Tensor S_,
   // X \in R^{B, N, D}, C \in R^{K, D}, S \in R^K
-  auto KD_ = X_.type().tensor({X_.size(0), X_.size(1), C_.size(0)}).zero_();
+  auto KD_ = torch::zeros({X_.size(0), X_.size(1), C_.size(0)}, X_.options());
   // E(x), E(x^2)
   int N = X_.size(0) * X_.size(1);
   auto SVar_ = (X_.pow(2).sum(0).sum(0).view({1, X_.size(2)}) -
@@ -373,7 +374,7 @@ at::Tensor AggregateV2_Forward_CUDA(
     const at::Tensor C_,
     const at::Tensor STD_) {
   /* Device tensors */
-  auto E_ = A_.type().tensor({A_.size(0), C_.size(0), C_.size(1)}).zero_(); 
+  auto E_ = torch::zeros({A_.size(0), C_.size(0), C_.size(1)}, A_.options());
   // auto IS_ = 1.0f / (S_ + eps).sqrt();
   cudaStream_t stream = at::cuda::getCurrentCUDAStream();
   // B, K, D

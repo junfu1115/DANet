@@ -1,3 +1,4 @@
+#include <torch/tensor.h>
 #include <ATen/ATen.h>
 //#include <omp.h>
 
@@ -404,7 +405,7 @@ at::Tensor ROIAlign_Forward_CPU(
   AT_ASSERT(roi_cols == 4 || roi_cols == 5);
 
   // Output at::Tensor is (num_rois, C, pooled_height, pooled_width)
-  auto output = input.type().tensor({num_rois, channels, pooled_height, pooled_width});
+  auto output = torch::zeros({num_rois, channels, pooled_height, pooled_width}, input.options());
 
   AT_ASSERT(input.is_contiguous());
   AT_ASSERT(bottom_rois.is_contiguous());
@@ -451,7 +452,7 @@ at::Tensor ROIAlign_Backward_CPU(
   AT_ASSERT(roi_cols == 4 || roi_cols == 5);
 
   // Output at::Tensor is (num_rois, C, pooled_height, pooled_width)
-  auto grad_in = bottom_rois.type().tensor({b_size, channels, height, width}).zero_(); 
+  auto grad_in = torch::zeros({b_size, channels, height, width}, bottom_rois.options());
 
   AT_ASSERT(bottom_rois.is_contiguous());
 

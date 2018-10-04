@@ -1,3 +1,4 @@
+#include <torch/tensor.h>
 #include <ATen/ATen.h>
 #include "ATen/NativeFunctions.h"
 #include <ATen/cuda/CUDAContext.h>
@@ -75,7 +76,8 @@ std::vector<at::Tensor> Non_Max_Suppression_CUDA(
 
   auto num_boxes = input.size(1);
   auto batch_size = input.size(0);
-  auto mask = input.type().toScalarType(at::kByte).tensor({batch_size, num_boxes});
+  //auto mask = input.type().toScalarType(at::kByte).tensor({batch_size, num_boxes});
+  auto mask = torch::zeros({batch_size, num_boxes}, input.type().toScalarType(at::kByte));
   mask.fill_(1);
   
   //need the indices of the boxes sorted by score.

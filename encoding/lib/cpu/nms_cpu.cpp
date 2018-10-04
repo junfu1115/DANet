@@ -1,3 +1,4 @@
+#include <torch/tensor.h>
 #include <ATen/ATen.h>
 #include <ATen/NativeFunctions.h>
 
@@ -42,7 +43,8 @@ std::vector<at::Tensor> Non_Max_Suppression_CPU(
   
   auto num_boxes = input.size(1);
   auto batch_size = input.size(0);
-  auto mask = input.type().toScalarType(at::kByte).tensor({batch_size, num_boxes});
+  auto mask = torch::zeros({batch_size, num_boxes}, input.type().toScalarType(at::kByte));
+  //auto mask = input.type().toScalarType(at::kByte).tensor({batch_size, num_boxes});
   mask.fill_(1);
   auto *rawMask = mask.data<unsigned char>();
   auto *rawIdx = sorted_inds.data<int64_t>();

@@ -1,3 +1,4 @@
+#include <torch/tensor.h>
 #include <ATen/ATen.h>
 #include <vector>
 
@@ -45,8 +46,8 @@ std::vector<at::Tensor> BatchNorm_Backward_CPU(
 std::vector<at::Tensor> Sum_Square_Forward_CPU(
     const at::Tensor input) {
   /* outputs */
-  at::Tensor sum = input.type().tensor({input.size(1)}).zero_();
-  at::Tensor square = input.type().tensor({input.size(1)}).zero_();
+  at::Tensor sum = torch::zeros({input.size(1)}, input.options());
+  at::Tensor square = torch::zeros({input.size(1)}, input.options());
   return {sum, square};
 }
 

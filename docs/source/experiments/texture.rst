@@ -22,7 +22,7 @@ Test Pre-trained Model
     cd PyTorch-Encoding/
     python scripts/prepare_minc.py
 
-- Download pre-trained model (pre-trained on train-1 split using single training size of 224, with an error rate of :math:`19.70\%` using single crop on test-1 set)::
+- Download pre-trained model (pre-trained on train-1 split using single training size of 224, with an error rate of :math:`18.96\%` using single crop on test-1 set)::
 
     cd experiments/recognition
     python model/download_models.py

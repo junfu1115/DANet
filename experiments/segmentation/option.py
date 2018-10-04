@@ -92,7 +92,7 @@ class Options():
         if args.epochs is None:
             epoches = {
                 'coco': 30,
-                'citys': 180,
+                'citys': 240,
                 'pascal_voc': 50,
                 'pascal_aug': 50,
                 'pcontext': 80,
@@ -100,7 +100,7 @@ class Options():
             }
             args.epochs = epoches[args.dataset.lower()]
         if args.batch_size is None:
-            args.batch_size = 4 * torch.cuda.device_count()
+            args.batch_size = 16
         if args.test_batch_size is None:
             args.test_batch_size = args.batch_size
         if args.lr is None:
