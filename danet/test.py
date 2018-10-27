@@ -105,6 +105,7 @@ def test(args):
         else:
             with torch.no_grad():
                 correct, labeled, inter, union = eval_batch(image, dst, evaluator, args.eval)
+        pixAcc, mIoU, IoU = 0， 0， 0
         if args.eval:
             total_correct += correct.astype('int64')
             total_label += labeled.astype('int64')
@@ -124,7 +125,9 @@ def eval_multi_models(args):
         if os.path.splitext(resume_file)[1] == '.tar':
             args.resume = os.path.join(args.resume_dir, resume_file)
             assert os.path.exists(args.resume)
-
+            if not args.eval:
+                test(args)
+                continue
             pixAcc, mIoU, IoU, num_class = test(args)
         
             txtfile = args.resume
