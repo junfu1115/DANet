@@ -9,6 +9,12 @@
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import torch
+import torch.nn as nn
+
+#from ..nn import SyncBatchNorm
+from torch.nn.modules.batchnorm import _BatchNorm
+
+__all__ = ['get_selabel_vector']
 
 def get_selabel_vector(target, nclass):
     r"""Get SE-Loss Label in a batch

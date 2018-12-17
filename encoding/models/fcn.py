@@ -8,7 +8,8 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.nn.functional import upsample
+from torch.nn.functional import interpolate
+from ..nn import ConcurrentModule, SyncBatchNorm
 
 from .base import BaseNet
 
@@ -38,9 +39,10 @@ class FCN(BaseNet):
     >>> model = FCN(nclass=21, backbone='resnet50')
     >>> print(model)
     """
-    def __init__(self, nclass, backbone, aux=True, se_loss=False, norm_layer=nn.BatchNorm2d, **kwargs):
+    def __init__(self, nclass, backbone, aux=True, se_loss=False, with_global=False,
+                 norm_layer=SyncBatchNorm, **kwargs):
         super(FCN, self).__init__(nclass, backbone, aux, se_loss, norm_layer=norm_layer, **kwargs)
-        self.head = FCNHead(2048, nclass, norm_layer)
+        self.head = FCNHead(2048, nclass, norm_layer, self._up_kwargs, with_global)
         if aux:
             self.auxlayer = FCNHead(1024, nclass, norm_layer)
 
@@ -49,24 +51,59 @@ class FCN(BaseNet):
         _, _, c3, c4 = self.base_forward(x)
 
         x = self.head(c4)
-        x = upsample(x, imsize, **self._up_kwargs)
+        x = interpolate(x, imsize, **self._up_kwargs)
         outputs = [x]
         if self.aux:
             auxout = self.auxlayer(c3)
-            auxout = upsample(auxout, imsize, **self._up_kwargs)
+            auxout = interpolate(auxout, imsize, **self._up_kwargs)
             outputs.append(auxout)
         return tuple(outputs)
 
+
+class Identity(nn.Module):
+    def __init__(self):
+        super(Identity, self).__init__()
+
+    def forward(self, x):
+        return x
+
+class GlobalPooling(nn.Module):
+    def __init__(self, in_channels, out_channels, norm_layer, up_kwargs):
+        super(GlobalPooling, self).__init__()
+        self._up_kwargs = up_kwargs
+        self.gap = nn.Sequential(nn.AdaptiveAvgPool2d(1),
+                                 nn.Conv2d(in_channels, out_channels, 1, bias=False),
+                                 norm_layer(out_channels),
+                                 nn.ReLU(True))
+
+    def forward(self, x):
+        _, _, h, w = x.size()
+        pool = self.gap(x)
+        return interpolate(pool, (h,w), **self._up_kwargs)
+
         
 class FCNHead(nn.Module):
-    def __init__(self, in_channels, out_channels, norm_layer):
+    def __init__(self, in_channels, out_channels, norm_layer, up_kwargs={}, with_global=False):
         super(FCNHead, self).__init__()
         inter_channels = in_channels // 4
-        self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
-                                   norm_layer(inter_channels),
-                                   nn.ReLU(),
-                                   nn.Dropout2d(0.1, False),
-                                   nn.Conv2d(inter_channels, out_channels, 1))
+        self._up_kwargs = up_kwargs
+        if with_global:
+            self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+                                       norm_layer(inter_channels),
+                                       nn.ReLU(),
+                                       ConcurrentModule([
+                                            Identity(),
+                                            GlobalPooling(inter_channels, inter_channels,
+                                                          norm_layer, self._up_kwargs),
+                                       ]),
+                                       nn.Dropout2d(0.1, False),
+                                       nn.Conv2d(2*inter_channels, out_channels, 1))
+        else:
+            self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
+                                       norm_layer(inter_channels),
+                                       nn.ReLU(),
+                                       nn.Dropout2d(0.1, False),
+                                       nn.Conv2d(inter_channels, out_channels, 1))
 
     def forward(self, x):
         return self.conv5(x)
@@ -89,14 +126,8 @@ def get_fcn(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     >>> model = get_fcn(dataset='pascal_voc', backbone='resnet50', pretrained=False)
     >>> print(model)
     """
-    acronyms = {
-        'pascal_voc': 'voc',
-        'pascal_aug': 'voc',
-        'pcontext': 'pcontext',
-        'ade20k': 'ade',
-    }
     # infer number of classes
-    from ..datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
+    from ..datasets import datasets, acronyms
     model = FCN(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file

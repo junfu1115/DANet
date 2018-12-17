@@ -2,13 +2,10 @@ Install and Citations
 =====================
 
 
-Install from Source
--------------------
+Installation
+------------
 
-    * Install PyTorch by following the `PyTorch instructions <http://pytorch.org/>`_.
-      This package relies on PyTorch master branch (higher than stable released v0.4.0), please follow
-      `the instruction <https://github.com/pytorch/pytorch#from-source>`_ to install
-      PyTorch from source.
+    * Install PyTorch 1.0 by following the `PyTorch instructions <http://pytorch.org/>`_.
  
     * PIP Install::
 

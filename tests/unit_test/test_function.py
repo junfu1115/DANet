@@ -173,13 +173,13 @@ def test_encoding_dist_inference():
     test = gradcheck(encoding.functions.encoding_dist_inference, input, eps=EPS, atol=ATOL)
     print('Testing encoding_dist_inference(): {}'.format(test))
 
-def test_sum_square():
+def test_moments():
     B,C,H = 2,3,4
     X = Variable(torch.cuda.DoubleTensor(B,C,H).uniform_(-0.5,0.5), 
         requires_grad=True)
     input = (X,)
-    test = gradcheck(encoding.functions.sum_square, input, eps=EPS, atol=ATOL)
-    print('Testing sum_square(): {}'.format(test))
+    test = gradcheck(encoding.functions.moments, input, eps=EPS, atol=ATOL)
+    print('Testing moments(): {}'.format(test))
 
 def test_syncbn_func():
     # generate input

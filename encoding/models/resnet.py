@@ -4,6 +4,9 @@ import torch
 import torch.utils.model_zoo as model_zoo
 import torch.nn as nn
 
+from ..nn import GlobalAvgPool2d
+from ..models.model_store import get_model_file
+
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'BasicBlock', 'Bottleneck']
 
@@ -132,7 +135,7 @@ class ResNet(nn.Module):
         - Yu, Fisher, and Vladlen Koltun. "Multi-scale context aggregation by dilated convolutions."
     """
     # pylint: disable=unused-variable
-    def __init__(self, block, layers, num_classes=1000, dilated=True,
+    def __init__(self, block, layers, num_classes=1000, dilated=False, multi_grid=False,
                  deep_base=True, norm_layer=nn.BatchNorm2d):
         self.inplanes = 128 if deep_base else 64
         super(ResNet, self).__init__()
@@ -157,14 +160,19 @@ class ResNet(nn.Module):
         if dilated:
             self.layer3 = self._make_layer(block, 256, layers[2], stride=1,
                                            dilation=2, norm_layer=norm_layer)
-            self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
-                                           dilation=4, norm_layer=norm_layer)
+            if multi_grid:
+                self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
+                                               dilation=4, norm_layer=norm_layer,
+                                               multi_grid=True)
+            else:
+                self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
+                                               dilation=4, norm_layer=norm_layer)
         else:
             self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
                                            norm_layer=norm_layer)
             self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
                                            norm_layer=norm_layer)
-        self.avgpool = nn.AvgPool2d(7, stride=1)
+        self.avgpool = GlobalAvgPool2d()
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
         for m in self.modules():
@@ -175,7 +183,7 @@ class ResNet(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-    def _make_layer(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None):
+    def _make_layer(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None, multi_grid=False):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
@@ -185,7 +193,11 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        if dilation == 1 or dilation == 2:
+        multi_dilations = [4, 8, 16]
+        if multi_grid:
+            layers.append(block(self.inplanes, planes, stride, dilation=multi_dilations[0],
+                                downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
+        elif dilation == 1 or dilation == 2:
             layers.append(block(self.inplanes, planes, stride, dilation=1,
                                 downsample=downsample, previous_dilation=dilation, norm_layer=norm_layer))
         elif dilation == 4:
@@ -196,8 +208,12 @@ class ResNet(nn.Module):
 
         self.inplanes = planes * block.expansion
         for i in range(1, blocks):
-            layers.append(block(self.inplanes, planes, dilation=dilation, previous_dilation=dilation,
-                                norm_layer=norm_layer))
+            if multi_grid:
+                layers.append(block(self.inplanes, planes, dilation=multi_dilations[i],
+                                    previous_dilation=dilation, norm_layer=norm_layer))
+            else:
+                layers.append(block(self.inplanes, planes, dilation=dilation, previous_dilation=dilation,
+                                    norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
 
@@ -251,7 +267,6 @@ def resnet50(pretrained=False, root='~/.encoding/models', **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        from ..models.model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('resnet50', root=root)), strict=False)
     return model
@@ -265,7 +280,6 @@ def resnet101(pretrained=False, root='~/.encoding/models', **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
-        from ..models.model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('resnet101', root=root)), strict=False)
     return model
@@ -279,7 +293,6 @@ def resnet152(pretrained=False, root='~/.encoding/models', **kwargs):
     """
     model = ResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
     if pretrained:
-        from ..models.model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('resnet152', root=root)), strict=False)
     return model

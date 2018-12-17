@@ -8,7 +8,7 @@ import os
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.nn.functional import upsample
+from torch.nn.functional import interpolate
 
 from .base import BaseNet
 from .fcn import FCNHead
@@ -27,11 +27,11 @@ class PSP(BaseNet):
 
         outputs = []
         x = self.head(c4)
-        x = upsample(x, (h,w), **self._up_kwargs)
+        x = interpolate(x, (h,w), **self._up_kwargs)
         outputs.append(x)
         if self.aux:
             auxout = self.auxlayer(c3)
-            auxout = upsample(auxout, (h,w), **self._up_kwargs)
+            auxout = interpolate(auxout, (h,w), **self._up_kwargs)
             outputs.append(auxout)
         return tuple(outputs)
 
@@ -52,13 +52,8 @@ class PSPHead(nn.Module):
 
 def get_psp(dataset='pascal_voc', backbone='resnet50', pretrained=False,
             root='~/.encoding/models', **kwargs):
-    acronyms = {
-        'pascal_voc': 'voc',
-        'pascal_aug': 'voc',
-        'ade20k': 'ade',
-    }
     # infer number of classes
-    from ..datasets import datasets
+    from ..datasets import datasets, acronyms
     model = PSP(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from .model_store import get_model_file

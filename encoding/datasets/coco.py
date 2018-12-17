@@ -23,6 +23,7 @@ class COCOSegmentation(BaseDataset):
             self.root = os.path.join(root, 'train2017')
         else:
             print('val set')
+            assert split == 'val'
             ann_file = os.path.join(root, 'annotations/instances_val2017.json')
             ids_file = os.path.join(root, 'annotations/val_ids.pth')
             self.root = os.path.join(root, 'val2017')
@@ -99,6 +100,7 @@ class COCOSegmentation(BaseDataset):
         print('Found number of qualified images: ', len(new_ids))
         torch.save(new_ids, ids_file)
         return new_ids
+
 """
 NUM_CHANNEL = 91
 [] background
@@ -123,4 +125,3 @@ NUM_CHANNEL = 91
 [7] train
 [72] tv
 """
-

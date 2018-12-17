@@ -51,7 +51,6 @@ class AllReduce(Function):
         outputs = comm.broadcast_coalesced(results, ctx.target_gpus)
         return (None,) + tuple([Variable(t) for tensors in outputs for t in tensors])
 
-
 class Reduce(Function):
     @staticmethod
     def forward(ctx, *inputs):
@@ -98,7 +97,6 @@ class DataParallelModel(DataParallel):
 
     def replicate(self, module, device_ids):
         modules = super(DataParallelModel, self).replicate(module, device_ids)
-        execute_replication_callbacks(modules)
         return modules
 
 
@@ -133,7 +131,6 @@ class DataParallelCriterion(DataParallel):
         replicas = self.replicate(self.module, self.device_ids[:len(inputs)])
         outputs = _criterion_parallel_apply(replicas, inputs, targets, kwargs)
         return Reduce.apply(*outputs) / len(outputs)
-        #return self.gather(outputs, self.output_device).mean()
 
 
 def _criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices=None):
@@ -188,62 +185,3 @@ def _criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices
             raise output
         outputs.append(output)
     return outputs
-
-
-###########################################################################
-# Adapted from Synchronized-BatchNorm-PyTorch.
-# https://github.com/vacancy/Synchronized-BatchNorm-PyTorch
-#
-class CallbackContext(object):
-    pass
-
-
-def execute_replication_callbacks(modules):
-    """
-    Execute an replication callback `__data_parallel_replicate__` on each module created
-    by original replication.
-
-    The callback will be invoked with arguments `__data_parallel_replicate__(ctx, copy_id)`
-
-    Note that, as all modules are isomorphism, we assign each sub-module with a context
-    (shared among multiple copies of this module on different devices).
-    Through this context, different copies can share some information.
-
-    We guarantee that the callback on the master copy (the first copy) will be called ahead
-    of calling the callback of any slave copies.
-    """
-    master_copy = modules[0]
-    nr_modules = len(list(master_copy.modules()))
-    ctxs = [CallbackContext() for _ in range(nr_modules)]
-
-    for i, module in enumerate(modules):
-        for j, m in enumerate(module.modules()):
-            if hasattr(m, '__data_parallel_replicate__'):
-                m.__data_parallel_replicate__(ctxs[j], i)
-
-
-def patch_replication_callback(data_parallel):
-    """
-    Monkey-patch an existing `DataParallel` object. Add the replication callback.
-    Useful when you have customized `DataParallel` implementation.
-
-    Examples:
-        > sync_bn = SynchronizedBatchNorm1d(10, eps=1e-5, affine=False)
-        > sync_bn = DataParallel(sync_bn, device_ids=[0, 1])
-        > patch_replication_callback(sync_bn)
-        # this is equivalent to
-        > sync_bn = SynchronizedBatchNorm1d(10, eps=1e-5, affine=False)
-        > sync_bn = DataParallelWithCallback(sync_bn, device_ids=[0, 1])
-    """
-
-    assert isinstance(data_parallel, DataParallel)
-
-    old_replicate = data_parallel.replicate
-
-    @functools.wraps(old_replicate)
-    def new_replicate(module, device_ids):
-        modules = old_replicate(module, device_ids)
-        execute_replication_callbacks(modules)
-        return modules
-
-    data_parallel.replicate = new_replicate

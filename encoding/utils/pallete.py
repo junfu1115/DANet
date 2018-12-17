@@ -19,7 +19,7 @@ def get_mask_pallete(npimg, dataset='detail'):
     out_img = Image.fromarray(npimg.squeeze().astype('uint8'))
     if dataset == 'ade20k':
         out_img.putpalette(adepallete)
-    elif dataset == 'cityscapes':
+    elif dataset == 'citys':
         out_img.putpalette(citypallete)
     elif dataset in ('detail', 'pascal_voc', 'pascal_aug'):
         out_img.putpalette(vocpallete)

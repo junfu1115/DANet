@@ -7,6 +7,7 @@ from torch.autograd import Variable
 if __name__ == "__main__":
     args = Options().parse()
     model = encoding.models.get_segmentation_model(args.model, dataset=args.dataset, aux=args.aux,
+                                                   backbone=args.backbone,
                                                    se_loss=args.se_loss, norm_layer=torch.nn.BatchNorm2d)
     print('Creating the model:')
     

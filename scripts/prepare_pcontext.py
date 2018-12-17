@@ -23,7 +23,6 @@ def download_ade(path, overwrite=False):
          'bf9985e9f2b064752bf6bd654d89f017c76c395a'),
         ('https://codalabuser.blob.core.windows.net/public/trainval_merged.json',
          '169325d9f7e9047537fedca7b04de4dddf10b881'),
-        # You can skip these if the network is slow, the dataset will automatically generate them.
         ('https://hangzh.s3.amazonaws.com/encoding/data/pcontext/train.pth',
          '4bfb49e8c1cefe352df876c9b5434e655c9c1d07'),
         ('https://hangzh.s3.amazonaws.com/encoding/data/pcontext/val.pth',

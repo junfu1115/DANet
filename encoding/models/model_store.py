@@ -7,10 +7,12 @@ import zipfile
 from ..utils import download, check_sha1
 
 _model_sha1 = {name: checksum for checksum, name in [
-    ('ebb6acbbd1d1c90b7f446ae59d30bf70c74febc1', 'resnet50'),
+    ('25c4b50959ef024fcc050213a06b614899f94b3d', 'resnet50'),
     ('2a57e44de9c853fa015b172309a1ee7e2d0e4e2a', 'resnet101'),
     ('0d43d698c66aceaa2bc0309f55efdd7ff4b143af', 'resnet152'),
-    ('2e22611a7f3992ebdee6726af169991bc26d7363', 'deepten_minc'),
+    ('da4785cfc837bf00ef95b52fb218feefe703011f', 'wideresnet38'),
+    ('b41562160173ee2e979b795c551d3c7143b1e5b5', 'wideresnet50'),
+    ('1225f149519c7a0113c43a056153c1bb15468ac0', 'deepten_resnet50_minc'),
     ('662e979de25a389f11c65e9f1df7e06c2c356381', 'fcn_resnet50_ade'),
     ('eeed8e582f0fdccdba8579e7490570adc6d85c7c', 'fcn_resnet50_pcontext'),
     ('54f70c772505064e30efd1ddd3a14e1759faa363', 'psp_resnet50_ade'),

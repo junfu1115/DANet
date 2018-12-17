@@ -1,5 +1,5 @@
 #include <vector>
-#include <torch/tensor.h>
+#include <torch/extension.h>
 #include <ATen/ATen.h>
 #include <ATen/Functions.h>
 #include <ATen/cuda/CUDAContext.h>

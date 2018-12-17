@@ -20,6 +20,8 @@ class Options():
         # model params 
         parser.add_argument('--model', type=str, default='densenet',
             help='network model type (default: densenet)')
+        parser.add_argument('--pretrained', action='store_true', 
+            default=False, help='load pretrianed mode')
         parser.add_argument('--nclass', type=int, default=10, metavar='N',
             help='number of classes (default: 10)')
         parser.add_argument('--widen', type=int, default=4, metavar='N',
@@ -36,7 +38,9 @@ class Options():
         parser.add_argument('--epochs', type=int, default=600, metavar='N',
             help='number of epochs to train (default: 600)')
         parser.add_argument('--start_epoch', type=int, default=1, 
-            metavar='N', help='the epoch number to start (default: 0)')
+            metavar='N', help='the epoch number to start (default: 1)')
+        parser.add_argument('--workers', type=int, default=16,
+            metavar='N', help='dataloader threads')
         # lr setting
         parser.add_argument('--lr', type=float, default=0.1, metavar='LR',
             help='learning rate (default: 0.1)')
@@ -47,8 +51,8 @@ class Options():
         # optimizer
         parser.add_argument('--momentum', type=float, default=0.9, 
             metavar='M', help='SGD momentum (default: 0.9)')
-        parser.add_argument('--weight-decay', type=float, default=5e-4, 
-            metavar ='M', help='SGD weight decay (default: 5e-4)')
+        parser.add_argument('--weight-decay', type=float, default=1e-4, 
+            metavar ='M', help='SGD weight decay (default: 1e-4)')
         # cuda, seed and logging
         parser.add_argument('--no-cuda', action='store_true', 
             default=False, help='disables CUDA training')

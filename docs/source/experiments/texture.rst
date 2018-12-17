@@ -22,16 +22,11 @@ Test Pre-trained Model
     cd PyTorch-Encoding/
     python scripts/prepare_minc.py
 
-- Download pre-trained model (pre-trained on train-1 split using single training size of 224, with an error rate of :math:`18.96\%` using single crop on test-1 set)::
+- Test pre-trained model on MINC-2500. The pre-trained weight will be automatic downloaded (pre-trained on train-1 split using single training size of 224, with an error rate of :math:`18.96\%` using single crop on test-1 set)::
 
-    cd experiments/recognition
-    python model/download_models.py
-
-- Test pre-trained model on MINC-2500::
-
-    python main.py --dataset minc --model deepten --nclass 23 --resume deepten_minc.pth --eval
+    python main.py --dataset minc --model deepten_resnet50_minc --nclass 23  --pretrained --eval
     # Teriminal Output:
-    # Loss: 1.005 | Err: 18.96% (1090/5750): 100%|████████████████████| 23/23 [00:18<00:00,  1.26it/s]
+    # Loss: 0.995 | Err: 18.957% (1090/5750): 100%|████████████████████| 23/23 [00:18<00:00,  1.26it/s]
 
 
 Train Your Own Model
@@ -39,7 +34,7 @@ Train Your Own Model
 
 - Example training command for training above model::
 
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --dataset minc --model deepten --nclass 23 --model deepten --batch-size 512 --lr 0.004 --epochs 80 --lr-step 60 --lr-scheduler step
+   CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --dataset minc --model deepten_resnet50_minc --batch-size 512 --lr 0.004 --epochs 80 --lr-step 60 --lr-scheduler step --weight-decay 5e-4
 
 - Detail training options::
 
@@ -60,20 +55,6 @@ Train Your Own Model
   --resume RESUME       put the path to resuming file if needed
   --checkname           set the checkpoint name
   --eval                evaluating
-
-
-Extending the Software
-----------------------
-
-This code is well written, easy to use and extendable for your own models or datasets:
-
-- Write your own Dataloader ``mydataset.py`` to ``dataset/`` folder
-
-- Write your own Model ``mymodel.py`` to ``model/`` folder
-
-- Run the program::
-
-    python main.py --dataset mydataset --model mymodel
 
 
 Citation

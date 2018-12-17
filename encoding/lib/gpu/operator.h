@@ -1,4 +1,4 @@
-#include <torch/torch.h>
+#include <torch/extension.h>
 #include <vector>
 
 at::Tensor ROIAlign_Forward_CUDA(
@@ -54,36 +54,65 @@ at::Tensor BatchNorm_Forward_CUDA(
   const at::Tensor mean_,
   const at::Tensor std_,
   const at::Tensor gamma_,
-  const at::Tensor beta_);
+  const at::Tensor beta_,
+  float eps);
+
+at::Tensor BatchNorm_Forward_Inp_CUDA(
+    const at::Tensor input_, 
+    const at::Tensor ex_,
+    const at::Tensor exs_,
+    const at::Tensor gamma_,
+    const at::Tensor beta_,
+    float eps);
 
 std::vector<at::Tensor> BatchNorm_Backward_CUDA(
   const at::Tensor gradoutput_,
   const at::Tensor input_,
-  const at::Tensor mean_, 
-  const at::Tensor std_,
+  const at::Tensor ex_, 
+  const at::Tensor exs_,
   const at::Tensor gamma_,
-  const at::Tensor beta_, 
-  bool train);
+  const at::Tensor beta_,
+  float eps);
 
-std::vector<at::Tensor> Sum_Square_Forward_CUDA(
+std::vector<at::Tensor> BatchNorm_Inp_Backward_CUDA(
+  const at::Tensor gradoutput_,
+  const at::Tensor output_,
+  const at::Tensor ex_, 
+  const at::Tensor exs_,
+  const at::Tensor gamma_,
+  const at::Tensor beta_,
+  float eps);
+
+std::vector<at::Tensor> Expectation_Forward_CUDA(
   const at::Tensor input_);
 
-at::Tensor Sum_Square_Backward_CUDA(
+at::Tensor Expectation_Backward_CUDA(
   const at::Tensor input_,
-  const at::Tensor gradSum_,
-  const at::Tensor gradSquare_);
+  const at::Tensor gradEx_,
+  const at::Tensor gradExs_);
+
+at::Tensor Expectation_Inp_Backward_CUDA(
+  const at::Tensor gradInput_,
+  const at::Tensor output_,
+  const at::Tensor gradEx_,
+  const at::Tensor gradExs_,
+  const at::Tensor ex_, 
+  const at::Tensor exs_,
+  const at::Tensor gamma_,
+  const at::Tensor beta_,
+  float eps);
 
 at::Tensor Encoding_Dist_Inference_Forward_CUDA(
-    const at::Tensor X_,
-    const at::Tensor C_,
-    const at::Tensor STD_);
+  const at::Tensor X_,
+  const at::Tensor C_,
+  const at::Tensor STD_);
 
 std::vector<at::Tensor> Encoding_Dist_Inference_Backward_CUDA(
-    const at::Tensor GKD_,
-    const at::Tensor KD_,
-    const at::Tensor X_,
-    const at::Tensor C_,
-    const at::Tensor STD_);
+  const at::Tensor GKD_,
+  const at::Tensor KD_,
+  const at::Tensor X_,
+  const at::Tensor C_,
+  const at::Tensor STD_);
 
 std::vector<at::Tensor> Encoding_Dist_Forward_CUDA(
   const at::Tensor X,
@@ -91,12 +120,12 @@ std::vector<at::Tensor> Encoding_Dist_Forward_CUDA(
   double eps);
 
 std::vector<at::Tensor> Encoding_Dist_Backward_CUDA(
-    const at::Tensor GKD_,
-    const at::Tensor GSTD_,
-    const at::Tensor KD_,
-    const at::Tensor X_,
-    const at::Tensor C_,
-    const at::Tensor STD_);
+  const at::Tensor GKD_,
+  const at::Tensor GSTD_,
+  const at::Tensor KD_,
+  const at::Tensor X_,
+  const at::Tensor C_,
+  const at::Tensor STD_);
 
 at::Tensor AggregateV2_Forward_CUDA(
   const at::Tensor A_,
@@ -111,3 +140,7 @@ std::vector<at::Tensor> AggregateV2_Backward_CUDA(
   const at::Tensor X_,
   const at::Tensor C_,
   const at::Tensor STD_);
+
+void LeakyRelu_Forward_CUDA(at::Tensor z, float slope);
+
+void LeakyRelu_Backward_CUDA(at::Tensor z, at::Tensor dz, float slope);

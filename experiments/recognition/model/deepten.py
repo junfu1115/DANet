@@ -14,7 +14,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 import encoding
-import encoding.dilated.resnet as resnet
+import encoding.models.resnet as resnet
 
 class Net(nn.Module):
     def __init__(self, args):

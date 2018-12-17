@@ -38,25 +38,19 @@ Test Pre-trained Model
 .. role:: raw-html(raw)
    :format: html
 
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| Model                            | pixAcc    | mIoU      | Command                                                                                      | Logs       |
-+==================================+===========+===========+==============================================================================================+============+
-| Encnet_ResNet50_PContext         | 79.2%     | 51.0%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  | ENC50PC_   |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet101_PContext        | 80.7%     | 54.1%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` | ENC101PC_  |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet50_ADE              | 80.1%     | 41.5%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    | ENC50ADE_  |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet101_ADE             | 81.3%     | 44.4%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_ade')" class="toggleblock">cmd</a>`   | ENC101ADE_ |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-| EncNet_ResNet101_VOC             | N/A       | 85.9%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_voc')" class="toggleblock">cmd</a>`   | ENC101VOC_ |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+------------+
-
-.. _ENC50PC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet50_pcontext.log?raw=true
-.. _ENC101PC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet101_pcontext.log?raw=true
-.. _ENC50ADE: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet50_ade.log?raw=true
-.. _ENC101ADE: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet101_ade.log?raw=true
-.. _ENC101VOC: https://github.com/zhanghang1989/image-data/blob/master/encoding/segmentation/logs/encnet_resnet101_voc.log?raw=true
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| Model                            | pixAcc    | mIoU      | Command                                                                                      |
++==================================+===========+===========+==============================================================================================+
+| Encnet_ResNet50_PContext         | 79.2%     | 51.0%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| EncNet_ResNet101_PContext        | 80.7%     | 54.1%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| EncNet_ResNet50_ADE              | 80.1%     | 41.5%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| EncNet_ResNet101_ADE             | 81.3%     | 44.4%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_ade')" class="toggleblock">cmd</a>`   |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+| EncNet_ResNet101_VOC             | N/A       | 85.9%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_voc')" class="toggleblock">cmd</a>`   |
++----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
 
 
 .. raw:: html

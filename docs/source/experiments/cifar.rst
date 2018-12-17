@@ -57,19 +57,6 @@ Train Your Own Model
   --eval                evaluating
 
 
-Extending the Software
-----------------------
-
-This code is well written, easy to use and extendable for your own models or datasets:
-
-- Write your own Dataloader ``mydataset.py`` to ``dataset/`` folder
-
-- Write your own Model ``mymodel.py`` to ``model/`` folder
-
-- Run the program::
-
-    python main.py --dataset mydataset --model mymodel
-
 Citation
 --------
 

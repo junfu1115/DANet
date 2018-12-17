@@ -14,16 +14,22 @@ Customized NN modules in Encoding Package. For Synchronized Cross-GPU Batch Norm
 .. autoclass:: Encoding
     :members:
 
-:hidden:`BatchNorm2d`
+:hidden:`SyncBatchNorm`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: BatchNorm2d
+.. autoclass:: SyncBatchNorm
     :members:
 
 :hidden:`BatchNorm1d`
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: BatchNorm1d
+    :members:
+
+:hidden:`BatchNorm2d`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: BatchNorm2d
     :members:
 
 :hidden:`BatchNorm3d`

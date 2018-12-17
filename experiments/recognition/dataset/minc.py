@@ -49,7 +49,7 @@ def make_dataset(filename, datadir, class_to_idx):
     return images, labels
 
 
-class MINCDataloder(data.Dataset):
+class MINCDataset(data.Dataset):
     def __init__(self, root, train=True, transform=None):
         self.transform = transform
         classes, class_to_idx = find_classes(root + '/images')
@@ -94,9 +94,9 @@ class Dataloader():
             normalize,
         ])
 
-        trainset = MINCDataloder(root=os.path.expanduser('~/.encoding/data/minc-2500/'), 
+        trainset = MINCDataset(root=os.path.expanduser('~/.encoding/data/minc-2500/'), 
             train=True, transform=transform_train)
-        testset = MINCDataloder(root=os.path.expanduser('~/.encoding/data/minc-2500/'), 
+        testset = MINCDataset(root=os.path.expanduser('~/.encoding/data/minc-2500/'), 
             train=False, transform=transform_test)
     
         kwargs = {'num_workers': 8, 'pin_memory': True} if args.cuda else {}
@@ -133,7 +133,7 @@ class Lighting(object):
 
 
 if __name__ == "__main__":
-    trainset = MINCDataloder(root=os.path.expanduser('~/data/minc-2500/'), train=True)
-    testset = MINCDataloder(root=os.path.expanduser('~/data/minc-2500/'), train=False)
+    trainset = MINCDataset(root=os.path.expanduser('~/.encoding/data/minc-2500/'), train=True)
+    testset = MINCDataset(root=os.path.expanduser('~/.encoding/data/minc-2500/'), train=False)
     print(len(trainset))
     print(len(testset))

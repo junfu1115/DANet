@@ -17,9 +17,11 @@ cpu = load('enclib_cpu', [
 if torch.cuda.is_available():
     gpu = load('enclib_gpu', [
             os.path.join(gpu_path, 'operator.cpp'),
+            os.path.join(gpu_path, 'activation_kernel.cu'),
             os.path.join(gpu_path, 'encoding_kernel.cu'),
             os.path.join(gpu_path, 'encodingv2_kernel.cu'),
             os.path.join(gpu_path, 'syncbn_kernel.cu'),
             os.path.join(gpu_path, 'roi_align_kernel.cu'),
             os.path.join(gpu_path, 'nms_kernel.cu'),
-        ], build_directory=gpu_path, verbose=False)
+        ], extra_cuda_cflags=["--expt-extended-lambda"],
+        build_directory=gpu_path, verbose=False)

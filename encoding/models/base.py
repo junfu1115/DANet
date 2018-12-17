@@ -10,12 +10,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn.functional import upsample
 from torch.nn.parallel.data_parallel import DataParallel
 from torch.nn.parallel.parallel_apply import parallel_apply
 from torch.nn.parallel.scatter_gather import scatter
 
-from .. import dilated as resnet
+from . import resnet
 from ..utils import batch_pix_accuracy, batch_intersection_union
 
 up_kwargs = {'mode': 'bilinear', 'align_corners': True}
@@ -35,6 +34,7 @@ class BaseNet(nn.Module):
         self.base_size = base_size
         self.crop_size = crop_size
         # copying modules from pretrained models
+        self.backbone = backbone
         if backbone == 'resnet50':
             self.pretrained = resnet.resnet50(pretrained=True, dilated=dilated,
                                               norm_layer=norm_layer, root=root)
@@ -50,14 +50,28 @@ class BaseNet(nn.Module):
         self._up_kwargs = up_kwargs
 
     def base_forward(self, x):
-        x = self.pretrained.conv1(x)
-        x = self.pretrained.bn1(x)
-        x = self.pretrained.relu(x)
-        x = self.pretrained.maxpool(x)
-        c1 = self.pretrained.layer1(x)
-        c2 = self.pretrained.layer2(c1)
-        c3 = self.pretrained.layer3(c2)
-        c4 = self.pretrained.layer4(c3)
+        if self.backbone.startswith('wideresnet'):
+            x = self.pretrained.mod1(x)
+            x = self.pretrained.pool2(x)
+            x = self.pretrained.mod2(x)
+            x = self.pretrained.pool3(x)
+            x = self.pretrained.mod3(x)
+            x = self.pretrained.mod4(x)
+            x = self.pretrained.mod5(x)
+            c3 = x.clone()
+            x = self.pretrained.mod6(x)
+            x = self.pretrained.mod7(x)
+            x = self.pretrained.bn_out(x)
+            return None, None, c3, x
+        else:
+            x = self.pretrained.conv1(x)
+            x = self.pretrained.bn1(x)
+            x = self.pretrained.relu(x)
+            x = self.pretrained.maxpool(x)
+            c1 = self.pretrained.layer1(x)
+            c2 = self.pretrained.layer2(c1)
+            c3 = self.pretrained.layer3(c2)
+            c4 = self.pretrained.layer4(c3)
         return c1, c2, c3, c4
 
     def evaluate(self, x, target=None):
@@ -124,6 +138,17 @@ class MultiEvalModule(DataParallel):
                 width = long_size
                 height = int(1.0 * h * long_size / w + 0.5)
                 short_size = height
+            """
+            short_size = int(math.ceil(self.base_size * scale))
+            if h > w:
+                width = short_size
+                height = int(1.0 * h * short_size / w)
+                long_size = height
+            else:
+                height = short_size
+                width = int(1.0 * w * short_size / h)
+                long_size = width
+            """
             # resize image to current size
             cur_img = resize_image(image, height, width, **self.module._up_kwargs)
             if long_size <= crop_size:
@@ -180,7 +205,7 @@ def module_inference(module, image, flip=True):
     return output.exp()
 
 def resize_image(img, h, w, **up_kwargs):
-    return F.upsample(img, (h, w), **up_kwargs)
+    return F.interpolate(img, (h, w), **up_kwargs)
 
 def pad_image(img, mean, std, crop_size):
     b,c,h,w = img.size()

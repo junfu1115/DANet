@@ -15,9 +15,9 @@ import torchvision.transforms as transform
 from torch.nn.parallel.scatter_gather import gather
 
 import encoding.utils as utils
-from encoding.nn import SegmentationLosses, BatchNorm2d
+from encoding.nn import SegmentationLosses, SyncBatchNorm, OHEMSegmentationLosses
 from encoding.parallel import DataParallelModel, DataParallelCriterion
-from encoding.datasets import get_segmentation_dataset
+from encoding.datasets import get_dataset
 from encoding.models import get_segmentation_model
 
 from option import Options
@@ -36,9 +36,9 @@ class Trainer():
         # dataset
         data_kwargs = {'transform': input_transform, 'base_size': args.base_size,
                        'crop_size': args.crop_size}
-        trainset = get_segmentation_dataset(args.dataset, split=args.train_split, mode='train',
+        trainset = get_dataset(args.dataset, split=args.train_split, mode='train',
                                            **data_kwargs)
-        testset = get_segmentation_dataset(args.dataset, split='val', mode ='val',
+        testset = get_dataset(args.dataset, split='val', mode ='val',
                                            **data_kwargs)
         # dataloader
         kwargs = {'num_workers': args.workers, 'pin_memory': True} \
@@ -51,7 +51,7 @@ class Trainer():
         # model
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone = args.backbone, aux = args.aux,
-                                       se_loss = args.se_loss, norm_layer = BatchNorm2d,
+                                       se_loss = args.se_loss, norm_layer = SyncBatchNorm,
                                        base_size=args.base_size, crop_size=args.crop_size)
         print(model)
         # optimizer using different LR
@@ -63,7 +63,8 @@ class Trainer():
         optimizer = torch.optim.SGD(params_list, lr=args.lr,
             momentum=args.momentum, weight_decay=args.weight_decay)
         # criterions
-        self.criterion = SegmentationLosses(se_loss=args.se_loss, aux=args.aux,
+        self.criterion = SegmentationLosses(se_loss=args.se_loss,
+                                            aux=args.aux,
                                             nclass=self.nclass, 
                                             se_weight=args.se_weight,
                                             aux_weight=args.aux_weight)
@@ -160,12 +161,12 @@ class Trainer():
         if new_pred > self.best_pred:
             is_best = True
             self.best_pred = new_pred
-            utils.save_checkpoint({
-                'epoch': epoch + 1,
-                'state_dict': self.model.module.state_dict(),
-                'optimizer': self.optimizer.state_dict(),
-                'best_pred': self.best_pred,
-            }, self.args, is_best)
+        utils.save_checkpoint({
+            'epoch': epoch + 1,
+            'state_dict': self.model.module.state_dict(),
+            'optimizer': self.optimizer.state_dict(),
+            'best_pred': self.best_pred,
+        }, self.args, is_best)
 
 
 if __name__ == "__main__":
@@ -174,7 +175,10 @@ if __name__ == "__main__":
     trainer = Trainer(args)
     print('Starting Epoch:', trainer.args.start_epoch)
     print('Total Epoches:', trainer.args.epochs)
-    for epoch in range(trainer.args.start_epoch, trainer.args.epochs):
-        trainer.training(epoch)
-        if not trainer.args.no_val:
-            trainer.validation(epoch)
+    if args.eval:
+        trainer.validation(trainer.args.start_epoch)
+    else:
+        for epoch in range(trainer.args.start_epoch, trainer.args.epochs):
+            trainer.training(epoch)
+            if not trainer.args.no_val:
+                trainer.validation(epoch)

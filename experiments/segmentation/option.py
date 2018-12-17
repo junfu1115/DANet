@@ -30,7 +30,7 @@ class Options():
         parser.add_argument('--crop-size', type=int, default=480,
                             help='crop image size')
         parser.add_argument('--train-split', type=str, default='train',
-                        help='dataset train split (default: train)')
+                            help='dataset train split (default: train)')
         # training hyper params
         parser.add_argument('--aux', action='store_true', default= False,
                             help='Auxilary Loss')
@@ -44,10 +44,10 @@ class Options():
                             help='number of epochs to train (default: auto)')
         parser.add_argument('--start_epoch', type=int, default=0,
                             metavar='N', help='start epochs (default:0)')
-        parser.add_argument('--batch-size', type=int, default=None,
+        parser.add_argument('--batch-size', type=int, default=16,
                             metavar='N', help='input batch size for \
                             training (default: auto)')
-        parser.add_argument('--test-batch-size', type=int, default=None,
+        parser.add_argument('--test-batch-size', type=int, default=16,
                             metavar='N', help='input batch size for \
                             testing (default: same as batch size)')
         # optimizer params
@@ -77,6 +77,8 @@ class Options():
         # evaluation option
         parser.add_argument('--eval', action='store_true', default= False,
                             help='evaluating mIoU')
+        parser.add_argument('--test-val', action='store_true', default= False,
+                            help='generate masks on val set')
         parser.add_argument('--no-val', action='store_true', default= False,
                             help='skip validation during training')
         # test option
@@ -92,25 +94,21 @@ class Options():
         if args.epochs is None:
             epoches = {
                 'coco': 30,
-                'citys': 240,
+                'pascal_aug': 80,
                 'pascal_voc': 50,
-                'pascal_aug': 50,
                 'pcontext': 80,
-                'ade20k': 120,
+                'ade20k': 180,
+                'citys': 240,
             }
             args.epochs = epoches[args.dataset.lower()]
-        if args.batch_size is None:
-            args.batch_size = 16
-        if args.test_batch_size is None:
-            args.test_batch_size = args.batch_size
         if args.lr is None:
             lrs = {
-                'coco': 0.01,
-                'citys': 0.01,
-                'pascal_voc': 0.0001,
+                'coco': 0.004,
                 'pascal_aug': 0.001,
+                'pascal_voc': 0.0001,
                 'pcontext': 0.001,
-                'ade20k': 0.01,
+                'ade20k': 0.004,
+                'citys': 0.004,
             }
             args.lr = lrs[args.dataset.lower()] / 16 * args.batch_size
         print(args)
