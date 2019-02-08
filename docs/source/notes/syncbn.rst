@@ -12,7 +12,7 @@ BN layer was introduced in the paper `Batch Normalization: Accelerating Deep Net
     :align: center
 
 - Forward Pass: 
-    For the input data :math:`X={x_1, ...x_N}`, the data are normalized to be zero-mean and unit-variance, then scale and shit:
+    For the input data :math:`X={x_1, ...x_N}`, the data are normalized to be zero-mean and unit-variance, then scale and shift:
 
     .. math::
         y_i = \gamma\cdot\frac{x_i-\mu}{\sigma} + \beta ,
@@ -20,7 +20,7 @@ BN layer was introduced in the paper `Batch Normalization: Accelerating Deep Net
     where :math:`\mu=\frac{\sum_i^N x_i}{N} , \sigma = \sqrt{\frac{\sum_i^N (x_i-\mu)^2}{N}+\epsilon}` and :math:`\gamma, \beta` are the learnable parameters.
         
 - Backward Pass:
-    For calculating the gradient :math:`\frac{d_\ell}{d_{x_i}}`, we need to consider the partial gradient from :math:`\frac{d_\ell}{d_y}` and the gradients from :math:`\frac{d_\ell}{d_\mu}` and :math:`\frac{d_\ell}{d_\sigma}`, since the :math:`\mu \text{ and } \sigma` are the function of the input :math:`x_i`. We use patial direvative in the notations:
+    For calculating the gradient :math:`\frac{d_\ell}{d_{x_i}}`, we need to consider the partial gradient from :math:`\frac{d_\ell}{d_y}` and the gradients from :math:`\frac{d_\ell}{d_\mu}` and :math:`\frac{d_\ell}{d_\sigma}`, since the :math:`\mu \text{ and } \sigma` are the function of the input :math:`x_i`. We use partial derivative in the notations:
 
     .. math::
 
@@ -32,7 +32,7 @@ BN layer was introduced in the paper `Batch Normalization: Accelerating Deep Net
 Why Synchronize BN?
 -------------------
 
-- Standard Implementations of BN in public frameworks (suck as Caffe, MXNet, Torch, TF, PyTorch) are unsynchronized, which means that the data are normalized within each GPU. Therefore the `working batch-size` of the BN layer is `BatchSize/nGPU` (batch-size in each GPU). 
+- Standard implementations of BN in public frameworks (such as Caffe, MXNet, Torch, TF, PyTorch) are unsynchronized, which means that the data are normalized within each GPU. Therefore the `working batch-size` of the BN layer is `BatchSize/nGPU` (batch-size in each GPU). 
 
 .. image:: http://hangzh.com/blog/images/bn2.png
     :align: center
@@ -53,7 +53,7 @@ Suppose we have :math:`K` number of GPUs, :math:`sum(x)_k` and :math:`sum(x^2)_k
     * :math:`\frac{d_\ell}{d_{x_i}}=\frac{d_\ell}{d_{y_i}}\frac{\gamma}{\sigma}` can be calculated locally in each GPU.
     * Calculate the gradient of :math:`sum(x)` and :math:`sum(x^2)` individually in each GPU :math:`\frac{d_\ell}{d_{sum(x)_k}}` and :math:`\frac{d_\ell}{d_{sum(x^2)_k}}`. 
 
-    * Then Sync the gradient (automatically handled by :class:`encoding.parallel.allreduce`) and continue the backward.
+    * Then sync the gradient (automatically handled by :class:`encoding.parallel.allreduce`) and continue the backward.
 
 .. image:: http://hangzh.com/blog/images/bn3.png
     :align: center
