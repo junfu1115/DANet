@@ -84,9 +84,9 @@ If DANet is useful for your research, please consider citing:
 ```
 @article{fu2018dual,
   title={Dual Attention Network for Scene Segmentation},
-  author={Fu, Jun and Liu, Jing and Tian, Haijie, and Fang, Zhiwei, and Lu, Hanqing},
-  journal={arXiv preprint arXiv:1809.02983},
-  year={2018}
+  author={Jun Fu, Jing Liu, Haijie Tian, Yong Li, Yongjun Bao, Zhiwei Fang,and Hanqing Lu},
+  booktitle={CVPR},,
+  year={2019}
 }
 ```
 ## Acknowledgement
