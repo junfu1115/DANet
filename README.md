@@ -1,4 +1,4 @@
-# [Dual Attention Network for Scene Segmentation](https://arxiv.org/pdf/1809.02983.pdf)
+# [Dual Attention Network for Scene Segmentation(CVPR2019)](https://arxiv.org/pdf/1809.02983.pdf)
 
 ## Introduction
 
@@ -85,7 +85,7 @@ If DANet is useful for your research, please consider citing:
 @article{fu2018dual,
   title={Dual Attention Network for Scene Segmentation},
   author={Jun Fu, Jing Liu, Haijie Tian, Yong Li, Yongjun Bao, Zhiwei Fang,and Hanqing Lu},
-  booktitle={CVPR},,
+  booktitle={The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2019}
 }
 ```
