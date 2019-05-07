@@ -105,7 +105,7 @@ def test(args):
         else:
             with torch.no_grad():
                 correct, labeled, inter, union = eval_batch(image, dst, evaluator, args.eval)
-        pixAcc, mIoU, IoU = 0， 0， 0
+        pixAcc, mIoU, IoU = 0, 0, 0
         if args.eval:
             total_correct += correct.astype('int64')
             total_label += labeled.astype('int64')
