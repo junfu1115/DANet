@@ -28,7 +28,7 @@ acronyms = {
     'coco': 'coco',
     'pascal_voc': 'voc',
     'pascal_aug': 'voc',
-    'pcontext': pcontext,
+    'pcontext': 'pcontext',
     'ade20k': 'ade',
     'citys': 'citys',
     'minc': 'minc',
