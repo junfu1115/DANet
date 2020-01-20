@@ -30,7 +30,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
 3. Dataset
 
   - Download the [Cityscapes](https://www.cityscapes-dataset.com/) dataset and convert the dataset to [19 categories](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/helpers/labels.py). 
-  - Please put dataset in folder `./datasets`
+  - Please put dataset in folder `./datasets/cityscapes`
 
 4 . Evaluation
 
