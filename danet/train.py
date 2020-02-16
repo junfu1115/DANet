@@ -34,10 +34,13 @@ class Trainer():
         self.args = args
         args.log_name = str(args.checkname)
         self.logger = utils.create_logger(args.log_root, args.log_name)
+        self.logger.info(self.args)
+        
         # data transforms
         input_transform = transform.Compose([
             transform.ToTensor(),
             transform.Normalize([.485, .456, .406], [.229, .224, .225])])
+        
         # dataset
         data_kwargs = {'transform': input_transform, 'base_size': args.base_size,
                        'crop_size': args.crop_size, 'logger': self.logger,
