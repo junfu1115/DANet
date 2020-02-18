@@ -8,3 +8,10 @@ docs/src/
 docs/html/
 encoding/_ext/
 encoding.egg-info/
+danet/cityscapes/danet_model/
+danet/cityscapes/log/
+danet/cityscapes/model/DANet101.pth.tar
+danet/pretrain_models/
+datasets/cityscapes/gtFine/
+datasets/cityscapes/leftImg8bit/
+torch_encoding.egg-info/
