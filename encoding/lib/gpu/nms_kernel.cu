@@ -71,8 +71,8 @@ std::vector<at::Tensor> Non_Max_Suppression_CUDA(
   AT_ASSERT(input.size(2) == 4);
   AT_ASSERT(input.is_contiguous());
   AT_ASSERT(scores.is_contiguous());
-  AT_ASSERT(input.type().scalarType() == at::kFloat || input.type().scalarType() == at::kDouble)
-  AT_ASSERT(scores.type().scalarType() == at::kFloat || scores.type().scalarType() == at::kDouble)
+  AT_ASSERT(input.type().scalarType() == at::kFloat || input.type().scalarType() == at::kDouble);
+  AT_ASSERT(scores.type().scalarType() == at::kFloat || scores.type().scalarType() == at::kDouble);
 
   auto num_boxes = input.size(1);
   auto batch_size = input.size(0);
