@@ -1,3 +1,7 @@
+[![PyPI](https://img.shields.io/pypi/v/torch-encoding.svg)](https://pypi.python.org/pypi/torch-encoding)
+[![PyPI Pre-release](https://img.shields.io/badge/pypi--prerelease-v1.1.0-ff69b4.svg)](https://pypi.org/project/torch-encoding/#history)
+[![Upload Python Package](https://github.com/zhanghang1989/PyTorch-Encoding/workflows/Upload%20Python%20Package/badge.svg)](https://github.com/zhanghang1989/PyTorch-Encoding/actions)
+
 # PyTorch-Encoding
 
 created by [Hang Zhang](http://hangzh.com/)

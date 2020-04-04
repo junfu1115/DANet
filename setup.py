@@ -18,11 +18,12 @@ import setuptools.command.install
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
-version = '1.0.1'
+version = '1.1.1'
 try:
-    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], 
-        cwd=cwd).decode('ascii').strip()
-    version += '+' + sha[:7]
+    from datetime import date
+    today = date.today()
+    day = today.strftime("b%d%m%Y")
+    version += day
 except Exception:
     pass
 
@@ -47,11 +48,7 @@ class develop(setuptools.command.develop.develop):
         setuptools.command.develop.develop.run(self)
         #subprocess.check_call("python tests/unit_test.py".split())
 
-try:
-    import pypandoc
-    readme = pypandoc.convert('README.md', 'rst')
-except(IOError, ImportError):
-    readme = open('README.md').read()
+readme = open('README.md').read()
 
 requirements = [
     'numpy',
@@ -79,6 +76,7 @@ setup(
     url="https://github.com/zhanghang1989/PyTorch-Encoding",
     description="PyTorch Encoding Package",
     long_description=readme,
+    long_description_content_type='text/markdown',
     license='MIT',
     install_requires=requirements,
     packages=find_packages(exclude=["tests", "experiments"]),
