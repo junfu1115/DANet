@@ -1,0 +1,73 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Build Docs
+
+on: 
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: seanmiddleditch/gha-setup-ninja@master
+        
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy -I
+          pip install pytest torch
+          
+      - name: Install package
+        run: |
+          pip install -e .
+          
+      - name: Install Sphix Dependencies
+        run: |
+          cd docs/
+          pip install -r requirements.txt
+          
+      - name: Build Sphinx docs
+        run: |
+          cd docs/
+          make html
+          touch build/html/.nojekyll
+          
+      - name: Set PR Number
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{github.token}}
+          script: |
+            const core = require('@actions/core')
+            const prNumber = context.payload.number;
+            core.exportVariable('PULL_NUMBER', prNumber);
+        
+        
+      # https://github.com/marketplace/actions/github-pages
+      - name: Deploy
+        if: success()
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          DEST_DIR: "${{ secrets.DEST_DIR }}/${PULL_NUMBER}"
+          SOURCE_DIR: 'docs/build/html/'
+          
+          
+      - name: Comment
+        if: success()
+        uses: thollander/actions-comment-pull-request@master
+        with:
+          message: "The docs are uploaded and can be previewed at http://${{ secrets.AWS_S3_BUCKET }}.s3.amazonaws.com/${{ secrets.DEST_DIR }}/${{ env.PULL_NUMBER }}/index.html"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
