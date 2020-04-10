@@ -10,8 +10,8 @@ Install Package
 
 - Install PyTorch Encoding (if not yet). Please follow the installation guide `Installing PyTorch Encoding <../notes/compile.html>`_.
 
-Test Pre-trained Model
-----------------------
+Get Pre-trained Model
+---------------------
 
 .. hint::
     The model names contain the training information. For instance ``FCN_ResNet50_PContext``:
@@ -23,34 +23,23 @@ Test Pre-trained Model
 
         model = encoding.models.get_model('FCN_ResNet50_PContext', pretrained=True)
 
-    Prepare the datasets by runing the scripts in the ``scripts/`` folder, for example preparing ``PASCAL Context`` dataset::
-
-        python scripts/prepare_pcontext.py
-    
-    The test script is in the ``experiments/segmentation/`` folder. For evaluating the model (using MS),
-    for example ``Encnet_ResNet50_PContext``::
-
-        python test.py --dataset PContext --model-zoo Encnet_ResNet50_PContext --eval
-        # pixAcc: 0.792, mIoU: 0.510: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
-
-    The command for training the model can be found by clicking ``cmd`` in the table.
+    After clicking ``cmd`` in the table, the command for training the model can be found below the table.
 
 .. role:: raw-html(raw)
    :format: html
 
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| Model                            | pixAcc    | mIoU      | Command                                                                                      |
-+==================================+===========+===========+==============================================================================================+
-| Encnet_ResNet50_PContext         | 79.2%     | 51.0%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| EncNet_ResNet101_PContext        | 80.7%     | 54.1%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| EncNet_ResNet50_ADE              | 80.1%     | 41.5%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| EncNet_ResNet101_ADE             | 81.3%     | 44.4%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_ade')" class="toggleblock">cmd</a>`   |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
-| EncNet_ResNet101_VOC             | N/A       | 85.9%     | :raw-html:`<a href="javascript:toggleblock('cmd_enc101_voc')" class="toggleblock">cmd</a>`   |
-+----------------------------------+-----------+-----------+----------------------------------------------------------------------------------------------+
+
+.. tabularcolumns:: |>{\centering\arraybackslash}\X{4}{5}|>{\raggedleft\arraybackslash}\X{1}{5}|
+
+==============================================================================  ==============    ==============    =============================================================================================
+Model                                                                           pixAcc            mIoU              Command                                                                                      
+==============================================================================  ==============    ==============    =============================================================================================
+Encnet_ResNet50_PContext                                                        79.2%             51.0%             :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  
+EncNet_ResNet101_PContext                                                       80.7%             54.1%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` 
+EncNet_ResNet50_ADE                                                             80.1%             41.5%             :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    
+EncNet_ResNet101_ADE                                                            81.3%             44.4%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_ade')" class="toggleblock">cmd</a>`   
+EncNet_ResNet101_VOC                                                            N/A               85.9%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_voc')" class="toggleblock">cmd</a>`   
+==============================================================================  ==============    ==============    =============================================================================================
 
 
 .. raw:: html
@@ -87,6 +76,19 @@ Test Pre-trained Model
     # Finetuning on original set
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_voc --model encnet --aux  --se-loss --backbone resnet101 --lr 0.0001 --syncbn --ngpus 4 --checkname res101 --resume runs/Pascal_aug/encnet/res101/checkpoint.params --ft
     </code>
+
+Test Pretrained
+~~~~~~~~~~~~~~~
+
+- Prepare the datasets by runing the scripts in the ``scripts/`` folder, for example preparing ``PASCAL Context`` dataset::
+
+      python scripts/prepare_pcontext.py
+  
+- The test script is in the ``experiments/segmentation/`` folder. For evaluating the model (using MS),
+  for example ``Encnet_ResNet50_PContext``::
+
+      python test.py --dataset PContext --model-zoo Encnet_ResNet50_PContext --eval
+      # pixAcc: 0.792, mIoU: 0.510: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
 
 Quick Demo
 ~~~~~~~~~~
