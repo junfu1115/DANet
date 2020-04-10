@@ -24,7 +24,7 @@ class Encoding(Module):
     Encoding Layer: a learnable residual encoder.
 
     .. image:: _static/img/cvpr17.svg
-        :width: 50%
+        :width: 30%
         :align: center
 
     Encoding Layer accpets 3D or 4D inputs.

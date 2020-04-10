@@ -18,11 +18,11 @@ import setuptools.command.install
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
-version = '1.1.1'
+version = '1.1.2'
 try:
     from datetime import date
     today = date.today()
-    day = today.strftime("b%d%m%Y")
+    day = today.strftime("b%Y%m%d")
     version += day
 except Exception:
     pass
@@ -40,13 +40,11 @@ class install(setuptools.command.install.install):
     def run(self):
         create_version_file()
         setuptools.command.install.install.run(self)
-        #subprocess.check_call("python tests/unit_test.py".split())
 
 class develop(setuptools.command.develop.develop):
     def run(self):
         create_version_file()
         setuptools.command.develop.develop.run(self)
-        #subprocess.check_call("python tests/unit_test.py".split())
 
 readme = open('README.md').read()
 
