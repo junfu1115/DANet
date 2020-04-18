@@ -8,3 +8,6 @@ docs/src/
 docs/html/
 encoding/_ext/
 encoding.egg-info/
+*.o
+*.so
+*.ninja*

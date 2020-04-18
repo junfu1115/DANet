@@ -1,12 +1,11 @@
-#include <vector>
 #include <torch/extension.h>
 #include <ATen/ATen.h>
-// #include <ATen/cuda/CUDAContext.h>
+#include <vector>
 
 #include <cuda_runtime_api.h>
-
 #include <thrust/device_ptr.h>
 #include <thrust/transform.h>
+#include "common.h"
 
 
 namespace {

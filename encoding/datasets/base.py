@@ -67,6 +67,7 @@ class BaseDataset(data.Dataset):
             img = img.transpose(Image.FLIP_LEFT_RIGHT)
             mask = mask.transpose(Image.FLIP_LEFT_RIGHT)
         crop_size = self.crop_size
+        # random scale (short edge)
         w, h = img.size
         long_size = random.randint(int(self.base_size*0.5), int(self.base_size*2.0))
         if h > w:

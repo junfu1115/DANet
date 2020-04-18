@@ -11,6 +11,9 @@ import os
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
+import warnings
+warnings.filterwarnings("ignore", "(Possibly )?corrupt EXIF data", UserWarning)
+
 class ImageNetDataset(datasets.ImageFolder):
     BASE_DIR = "ILSVRC2012"
     def __init__(self, root=os.path.expanduser('~/.encoding/data'), transform=None,

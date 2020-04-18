@@ -18,7 +18,7 @@ import setuptools.command.install
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
-version = '1.1.2'
+version = '1.2.0'
 try:
     from datetime import date
     today = date.today()
@@ -52,14 +52,7 @@ requirements = [
     'numpy',
     'tqdm',
     'nose',
-    'torch>=0.5.0',
-    'cffi>=1.0.0',
-]
-
-requirements = [
-    'numpy',
-    'tqdm',
-    'nose',
+    'portalocker',
     'torch>=1.4.0',
     'torchvision>=0.5.0',
     'Pillow',

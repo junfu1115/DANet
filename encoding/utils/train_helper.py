@@ -8,13 +8,45 @@
 ## LICENSE file in the root directory of this source tree
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import numpy as np
 import torch
 import torch.nn as nn
 
 #from ..nn import SyncBatchNorm
 from torch.nn.modules.batchnorm import _BatchNorm
 
-__all__ = ['get_selabel_vector']
+__all__ = ['MixUpWrapper', 'get_selabel_vector']
+
+class MixUpWrapper(object):
+    def __init__(self, alpha, num_classes, dataloader, device):
+        self.alpha = alpha
+        self.dataloader = dataloader
+        self.num_classes = num_classes
+        self.device = device
+
+    def mixup_loader(self, loader):
+        def mixup(alpha, num_classes, data, target):
+            with torch.no_grad():
+                bs = data.size(0)
+                c = np.random.beta(alpha, alpha)
+                perm = torch.randperm(bs).cuda()
+
+                md = c * data + (1-c) * data[perm, :]
+                mt = c * target + (1-c) * target[perm, :]
+                return md, mt
+
+        for input, target in loader:
+            input, target = input.cuda(self.device), target.cuda(self.device)
+            target = torch.nn.functional.one_hot(target, self.num_classes)
+            i, t = mixup(self.alpha, self.num_classes, input, target)
+            yield i, t
+
+    def __len__(self):
+        return len(self.dataloader)
+
+    def __iter__(self):
+        return self.mixup_loader(self.dataloader)
+
 
 def get_selabel_vector(target, nclass):
     r"""Get SE-Loss Label in a batch
@@ -34,45 +66,3 @@ def get_selabel_vector(target, nclass):
         vect = hist>0
         tvect[i] = vect
     return tvect
-
-
-class EMA():
-    r""" Use moving avg for the models.
-    Examples:
-        >>> ema = EMA(0.999)
-        >>> for name, param in model.named_parameters():
-        >>>     if param.requires_grad:
-        >>>         ema.register(name, param.data)
-        >>> 
-        >>> # during training:
-        >>> # optimizer.step()
-        >>> for name, param in model.named_parameters():
-        >>>    # Sometime I also use the moving average of non-trainable parameters, just according to the model structure
-        >>>    if param.requires_grad:
-        >>>         ema(name, param.data)
-        >>> 
-        >>> # during eval or test
-        >>> import copy
-        >>> model_test = copy.deepcopy(model)
-        >>> for name, param in model_test.named_parameters():
-        >>>    # Sometime I also use the moving average of non-trainable parameters, just according to the model structure
-        >>>    if param.requires_grad:
-        >>>         param.data = ema.get(name)
-        >>> # Then use model_test for eval.
-    """
-    def __init__(self, momentum):
-        self.momentum = momentum
-        self.shadow = {}
-
-    def register(self, name, val):
-        self.shadow[name] = val.clone()
-
-    def __call__(self, name, x):
-        assert name in self.shadow
-        new_average = (1.0 - self.momentum) * x + self.momentum * self.shadow[name]
-        self.shadow[name] = new_average.clone()
-        return new_average
-
-    def get(self, name):
-        assert name in self.shadow
-        return self.shadow[name]

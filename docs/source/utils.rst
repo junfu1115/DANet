@@ -20,6 +20,12 @@ Useful util functions.
 
 .. autofunction:: save_checkpoint
 
+:hidden:`SegmentationMetric`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: SegmentationMetric
+    :members:
+
 :hidden:`batch_pix_accuracy`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

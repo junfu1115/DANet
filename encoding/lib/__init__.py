@@ -12,6 +12,7 @@ cpu = load('enclib_cpu', [
         os.path.join(cpu_path, 'syncbn_cpu.cpp'),
         os.path.join(cpu_path, 'roi_align_cpu.cpp'),
         os.path.join(cpu_path, 'nms_cpu.cpp'),
+        os.path.join(cpu_path, 'rectify_cpu.cpp'),
     ], build_directory=cpu_path, verbose=False)
 
 if torch.cuda.is_available():
@@ -19,9 +20,9 @@ if torch.cuda.is_available():
             os.path.join(gpu_path, 'operator.cpp'),
             os.path.join(gpu_path, 'activation_kernel.cu'),
             os.path.join(gpu_path, 'encoding_kernel.cu'),
-            os.path.join(gpu_path, 'encodingv2_kernel.cu'),
             os.path.join(gpu_path, 'syncbn_kernel.cu'),
             os.path.join(gpu_path, 'roi_align_kernel.cu'),
             os.path.join(gpu_path, 'nms_kernel.cu'),
+            os.path.join(gpu_path, 'rectify_cuda.cu'),
         ], extra_cuda_cflags=["--expt-extended-lambda"],
         build_directory=gpu_path, verbose=False)

@@ -72,3 +72,12 @@ std::vector<at::Tensor> Non_Max_Suppression_CPU(
   const at::Tensor& input,
   const at::Tensor& scores,
   double thresh);
+
+void CONV_RECTIFY_CPU(
+  at::Tensor& output,
+  const at::Tensor& input,
+  at::IntArrayRef kernel_size,
+  at::IntArrayRef stride,
+  at::IntArrayRef padding,
+  at::IntArrayRef dilation,
+  bool avg_mode);

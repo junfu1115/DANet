@@ -8,10 +8,10 @@ setup(
             'operator.cpp',
             'activation_kernel.cu',
             'encoding_kernel.cu',
-            'encodingv2_kernel.cu',
             'syncbn_kernel.cu',
             'roi_align_kernel.cu',
             'nms_kernel.cu',
+            'rectify.cu',
             ]),
     ],
     cmdclass={

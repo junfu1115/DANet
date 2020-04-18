@@ -13,16 +13,23 @@ An optimized PyTorch package with CUDA backend.
 .. toctree::
    :glob:
    :maxdepth: 1
-   :caption: Notes
+   :caption: Installation
 
    notes/*
 
 .. toctree::
    :glob:
    :maxdepth: 1
-   :caption: Experiment Systems
+   :caption: Model Zoo
 
-   experiments/*
+   model_zoo/*
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+   :caption: Other Tutorials
+
+   tutorials/*
 
 .. toctree::
    :maxdepth: 1
@@ -30,7 +37,6 @@ An optimized PyTorch package with CUDA backend.
 
    nn
    parallel
-   models
    utils
 
 Indices and tables

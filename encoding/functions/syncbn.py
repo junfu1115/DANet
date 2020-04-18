@@ -10,7 +10,7 @@
 """Synchronized Cross-GPU Batch Normalization functions"""
 import torch
 import torch.cuda.comm as comm
-from torch.autograd import Variable, Function
+from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 from .. import lib
 

@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 
 from ..nn import Encoding, View, Normalize
-from . import resnet
+from .backbone import resnet
 
 __all__ = ['DeepTen', 'get_deepten', 'get_deepten_resnet50_minc']
 

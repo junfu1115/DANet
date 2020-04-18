@@ -28,8 +28,6 @@ class GlobalAvgPool2d(nn.Module):
     def forward(self, inputs):
         return F.adaptive_avg_pool2d(inputs, 1).view(inputs.size(0), -1)
 
-
-
 class GramMatrix(nn.Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
 

@@ -17,7 +17,8 @@ from torch.nn.modules.utils import _pair
 
 from ..functions import scaled_l2, aggregate, pairwise_cosine
 
-__all__ = ['Encoding', 'EncodingDrop', 'Inspiration', 'UpsampleConv2d']
+__all__ = ['Encoding', 'EncodingDrop', 'Inspiration', 'UpsampleConv2d',
+           'EncodingCosine']
 
 class Encoding(Module):
     r"""
@@ -304,3 +305,43 @@ class UpsampleConv2d(Module):
         out = F.conv2d(input, self.weight, self.bias, self.stride,
                        self.padding, self.dilation, self.groups)
         return F.pixel_shuffle(out, self.scale_factor)
+
+# Experimental
+class EncodingCosine(Module):
+    def __init__(self, D, K):
+        super(EncodingCosine, self).__init__()
+        # init codewords and smoothing factor
+        self.D, self.K = D, K
+        self.codewords = Parameter(torch.Tensor(K, D), requires_grad=True)
+        #self.scale = Parameter(torch.Tensor(K), requires_grad=True)
+        self.reset_params()
+
+    def reset_params(self):
+        std1 = 1./((self.K*self.D)**(1/2))
+        self.codewords.data.uniform_(-std1, std1)
+        #self.scale.data.uniform_(-1, 0)
+
+    def forward(self, X):
+        # input X is a 4D tensor
+        assert(X.size(1) == self.D)
+        if X.dim() == 3:
+            # BxDxN
+            B, D = X.size(0), self.D
+            X = X.transpose(1, 2).contiguous()
+        elif X.dim() == 4:
+            # BxDxHxW
+            B, D = X.size(0), self.D
+            X = X.view(B, D, -1).transpose(1, 2).contiguous()
+        else:
+            raise RuntimeError('Encoding Layer unknown input dims!')
+        # assignment weights NxKxD
+        L = pairwise_cosine(X, self.codewords)
+        A = F.softmax(L, dim=2)
+        # aggregate
+        E = aggregate(A, X, self.codewords)
+        return E
+
+    def __repr__(self):
+        return self.__class__.__name__ + '(' \
+            + 'N x ' + str(self.D) + '=>' + str(self.K) + 'x' \
+            + str(self.D) + ')'

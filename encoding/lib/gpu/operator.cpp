@@ -16,14 +16,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("expectation_backward", &Expectation_Backward_CUDA, "Expectation backward (CUDA)");
   m.def("expectation_inp_backward", &Expectation_Inp_Backward_CUDA,
         "Inplace Expectation backward (CUDA)");
-  m.def("encoding_dist_forward", &Encoding_Dist_Forward_CUDA, "EncDist forward (CUDA)");
-  m.def("encoding_dist_backward", &Encoding_Dist_Backward_CUDA, "Assign backward (CUDA)");
-  m.def("encoding_dist_inference_forward", &Encoding_Dist_Inference_Forward_CUDA,
-        "EncDist Inference forward (CUDA)");
-  m.def("encoding_dist_inference_backward", &Encoding_Dist_Inference_Backward_CUDA,
-        "Assign Inference backward (CUDA)");
-  m.def("aggregatev2_forward", &AggregateV2_Forward_CUDA, "AggregateV2 forward (CUDA)");
-  m.def("aggregatev2_backward", &AggregateV2_Backward_CUDA, "AggregateV2 backward (CUDA)");
   m.def("leaky_relu_forward", &LeakyRelu_Forward_CUDA, "Learky ReLU forward (CUDA)");
   m.def("leaky_relu_backward", &LeakyRelu_Backward_CUDA, "Learky ReLU backward (CUDA)");
+  m.def("conv_rectify", &CONV_RECTIFY_CUDA, "Convolution Rectifier (CUDA)");
 }
