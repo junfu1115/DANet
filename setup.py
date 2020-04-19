@@ -13,8 +13,6 @@ import os
 import subprocess
 
 from setuptools import setup, find_packages
-import setuptools.command.develop 
-import setuptools.command.install 
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,19 +33,6 @@ def create_version_file():
         f.write('"""This is encoding version file."""\n')
         f.write("__version__ = '{}'\n".format(version))
 
-# run test scrip after installation
-class install(setuptools.command.install.install):
-    def run(self):
-        create_version_file()
-        setuptools.command.install.install.run(self)
-
-class develop(setuptools.command.develop.develop):
-    def run(self):
-        create_version_file()
-        setuptools.command.develop.develop.run(self)
-
-readme = open('README.md').read()
-
 requirements = [
     'numpy',
     'tqdm',
@@ -60,28 +45,26 @@ requirements = [
     'requests',
 ]
 
-setup(
-    name="torch-encoding",
-    version=version,
-    author="Hang Zhang",
-    author_email="zhanghang0704@gmail.com",
-    url="https://github.com/zhanghang1989/PyTorch-Encoding",
-    description="PyTorch Encoding Package",
-    long_description=readme,
-    long_description_content_type='text/markdown',
-    license='MIT',
-    install_requires=requirements,
-    packages=find_packages(exclude=["tests", "experiments"]),
-    package_data={ 'encoding': [
-        'LICENSE',
-        'lib/cpu/*.h',
-        'lib/cpu/*.cpp',
-        'lib/gpu/*.h',
-        'lib/gpu/*.cpp',
-        'lib/gpu/*.cu',
-    ]},
-    cmdclass={
-        'install': install,
-        'develop': develop,
-    },
-)
+if __name__ == '__main__':
+    create_version_file()
+    setup(
+        name="torch-encoding",
+        version=version,
+        author="Hang Zhang",
+        author_email="zhanghang0704@gmail.com",
+        url="https://github.com/zhanghang1989/PyTorch-Encoding",
+        description="PyTorch Encoding Package",
+        long_description=open('README.md').read(),
+        long_description_content_type='text/markdown',
+        license='MIT',
+        install_requires=requirements,
+        packages=find_packages(exclude=["tests", "experiments"]),
+        package_data={ 'encoding': [
+            'LICENSE',
+            'lib/cpu/*.h',
+            'lib/cpu/*.cpp',
+            'lib/gpu/*.h',
+            'lib/gpu/*.cpp',
+            'lib/gpu/*.cu',
+        ]},
+    )

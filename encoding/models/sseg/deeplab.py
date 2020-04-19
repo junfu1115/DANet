@@ -178,7 +178,7 @@ def get_deeplab_resnest50_ade(pretrained=False, root='~/.encoding/models', **kwa
     >>> model = get_deeplab_resnet50_ade(pretrained=True)
     >>> print(model)
     """
-    return get_deeplab('ade20k', 'resnest50', pretrained, root=root, **kwargs)
+    return get_deeplab('ade20k', 'resnest50', pretrained, aux=True, root=root, **kwargs)
 
 def get_deeplab_resnest101_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
@@ -197,4 +197,4 @@ def get_deeplab_resnest101_ade(pretrained=False, root='~/.encoding/models', **kw
     >>> model = get_deeplab_resnet50_ade(pretrained=True)
     >>> print(model)
     """
-    return get_deeplab('ade20k', 'resnest101', pretrained, root=root, **kwargs)
+    return get_deeplab('ade20k', 'resnest101', pretrained, aux=True, root=root, **kwargs)

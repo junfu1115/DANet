@@ -140,7 +140,7 @@ def get_fcfpn(dataset='pascal_voc', backbone='resnet50', pretrained=False,
     from ...datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
     model = FCFPN(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, **kwargs)
     if pretrained:
-        from .model_store import get_model_file
+        from ..model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('fcfpn_%s_%s'%(backbone, acronyms[dataset]), root=root)))
     return model

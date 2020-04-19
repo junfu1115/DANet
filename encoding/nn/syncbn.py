@@ -168,7 +168,12 @@ class SyncBatchNorm(_BatchNorm):
         # running_exs
         #self.register_buffer('running_exs', torch.ones(num_features))
 
+    def _check_input_dim(self, x):
+        pass
+
     def forward(self, x):
+        if not self.training:
+            return super().forward(x)
         # Resize the input to (B, C, -1).
         input_shape = x.size()
         x = x.view(input_shape[0], self.num_features, -1)

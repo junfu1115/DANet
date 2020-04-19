@@ -55,21 +55,6 @@ def test_moments():
     test = gradcheck(encoding.functions.moments, input, eps=EPS, atol=ATOL)
     print('Testing moments(): {}'.format(test))
 
-def test_syncbn_func():
-    # generate input
-    B, C, H = 2, 3, 4
-    X = Variable(torch.cuda.DoubleTensor(B,C,H).uniform_(-0.5, 0.5), 
-        requires_grad=True)
-    gamma = Variable(torch.cuda.DoubleTensor(C).uniform_(-0.5, 0.5), requires_grad=True)
-    beta = Variable(torch.cuda.DoubleTensor(C).uniform_(-0.5, 0.5), requires_grad=True)
-    mean = Variable(torch.cuda.DoubleTensor(C).uniform_(-0.5, 0.5), requires_grad=True)
-    std = Variable(torch.cuda.DoubleTensor(C).uniform_(-0.5, 0.5), requires_grad=True)
-    N = B * H
-    inputs = (X, mean, std, gamma, beta)
-    # grad check
-    test = gradcheck(encoding.functions.batchnormtrain, inputs, eps=EPS, atol=ATOL)
-    print('Testing batchnorm(): {}'.format(test))
-
 def test_non_max_suppression():
     def _test_nms(cuda):
         # check a small test case

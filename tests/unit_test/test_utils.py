@@ -19,11 +19,13 @@ def test_segmentation_metrics():
     pixAcc = 1.0 * pixel_correct / (np.spacing(1) + pixel_labeled)
     IoU = 1.0 * area_inter / (np.spacing(1) + area_union)
     mIoU = IoU.mean()
-    print('numpy predictionis :',pixAcc, mIoU)
+    print('numpy predictionis :', pixAcc, mIoU)
     # torch metric prediction
     pixel_correct, pixel_labeled = batch_pix_accuracy(tim_pred, tim_lab)
     area_inter, area_union = batch_intersection_union(tim_pred, tim_lab, nclass)
-    pixAcc = 1.0 * pixel_correct / (np.spacing(1) + pixel_labeled)
+    batch_pixAcc = 1.0 * pixel_correct / (np.spacing(1) + pixel_labeled)
     IoU = 1.0 * area_inter / (np.spacing(1) + area_union)
-    mIoU = IoU.mean()
-    print('torch predictionis :',pixAcc, mIoU)
+    batch_mIoU = IoU.mean()
+    print('torch predictionis :', batch_pixAcc, batch_mIoU)
+    assert (batch_pixAcc - pixAcc) < 1e-3
+    assert (batch_mIoU - mIoU) < 1e-3

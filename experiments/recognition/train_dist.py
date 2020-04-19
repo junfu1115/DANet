@@ -11,7 +11,6 @@ import time
 import argparse
 import numpy as np
 from tqdm import tqdm
-from mpi4py import MPI
 
 import torch
 import torch.nn as nn
@@ -113,6 +112,21 @@ def main():
 best_pred = 0.0
 acclist_train = []
 acclist_val = []
+
+def torch_dist_sum(gpu, *args):
+    process_group = torch.distributed.group.WORLD
+    tensor_args = []
+    pending_res = []
+    for arg in args:
+        if isinstance(arg, torch.Tensor):
+            tensor_arg = arg.clone().reshape(1).detach().cuda(gpu)
+        else:
+            tensor_arg = torch.tensor(arg).reshape(1).cuda(gpu)
+        tensor_args.append(tensor_arg)
+        pending_res.append(torch.distributed.all_reduce(tensor_arg, group=process_group, async_op=True))
+    for res in pending_res:
+        res.wait()
+    return tensor_args
 
 def main_worker(gpu, ngpus_per_node, args):
     args.gpu = gpu
@@ -280,20 +294,11 @@ def main_worker(gpu, ngpus_per_node, args):
                 top1.update(acc1[0], data.size(0))
                 top5.update(acc5[0], data.size(0))
 
-        comm = MPI.COMM_WORLD
-        # send to master
-        sum1 = comm.gather(top1.sum, root=0)
-        cnt1 = comm.gather(top1.count, root=0)
-        sum5 = comm.gather(top5.sum, root=0)
-        cnt5 = comm.gather(top5.count, root=0)
-        # get back from master
-        sum1 = comm.bcast(sum1, root=0)
-        cnt1 = comm.bcast(cnt1, root=0)
-        sum5 = comm.bcast(sum5, root=0)
-        cnt5 = comm.bcast(cnt5, root=0)
+        # sum all
+        sum1, cnt1, sum5, cnt5 = torch_dist_sum(args.gpu, top1.sum, top1.count, top5.sum, top5.count)
         if args.gpu == 0:
             top1_acc = sum(sum1) / sum(cnt1)
-            top5_acc = sum(sum5) / len(cnt5)
+            top5_acc = sum(sum5) / sum(cnt5)
             print('Validation: Top1: %.3f | Top5: %.3f'%(top1_acc, top5_acc))
 
             # save checkpoint

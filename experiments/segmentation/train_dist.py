@@ -11,7 +11,6 @@ import time
 import argparse
 import numpy as np
 from tqdm import tqdm
-#from mpi4py import MPI
 
 import torch
 from torch.utils import data
@@ -139,21 +138,15 @@ class Options():
         print(args)
         return args
 
-#def mpi_avg_all(*args):
-#    comm = MPI.COMM_WORLD
-#    # send to master
-#    sum_args = []
-#    for arg in args:
-#        sum_args.append(sum(comm.gather(arg, root=0)))
-#    sum_args = [item / len(args) for item in sum_args]
-#    return tuple(sum_args)
-
-def torch_dist_avg(*args):
+def torch_dist_avg(gpu, *args):
     process_group = torch.distributed.group.WORLD
     tensor_args = []
     pending_res = []
     for arg in args:
-        tensor_arg = torch.tensor(arg)
+        if isinstance(arg, torch.Tensor):
+            tensor_arg = arg.clone().reshape(1).detach().cuda(gpu)
+        else:
+            tensor_arg = torch.tensor(arg).reshape(1).cuda(gpu)
         tensor_args.append(tensor_arg)
         pending_res.append(torch.distributed.all_reduce(tensor_arg, group=process_group, async_op=True))
     for res in pending_res:
@@ -292,7 +285,7 @@ def main_worker(gpu, ngpus_per_node, args):
                 print('pixAcc: %.3f, mIoU: %.3f' % (pixAcc, mIoU))
 
         if args.gpu == 0:
-            pixAcc, mIoU = torch_dist_avg(pixAcc, mIoU)
+            pixAcc, mIoU = torch_dist_avg(args.gpu, pixAcc, mIoU)
             print('pixAcc: %.3f, mIoU: %.3f' % (pixAcc, mIoU))
 
             new_pred = (pixAcc + mIoU)/2

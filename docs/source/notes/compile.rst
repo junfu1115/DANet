@@ -34,7 +34,7 @@ Assuming CUDA and cudnn are already sucessfully installed, otherwise please refe
 
       * Install PyTorch::
 
-         conda install pytorch torchvision cudatoolkit=100 -c pytorch
+         conda install pytorch torchvision cudatoolkit=10.0 -c pytorch
 
       * Install this package::
 

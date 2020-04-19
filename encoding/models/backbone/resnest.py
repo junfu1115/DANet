@@ -43,7 +43,7 @@ def resnest200(pretrained=False, root='~/.encoding/models', **kwargs):
                    avd=True, avd_first=False, **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnest152', root=root)), strict=False)
+            get_model_file('resnest200', root=root)), strict=False)
     return model
 
 def resnest269(pretrained=False, root='~/.encoding/models', **kwargs):

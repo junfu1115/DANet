@@ -14,14 +14,14 @@ Get Pre-trained Model
 ---------------------
 
 .. hint::
-    The model names contain the training information. For instance ``FCN_ResNet50_PContext``:
-      - ``FCN`` indicate the algorithm is “Fully Convolutional Network for Semantic Segmentation”
+    The model names contain the training information. For instance ``EncNet_ResNet50s_ADE``:
+      - ``EncNet`` indicate the algorithm is “Context Encoding for Semantic Segmentation”
       - ``ResNet50`` is the name of backbone network.
-      - ``PContext`` means the PASCAL in Context dataset.
+      - ``ADE`` means the ADE20K dataset.
 
-    How to get pretrained model, for example ``FCN_ResNet50_PContext``::
+    How to get pretrained model, for example ``EncNet_ResNet50s_ADE``::
 
-        model = encoding.models.get_model('FCN_ResNet50_PContext', pretrained=True)
+        model = encoding.models.get_model('EncNet_ResNet50s_ADE', pretrained=True)
 
     After clicking ``cmd`` in the table, the command for training the model can be found below the table.
 
@@ -64,10 +64,9 @@ ADE20K Dataset
 ==============================================================================  =================    ==============    =============================================================================================
 Model                                                                           pixAcc               mIoU              Command                                                                                      
 ==============================================================================  =================    ==============    =============================================================================================
-FCN_ResNet50_ADE                                                                78.7%                38.5%             :raw-html:`<a href="javascript:toggleblock('cmd_fcn50_ade')" class="toggleblock">cmd</a>`
-EncNet_ResNet50_ADE                                                             80.1%                41.5%             :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    
-EncNet_ResNet101_ADE                                                            81.3%                44.4%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_ade')" class="toggleblock">cmd</a>`   
-EncNet_ResNet101_VOC                                                            N/A                  85.9%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_voc')" class="toggleblock">cmd</a>`   
+FCN_ResNet50s_ADE                                                               78.7%                38.5%             :raw-html:`<a href="javascript:toggleblock('cmd_fcn50_ade')" class="toggleblock">cmd</a>`
+EncNet_ResNet50s_ADE                                                            80.1%                41.5%             :raw-html:`<a href="javascript:toggleblock('cmd_enc50_ade')" class="toggleblock">cmd</a>`    
+EncNet_ResNet101s_ADE                                                           81.3%                44.4%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_ade')" class="toggleblock">cmd</a>`   
 ==============================================================================  =================    ==============    =============================================================================================
 
 
@@ -88,16 +87,6 @@ EncNet_ResNet101_VOC                                                            
     <code xml:space="preserve" id="cmd_enc101_ade" style="display: none; text-align: left; white-space: pre-wrap">
     CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss --backbone resnet101 --base-size 640 --crop-size 576
     </code>
-
-    <code xml:space="preserve" id="cmd_enc101_voc" style="display: none; text-align: left; white-space: pre-wrap">
-    # First finetuning COCO dataset pretrained model on augmented set
-    # You can also train from scratch on COCO by yourself
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_aug --model-zoo EncNet_Resnet101_COCO --aux --se-loss --lr 0.001 --syncbn --ngpus 4 --checkname res101 --ft
-    # Finetuning on original set
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_voc --model encnet --aux  --se-loss --backbone resnet101 --lr 0.0001 --syncbn --ngpus 4 --checkname res101 --resume runs/Pascal_aug/encnet/res101/checkpoint.params --ft
-    </code>
-
-
 
 Pascal Context Dataset
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -124,18 +113,38 @@ EncNet_ResNet101_PContext                                                       
     </code>
 
 
+Pascal VOC Dataset
+~~~~~~~~~~~~~~~~~~
+
+==============================================================================  =================    ==============    =============================================================================================
+Model                                                                           pixAcc               mIoU              Command                                                                                      
+==============================================================================  =================    ==============    =============================================================================================
+EncNet_ResNet101s_VOC                                                           N/A                  85.9%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_voc')" class="toggleblock">cmd</a>`   
+==============================================================================  =================    ==============    =============================================================================================
+
+.. raw:: html
+
+    <code xml:space="preserve" id="cmd_enc101_voc" style="display: none; text-align: left; white-space: pre-wrap">
+    # First finetuning COCO dataset pretrained model on augmented set
+    # You can also train from scratch on COCO by yourself
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_aug --model-zoo EncNet_Resnet101_COCO --aux --se-loss --lr 0.001 --syncbn --ngpus 4 --checkname res101 --ft
+    # Finetuning on original set
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_voc --model encnet --aux  --se-loss --backbone resnet101 --lr 0.0001 --syncbn --ngpus 4 --checkname res101 --resume runs/Pascal_aug/encnet/res101/checkpoint.params --ft
+    </code>
+
+
 Test Pretrained
 ~~~~~~~~~~~~~~~
 
 - Prepare the datasets by runing the scripts in the ``scripts/`` folder, for example preparing ``PASCAL Context`` dataset::
 
-      python scripts/prepare_pcontext.py
+      python scripts/prepare_ade20k.py
   
 - The test script is in the ``experiments/segmentation/`` folder. For evaluating the model (using MS),
-  for example ``Encnet_ResNet50_PContext``::
+  for example ``EncNet_ResNet50s_ADE``::
 
-      python test.py --dataset PContext --model-zoo Encnet_ResNet50_PContext --eval
-      # pixAcc: 0.792, mIoU: 0.510: 100%|████████████████████████| 1276/1276 [46:31<00:00,  2.19s/it]
+      python test.py --dataset ADE20K --model-zoo EncNet_ResNet50s_ADE --eval
+      # pixAcc: 0.801, mIoU: 0.415: 100%|████████████████████████| 250/250
 
 Quick Demo
 ~~~~~~~~~~

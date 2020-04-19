@@ -7,7 +7,6 @@
 ## LICENSE file in the root directory of this source tree 
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-from __future__ import print_function
 import os
 import argparse
 from tqdm import tqdm

@@ -4,6 +4,8 @@
 [![Downloads](http://pepy.tech/badge/torch-encoding)](http://pepy.tech/project/torch-encoding)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Docs](https://github.com/zhanghang1989/PyTorch-Encoding/workflows/Build%20Docs/badge.svg)](https://github.com/zhanghang1989/PyTorch-Encoding/actions)
+[![Unit Test](https://github.com/zhanghang1989/PyTorch-Encoding/workflows/Unit%20Test/badge.svg)](https://github.com/zhanghang1989/PyTorch-Encoding/actions)
+
 # PyTorch-Encoding
 
 created by [Hang Zhang](http://hangzh.com/)

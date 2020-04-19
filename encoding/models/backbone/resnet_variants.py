@@ -18,7 +18,7 @@ def resnet50s(pretrained=False, root='~/.encoding/models', **kwargs):
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnet50', root=root)), strict=False)
+            get_model_file('resnet50s', root=root)), strict=False)
     return model
 
 def resnet101s(pretrained=False, root='~/.encoding/models', **kwargs):
@@ -31,7 +31,7 @@ def resnet101s(pretrained=False, root='~/.encoding/models', **kwargs):
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnet101', root=root)), strict=False)
+            get_model_file('resnet101s', root=root)), strict=False)
     return model
 
 def resnet152s(pretrained=False, root='~/.encoding/models', **kwargs):
@@ -44,7 +44,7 @@ def resnet152s(pretrained=False, root='~/.encoding/models', **kwargs):
     model = ResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnet152', root=root)), strict=False)
+            get_model_file('resnet152s', root=root)), strict=False)
     return model
 
 # ResNet-D

@@ -16,18 +16,20 @@ from .. import lib
 
 __all__ = ['moments', 'syncbatchnorm', 'inp_syncbatchnorm']
 
-class moments(Function):
+class moments_(Function):
     @staticmethod
     def forward(ctx, x):
         if x.is_cuda:
             ex, ex2 = lib.gpu.expectation_forward(x)
         else:
             raise NotImplemented
+        ctx.save_for_backward(x)
         return ex, ex2
 
     @staticmethod
     def backward(ctx, dex, dex2):
-        if x.is_cuda:
+        x, = ctx.saved_tensors
+        if dex.is_cuda:
             dx = lib.gpu.expectation_backward(x, dex, dex2)
         else:
             raise NotImplemented
@@ -295,5 +297,6 @@ class inp_syncbatchnorm_(Function):
             ctx.master_queue = extra["master_queue"]
             ctx.worker_queue = extra["worker_queue"]
 
+moments = moments_.apply
 syncbatchnorm = syncbatchnorm_.apply
 inp_syncbatchnorm = inp_syncbatchnorm_.apply

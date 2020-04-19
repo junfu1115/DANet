@@ -91,7 +91,7 @@ def get_upernet(dataset='pascal_voc', backbone='resnet50s', pretrained=False,
     from ...datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
     model = UperNet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, **kwargs)
     if pretrained:
-        from .model_store import get_model_file
+        from ..model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('upernet_%s_%s'%(backbone, acronyms[dataset]), root=root)))
     return model

@@ -15,7 +15,7 @@ from ...nn import SyncBatchNorm, Encoding, Mean
 
 __all__ = ['EncNet', 'EncModule', 'get_encnet', 'get_encnet_resnet50_pcontext',
            'get_encnet_resnet101_pcontext', 'get_encnet_resnet50_ade',
-           'get_encnet_resnet101_ade']
+           'get_encnet_resnet101_ade', 'get_encnet_resnet101_coco']
 
 class EncNet(BaseNet):
     def __init__(self, nclass, backbone, aux=True, se_loss=True, lateral=False,
@@ -139,13 +139,13 @@ def get_encnet(dataset='pascal_voc', backbone='resnet50s', pretrained=False,
     from ...datasets import datasets, acronyms
     model = EncNet(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
-        from .model_store import get_model_file
+        from ..model_store import get_model_file
         model.load_state_dict(torch.load(
             get_model_file('encnet_%s_%s'%(backbone, acronyms[dataset]), root=root)))
     return model
 
 def get_encnet_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
-    r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
+    r"""EncNet model from the paper `"Context Encoding for Semantic Segmentation"
     <https://arxiv.org/pdf/1803.08904.pdf>`_
 
     Parameters
@@ -164,8 +164,28 @@ def get_encnet_resnet50_pcontext(pretrained=False, root='~/.encoding/models', **
     return get_encnet('pcontext', 'resnet50s', pretrained, root=root, aux=True,
                       base_size=520, crop_size=480, **kwargs)
 
+def get_encnet_resnet101_coco(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""EncNet model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = get_encnet_resnet101_coco(pretrained=True)
+    >>> print(model)
+    """
+    return get_encnet('coco', 'resnet101s', pretrained, root=root, aux=True,
+                      base_size=520, crop_size=480, lateral=True, **kwargs)
+
 def get_encnet_resnet101_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
-    r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
+    r"""EncNet model from the paper `"Context Encoding for Semantic Segmentation"
     <https://arxiv.org/pdf/1803.08904.pdf>`_
 
     Parameters
@@ -185,7 +205,7 @@ def get_encnet_resnet101_pcontext(pretrained=False, root='~/.encoding/models', *
                       base_size=520, crop_size=480, **kwargs)
 
 def get_encnet_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
-    r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
+    r"""EncNet model from the paper `"Context Encoding for Semantic Segmentation"
     <https://arxiv.org/pdf/1803.08904.pdf>`_
 
     Parameters
@@ -201,11 +221,11 @@ def get_encnet_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwarg
     >>> model = get_encnet_resnet50_ade(pretrained=True)
     >>> print(model)
     """
-    return get_encnet('ade20k', 'resnet50', pretrained, root=root, aux=True,
+    return get_encnet('ade20k', 'resnet50s', pretrained, root=root, aux=True,
                       base_size=520, crop_size=480, **kwargs)
 
 def get_encnet_resnet101_ade(pretrained=False, root='~/.encoding/models', **kwargs):
-    r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
+    r"""EncNet model from the paper `"Context Encoding for Semantic Segmentation"
     <https://arxiv.org/pdf/1803.08904.pdf>`_
 
     Parameters
@@ -225,7 +245,7 @@ def get_encnet_resnet101_ade(pretrained=False, root='~/.encoding/models', **kwar
                       base_size=640, crop_size=576, **kwargs)
 
 def get_encnet_resnet152_ade(pretrained=False, root='~/.encoding/models', **kwargs):
-    r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
+    r"""EncNet model from the paper `"Context Encoding for Semantic Segmentation"
     <https://arxiv.org/pdf/1803.08904.pdf>`_
 
     Parameters
