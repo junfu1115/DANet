@@ -21,8 +21,8 @@ class Options():
     def __init__(self):
         # data settings
         parser = argparse.ArgumentParser(description='Deep Encoding')
-        parser.add_argument('--dataset', type=str, default='cifar10',
-                            help='training dataset (default: cifar10)')
+        parser.add_argument('--dataset', type=str, default='imagenet',
+                            help='training dataset (default: imagenet)')
         parser.add_argument('--base-size', type=int, default=None,
                             help='base image size')
         parser.add_argument('--crop-size', type=int, default=224,

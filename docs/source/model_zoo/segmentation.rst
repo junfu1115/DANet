@@ -35,23 +35,32 @@ ResNeSt Backbone Models
 ==============================================================================  ==============    ==============    =========================================================================================================
 Model                                                                           pixAcc            mIoU              Command                                                                                      
 ==============================================================================  ==============    ==============    =========================================================================================================
-FCN_ResNeSt50_ADE                                                               xx.xx%            xx.xx%            :raw-html:`<a href="javascript:toggleblock('cmd_fcn_nest50_ade')" class="toggleblock">cmd</a>`
+FCN_ResNeSt50_ADE                                                               80.18%            42.94%            :raw-html:`<a href="javascript:toggleblock('cmd_fcn_nest50_ade')" class="toggleblock">cmd</a>`
 DeepLabV3_ResNeSt50_ADE                                                         81.17%            45.12%            :raw-html:`<a href="javascript:toggleblock('cmd_deeplab_resnest50_ade')" class="toggleblock">cmd</a>`
 DeepLabV3_ResNeSt101_ADE                                                        82.07%            46.91%            :raw-html:`<a href="javascript:toggleblock('cmd_deeplab_resnest101_ade')" class="toggleblock">cmd</a>`
+DeepLabV3_ResNeSt269_ADE                                                        82.62%            47.60%            :raw-html:`<a href="javascript:toggleblock('cmd_deeplab_resnest269_ade')" class="toggleblock">cmd</a>`
 ==============================================================================  ==============    ==============    =========================================================================================================
 
 .. raw:: html
 
     <code xml:space="preserve" id="cmd_fcn_nest50_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    python train.py --dataset ade20k --model fcn  --aux --backbone resnest50 --batch-size 2
+    python train_dist.py --dataset ADE20K --model fcn  --aux --backbone resnest50
+    </code>
+
+    <code xml:space="preserve" id="cmd_enc_nest50_ade" style="display: none; text-align: left; white-space: pre-wrap">
+    python train_dist.py --dataset ADE20K --model EncNet --aux --se-loss --backbone resnest50
     </code>
 
     <code xml:space="preserve" id="cmd_deeplab_resnest50_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    python train.py --dataset ADE20K --model deeplab --aux --backbone resnest50
+    python train_dist.py --dataset ADE20K --model deeplab --aux --backbone resnest50
     </code>
 
     <code xml:space="preserve" id="cmd_deeplab_resnest101_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    python train.py --dataset ADE20K --model deeplab --aux --backbone resnest101
+    python train_dist.py --dataset ADE20K --model deeplab --aux --backbone resnest101
+    </code>
+
+    <code xml:space="preserve" id="cmd_deeplab_resnest269_ade" style="display: none; text-align: left; white-space: pre-wrap">
+    python train_dist.py --dataset ADE20K --model deeplab --aux --backbone resnest269
     </code>
 
 
@@ -73,19 +82,19 @@ EncNet_ResNet101s_ADE                                                           
 .. raw:: html
 
     <code xml:space="preserve" id="cmd_fcn50_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model FCN
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset ADE20K --model FCN
     </code>
 
     <code xml:space="preserve" id="cmd_psp50_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model PSP --aux
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset ADE20K --model PSP --aux
     </code>
 
     <code xml:space="preserve" id="cmd_enc50_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset ADE20K --model EncNet --aux --se-loss
     </code>
 
     <code xml:space="preserve" id="cmd_enc101_ade" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset ADE20K --model EncNet --aux --se-loss --backbone resnet101 --base-size 640 --crop-size 576
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset ADE20K --model EncNet --aux --se-loss --backbone resnet101
     </code>
 
 Pascal Context Dataset
@@ -94,22 +103,22 @@ Pascal Context Dataset
 ==============================================================================  =================    ==============    =============================================================================================
 Model                                                                           pixAcc               mIoU              Command                                                                                      
 ==============================================================================  =================    ==============    =============================================================================================
-Encnet_ResNet50_PContext                                                        79.2%                51.0%             :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  
-EncNet_ResNet101_PContext                                                       80.7%                54.1%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` 
+Encnet_ResNet50s_PContext                                                        79.2%                51.0%             :raw-html:`<a href="javascript:toggleblock('cmd_enc50_pcont')" class="toggleblock">cmd</a>`  
+EncNet_ResNet101s_PContext                                                       80.7%                54.1%             :raw-html:`<a href="javascript:toggleblock('cmd_enc101_pcont')" class="toggleblock">cmd</a>` 
 ==============================================================================  =================    ==============    =============================================================================================
 
 .. raw:: html
 
     <code xml:space="preserve" id="cmd_fcn50_pcont" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset PContext --model FCN
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset PContext --model FCN
     </code>
 
     <code xml:space="preserve" id="cmd_enc50_pcont" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset PContext --model EncNet --aux --se-loss
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset PContext --model EncNet --aux --se-loss
     </code>
 
     <code xml:space="preserve" id="cmd_enc101_pcont" style="display: none; text-align: left; white-space: pre-wrap">
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset PContext --model EncNet --aux --se-loss --backbone resnet101
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset PContext --model EncNet --aux --se-loss --backbone resnet101
     </code>
 
 
@@ -127,9 +136,9 @@ EncNet_ResNet101s_VOC                                                           
     <code xml:space="preserve" id="cmd_enc101_voc" style="display: none; text-align: left; white-space: pre-wrap">
     # First finetuning COCO dataset pretrained model on augmented set
     # You can also train from scratch on COCO by yourself
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_aug --model-zoo EncNet_Resnet101_COCO --aux --se-loss --lr 0.001 --syncbn --ngpus 4 --checkname res101 --ft
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset Pascal_aug --model-zoo EncNet_Resnet101_COCO --aux --se-loss --lr 0.001 --syncbn --ngpus 4 --checkname res101 --ft
     # Finetuning on original set
-    CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py --dataset Pascal_voc --model encnet --aux  --se-loss --backbone resnet101 --lr 0.0001 --syncbn --ngpus 4 --checkname res101 --resume runs/Pascal_aug/encnet/res101/checkpoint.params --ft
+    CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset Pascal_voc --model encnet --aux  --se-loss --backbone resnet101 --lr 0.0001 --syncbn --ngpus 4 --checkname res101 --resume runs/Pascal_aug/encnet/res101/checkpoint.params --ft
     </code>
 
 
@@ -146,6 +155,28 @@ Test Pretrained
       python test.py --dataset ADE20K --model-zoo EncNet_ResNet50s_ADE --eval
       # pixAcc: 0.801, mIoU: 0.415: 100%|████████████████████████| 250/250
 
+
+Train Your Own Model
+--------------------
+
+- Prepare the datasets by runing the scripts in the ``scripts/`` folder, for example preparing ``ADE20K`` dataset::
+
+    python scripts/prepare_ade20k.py
+
+- The training script is in the ``experiments/segmentation/`` folder, example training command::
+
+    python train_dist.py --dataset ade20k --model encnet --aux --se-loss
+
+- Detail training options, please run ``python train_dist.py -h``. Commands for reproducing pre-trained models can be found in the table.
+
+.. hint::
+    The validation metrics during the training only using center-crop is just for monitoring the
+    training correctness purpose. For evaluating the pretrained model on validation set using MS,
+    please use the command::
+
+        python test.py --dataset pcontext --model encnet --aux --se-loss --resume mycheckpoint --eval
+
+
 Quick Demo
 ~~~~~~~~~~
 
@@ -155,7 +186,7 @@ Quick Demo
     import encoding
 
     # Get the model
-    model = encoding.models.get_model('Encnet_ResNet50_PContext', pretrained=True).cuda()
+    model = encoding.models.get_model('Encnet_ResNet50s_PContext', pretrained=True).cuda()
     model.eval()
 
     # Prepare the image
@@ -180,30 +211,21 @@ Quick Demo
 .. image:: https://raw.githubusercontent.com/zhanghang1989/image-data/master/encoding/segmentation/pcontext/2010_001829.png
    :width: 45%
 
-Train Your Own Model
---------------------
-
-- Prepare the datasets by runing the scripts in the ``scripts/`` folder, for example preparing ``ADE20K`` dataset::
-
-    python scripts/prepare_ade20k.py
-
-- The training script is in the ``experiments/segmentation/`` folder, example training command::
-
-    python train_dist.py --dataset ade20k --model encnet --aux --se-loss
-
-- Detail training options, please run ``python train.py -h``. Commands for reproducing pre-trained models can be found in the table.
-
-.. hint::
-    The validation metrics during the training only using center-crop is just for monitoring the
-    training correctness purpose. For evaluating the pretrained model on validation set using MS,
-    please use the command::
-
-        python test.py --dataset pcontext --model encnet --aux --se-loss --resume mycheckpoint --eval
 
 Citation
 --------
 
 .. note::
+    * Hang Zhang et al. "ResNeSt: Split-Attention Networks" *arXiv 2020*::
+
+        @article{zhang2020resnest,
+        title={ResNeSt: Split-Attention Networks},
+        author={Zhang, Hang and Wu, Chongruo and Zhang, Zhongyue and Zhu, Yi and Zhang, Zhi and Lin, Haibin and Sun, Yue and He, Tong and Muller, Jonas and Manmatha, R. and Li, Mu and Smola, Alexander},
+        journal={arXiv preprint arXiv:2004.08955},
+        year={2020}
+        }
+
+
     * Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. "Context Encoding for Semantic Segmentation"  *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2018*::
 
         @InProceedings{Zhang_2018_CVPR,

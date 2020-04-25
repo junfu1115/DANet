@@ -87,13 +87,6 @@ class Options():
         print(args)
         return args
 
-@torch.no_grad()
-def reset_bn_statistics(m):
-    if isinstance(m, torch.nn.BatchNorm2d):
-        #print(m)
-        m.momentum = 0.0
-        m.reset_running_stats()
-
 def test(args):
     # output folder
     outdir = 'outdir'
@@ -120,46 +113,42 @@ def test(args):
                                 drop_last=False, shuffle=False,
                                 collate_fn=test_batchify_fn, **loader_kwargs)
     # model
+    pretrained = args.resume is None and args.verify is None
     if args.model_zoo is not None:
-        model = get_model(args.model_zoo, pretrained=True)
-        #model.base_size = args.base_size
-        #model.crop_size = args.crop_size
+        model = get_model(args.model_zoo, pretrained=pretrained)
+        model.base_size = args.base_size
+        model.crop_size = args.crop_size
     else:
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone=args.backbone, aux = args.aux,
                                        se_loss=args.se_loss,
                                        norm_layer=torch.nn.BatchNorm2d if args.acc_bn else SyncBatchNorm,
                                        base_size=args.base_size, crop_size=args.crop_size)
-        # resuming checkpoint
-        if args.verify is not None and os.path.isfile(args.verify):
-            print("=> loading checkpoint '{}'".format(args.verify))
-            model.load_state_dict(torch.load(args.verify))
-        elif args.resume is not None and os.path.isfile(args.resume):
-            checkpoint = torch.load(args.resume)
-            # strict=False, so that it is compatible with old pytorch saved models
-            model.load_state_dict(checkpoint['state_dict'])
-            print("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
-        else:
-            raise RuntimeError ("=> no checkpoint found")
+
+    # resuming checkpoint
+    if args.verify is not None and os.path.isfile(args.verify):
+        print("=> loading checkpoint '{}'".format(args.verify))
+        model.load_state_dict(torch.load(args.verify))
+    elif args.resume is not None and os.path.isfile(args.resume):
+        checkpoint = torch.load(args.resume)
+        # strict=False, so that it is compatible with old pytorch saved models
+        model.load_state_dict(checkpoint['state_dict'])
+        print("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
+    elif not pretrained:
+        raise RuntimeError ("=> no checkpoint found")
 
     print(model)
-    # accumulate bn statistics
     if args.acc_bn:
-        print('Reseting BN statistics')
-        model.apply(reset_bn_statistics)
+        from encoding.utils.precise_bn import update_bn_stats
         data_kwargs = {'transform': input_transform, 'base_size': args.base_size,
                        'crop_size': args.crop_size}
         trainset = get_dataset(args.dataset, split=args.train_split, mode='train', **data_kwargs)
-        trainloader = data.DataLoader(trainset, batch_size=args.batch_size,
+        trainloader = data.DataLoader(ReturnFirstClosure(trainset), batch_size=args.batch_size,
                                       drop_last=True, shuffle=True, **loader_kwargs)
-        tbar = tqdm(trainloader)
-        model.train()
+        print('Reseting BN statistics')
+        #model.apply(reset_bn_statistics)
         model.cuda()
-        for i, (image, dst) in enumerate(tbar):
-            image = image.cuda()
-            with torch.no_grad():
-                outputs = model(image)
-            if i > 1000: break
+        update_bn_stats(model, trainloader)
 
     if args.export:
         torch.save(model.state_dict(), args.export + '.pth')
@@ -190,6 +179,17 @@ def test(args):
                 mask.save(os.path.join(outdir, outname))
 
     print( 'pixAcc: %.4f, mIoU: %.4f' % (pixAcc, mIoU))
+
+class ReturnFirstClosure(object):
+    def __init__(self, data):
+        self._data = data
+
+    def __len__(self):
+        return len(self._data)
+
+    def __getitem__(self, idx):
+        outputs = self._data[idx]
+        return outputs[0]
 
 if __name__ == "__main__":
     args = Options().parse()

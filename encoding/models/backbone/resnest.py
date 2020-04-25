@@ -23,7 +23,7 @@ def resnest50(pretrained=False, root='~/.encoding/models', **kwargs):
                    avd=True, avd_first=False, **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnest50', root=root)), strict=False)
+            get_model_file('resnest50', root=root)), strict=True)
     return model
 
 def resnest101(pretrained=False, root='~/.encoding/models', **kwargs):
@@ -33,7 +33,7 @@ def resnest101(pretrained=False, root='~/.encoding/models', **kwargs):
                    avd=True, avd_first=False, **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnest101', root=root)), strict=False)
+            get_model_file('resnest101', root=root)), strict=True)
     return model
 
 def resnest200(pretrained=False, root='~/.encoding/models', **kwargs):
@@ -53,7 +53,7 @@ def resnest269(pretrained=False, root='~/.encoding/models', **kwargs):
                    avd=True, avd_first=False, **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnest269', root=root)), strict=False)
+            get_model_file('resnest269', root=root)), strict=True)
     return model
 
 def resnest50_fast(pretrained=False, root='~/.encoding/models', **kwargs):
@@ -63,7 +63,7 @@ def resnest50_fast(pretrained=False, root='~/.encoding/models', **kwargs):
                    avd=True, avd_first=True, **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnest50fast', root=root)), strict=False)
+            get_model_file('resnest50fast', root=root)), strict=True)
     return model
 
 def resnest101_fast(pretrained=False, root='~/.encoding/models', **kwargs):
@@ -73,5 +73,5 @@ def resnest101_fast(pretrained=False, root='~/.encoding/models', **kwargs):
                    avd=True, avd_first=True, **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(
-            get_model_file('resnest101fast', root=root)), strict=False)
+            get_model_file('resnest101fast', root=root)), strict=True)
     return model

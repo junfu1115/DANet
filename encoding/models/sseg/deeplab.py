@@ -66,7 +66,7 @@ class DeepLabV3Head(nn.Module):
             nn.Conv2d(inter_channels, inter_channels, 3, padding=1, bias=False),
             norm_layer(inter_channels),
             nn.ReLU(True),
-            nn.Dropout2d(0.1, False),
+            nn.Dropout(0.1, False),
             nn.Conv2d(inter_channels, out_channels, 1))
 
     def forward(self, x):
@@ -198,3 +198,42 @@ def get_deeplab_resnest101_ade(pretrained=False, root='~/.encoding/models', **kw
     >>> print(model)
     """
     return get_deeplab('ade20k', 'resnest101', pretrained, aux=True, root=root, **kwargs)
+
+def get_deeplab_resnest200_ade(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = get_deeplab_resnest200_ade(pretrained=True)
+    >>> print(model)
+    """
+    return get_deeplab('ade20k', 'resnest200', pretrained, aux=True, root=root, **kwargs)
+
+
+def get_deeplab_resnest269_ade(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = get_deeplab_resnest200_ade(pretrained=True)
+    >>> print(model)
+    """
+    return get_deeplab('ade20k', 'resnest269', pretrained, aux=True, root=root, **kwargs)

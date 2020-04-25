@@ -12,7 +12,8 @@ import threading
 import numpy as np
 import torch
 
-__all__ = ['accuracy', 'SegmentationMetric', 'batch_intersection_union', 'batch_pix_accuracy',
+__all__ = ['accuracy', 'get_pixacc_miou',
+           'SegmentationMetric', 'batch_intersection_union', 'batch_pix_accuracy',
            'pixel_accuracy', 'intersection_and_union']
 
 def accuracy(output, target, topk=(1,)):
@@ -30,6 +31,13 @@ def accuracy(output, target, topk=(1,)):
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
+
+def get_pixacc_miou(total_correct, total_label, total_inter, total_union):
+    pixAcc = 1.0 * total_correct / (np.spacing(1) + total_label)
+    IoU = 1.0 * total_inter / (np.spacing(1) + total_union)
+    mIoU = IoU.mean()
+    return pixAcc, mIoU
+    
 
 class SegmentationMetric(object):
     """Computes pixAcc and mIoU metric scroes
@@ -66,11 +74,11 @@ class SegmentationMetric(object):
         else:
             raise NotImplemented
 
+    def get_all(self):
+        return self.total_correct, self.total_label, self.total_inter, self.total_union
+
     def get(self):
-        pixAcc = 1.0 * self.total_correct / (np.spacing(1) + self.total_label)
-        IoU = 1.0 * self.total_inter / (np.spacing(1) + self.total_union)
-        mIoU = IoU.mean()
-        return pixAcc, mIoU
+        return get_pixacc_miou(self.total_correct, self.total_label, self.total_inter, self.total_union)
  
     def reset(self):
         self.total_inter = 0
@@ -78,7 +86,6 @@ class SegmentationMetric(object):
         self.total_correct = 0
         self.total_label = 0
         return
-
 
 def batch_pix_accuracy(output, target):
     """Batch Pixel Accuracy

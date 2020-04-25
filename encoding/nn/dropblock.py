@@ -58,9 +58,9 @@ class DropBlock2D(nn.Module):
 
             # sample mask and place on input device
             if self.share_channel:
-                mask = (torch.rand(x.shape[0], *x.shape[2:], device=x.device, dtype=x.dtype) < gamma).squeeze(1)
+                mask = (torch.rand(*x.shape[2:], device=x.device, dtype=x.dtype) < gamma).unsqueeze(0).unsqueeze(0)
             else:
-                mask = (torch.rand(*x.shape, device=x.device, dtype=x.dtype) < gamma)
+                mask = (torch.rand(*x.shape[1:], device=x.device, dtype=x.dtype) < gamma).unsqueeze(0)
 
             # compute block mask
             block_mask, keeped = self._compute_block_mask(mask)

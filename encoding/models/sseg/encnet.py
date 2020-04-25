@@ -98,7 +98,7 @@ class EncHead(nn.Module):
                     nn.ReLU(inplace=True))
         self.encmodule = EncModule(512, out_channels, ncodes=32,
             se_loss=se_loss, norm_layer=norm_layer)
-        self.conv6 = nn.Sequential(nn.Dropout2d(0.1, False),
+        self.conv6 = nn.Sequential(nn.Dropout(0.1, False),
                                    nn.Conv2d(512, out_channels, 1))
 
     def forward(self, *inputs):

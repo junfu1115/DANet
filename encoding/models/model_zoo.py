@@ -29,7 +29,7 @@ models = {
     'wideresnet50': wideresnet50,
     # deepten paper
     'deepten_resnet50_minc': get_deepten_resnet50_minc,
-    # segmentation models
+    # segmentation resnet models
     'encnet_resnet101s_coco': get_encnet_resnet101_coco,
     'fcn_resnet50s_pcontext': get_fcn_resnet50_pcontext,
     'encnet_resnet50s_pcontext': get_encnet_resnet50_pcontext,
@@ -38,8 +38,12 @@ models = {
     'encnet_resnet101s_ade': get_encnet_resnet101_ade,
     'fcn_resnet50s_ade': get_fcn_resnet50_ade,
     'psp_resnet50s_ade': get_psp_resnet50_ade,
+    # segmentation resnest models
+    'fcn_resnest50_ade': get_fcn_resnest50_ade,
     'deeplab_resnest50_ade': get_deeplab_resnest50_ade,
     'deeplab_resnest101_ade': get_deeplab_resnest101_ade,
+    'deeplab_resnest200_ade': get_deeplab_resnest200_ade,
+    'deeplab_resnest269_ade': get_deeplab_resnest269_ade,
 }
 
 model_list = list(models.keys())
@@ -61,7 +65,6 @@ def get_model(name, **kwargs):
     Module:
         The model.
     """
-
     name = name.lower()
     if name not in models:
         raise ValueError('%s\n\t%s' % (str(name), '\n\t'.join(sorted(models.keys()))))

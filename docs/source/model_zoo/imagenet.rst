@@ -71,7 +71,7 @@ Test Pretrained
 - The test script is in the ``experiments/recognition/`` folder. For evaluating the model (using MS),
   for example ``ResNeSt50``::
 
-      python test.py --dataset imagenet --model-zoo ResNeSt50 --crop-size 224 --eval
+      python verify.py --dataset imagenet --model ResNeSt50 --crop-size 224
 
 Train Your Own Model
 --------------------
@@ -81,3 +81,5 @@ Train Your Own Model
     python scripts/prepare_imagenet.py --data-dir ./
 
 - The training script is in the ``experiments/recognition/`` folder. Commands for reproducing pre-trained models can be found in the table.
+
+

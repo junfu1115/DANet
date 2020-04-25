@@ -6,10 +6,10 @@ import torch.nn.functional as F
 from torch.nn import Conv2d, Module, Linear, BatchNorm2d, ReLU
 from torch.nn.modules.utils import _pair
 
-from ..nn import RFConv2d
+from .rectify import RFConv2d
 from .dropblock import DropBlock2D
 
-__all__ = ['SKConv2d']
+__all__ = ['SplAtConv2d']
 
 class SplAtConv2d(Module):
     """Split-Attention Conv2d
@@ -42,6 +42,7 @@ class SplAtConv2d(Module):
         self.fc2 = Conv2d(inter_channels, channels*radix, 1, groups=self.cardinality)
         if dropblock_prob > 0.0:
             self.dropblock = DropBlock2D(dropblock_prob, 3)
+        self.rsoftmax = rSoftMax(radix, groups)
 
     def forward(self, x):
         x = self.conv(x)
@@ -64,11 +65,8 @@ class SplAtConv2d(Module):
             gap = self.bn1(gap)
         gap = self.relu(gap)
 
-        atten = self.fc2(gap).view((batch, self.radix, self.channels))
-        if self.radix > 1:
-            atten = F.softmax(atten, dim=1).view(batch, -1, 1, 1)
-        else:
-            atten = F.sigmoid(atten, dim=1).view(batch, -1, 1, 1)
+        atten = self.fc2(gap)
+        atten = self.rsoftmax(atten).view(batch, -1, 1, 1)
 
         if self.radix > 1:
             atten = torch.split(atten, channel//self.radix, dim=1)
@@ -76,3 +74,19 @@ class SplAtConv2d(Module):
         else:
             out = atten * x
         return out.contiguous()
+
+class rSoftMax(nn.Module):
+    def __init__(self, radix, cardinality):
+        super().__init__()
+        self.radix = radix
+        self.cardinality = cardinality
+
+    def forward(self, x):
+        batch = x.size(0)
+        if self.radix > 1:
+            x = x.view(batch, self.cardinality, self.radix, -1).transpose(1, 2)
+            x = F.softmax(x, dim=1)
+            x = x.reshape(batch, -1)
+        else:
+            x = torch.sigmoid(x)
+        return x

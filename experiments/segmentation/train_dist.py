@@ -95,6 +95,8 @@ class Options():
         # evaluation option
         parser.add_argument('--eval', action='store_true', default= False,
                             help='evaluating mIoU')
+        parser.add_argument('--export', type=str, default=None,
+                            help='put the path to resuming file if needed')
         parser.add_argument('--test-val', action='store_true', default= False,
                             help='generate masks on val set')
         # test option
@@ -137,22 +139,6 @@ class Options():
             args.lr = lrs[args.dataset.lower()] / 16 * args.batch_size
         print(args)
         return args
-
-def torch_dist_avg(gpu, *args):
-    process_group = torch.distributed.group.WORLD
-    tensor_args = []
-    pending_res = []
-    for arg in args:
-        if isinstance(arg, torch.Tensor):
-            tensor_arg = arg.clone().reshape(1).detach().cuda(gpu)
-        else:
-            tensor_arg = torch.tensor(arg).reshape(1).cuda(gpu)
-        tensor_args.append(tensor_arg)
-        pending_res.append(torch.distributed.all_reduce(tensor_arg, group=process_group, async_op=True))
-    for res in pending_res:
-        res.wait()
-    ret = [x.item()/len(tensor_args) for x in tensor_args]
-    return ret
 
 def main():
     args = Options().parse()
@@ -247,6 +233,7 @@ def main_worker(gpu, ngpus_per_node, args):
                                         args.epochs, len(trainloader))
 
     def training(epoch):
+        train_sampler.set_epoch(epoch)
         global best_pred
         train_loss = 0.0
         model.train()
@@ -275,19 +262,23 @@ def main_worker(gpu, ngpus_per_node, args):
 
         for i, (image, target) in enumerate(valloader):
             with torch.no_grad():
-                #correct, labeled, inter, union = eval_batch(model, image, target)
                 pred = model(image)[0]
                 target = target.cuda(args.gpu)
                 metric.update(target, pred)
 
-            pixAcc, mIoU = metric.get()
-            if i % 100 == 0 and args.gpu == 0:
-                print('pixAcc: %.3f, mIoU: %.3f' % (pixAcc, mIoU))
+            if i % 100 == 0:
+                all_metircs = metric.get_all()
+                all_metircs = utils.torch_dist_sum(args.gpu, *all_metircs)
+                pixAcc, mIoU = utils.get_pixacc_miou(*all_metircs)
+                if args.gpu == 0:
+                    print('pixAcc: %.3f, mIoU: %.3f' % (pixAcc, mIoU))
 
+        all_metircs = metric.get_all()
+        all_metircs = utils.torch_dist_sum(args.gpu, *all_metircs)
+        pixAcc, mIoU = utils.get_pixacc_miou(*all_metircs)
         if args.gpu == 0:
-            pixAcc, mIoU = torch_dist_avg(args.gpu, pixAcc, mIoU)
             print('pixAcc: %.3f, mIoU: %.3f' % (pixAcc, mIoU))
-
+            if args.eval: return
             new_pred = (pixAcc + mIoU)/2
             if new_pred > best_pred:
                 is_best = True
@@ -299,6 +290,15 @@ def main_worker(gpu, ngpus_per_node, args):
                 'best_pred': best_pred,
             }, args, is_best)
 
+    if args.export:
+        if args.gpu == 0:
+            torch.save(model.module.state_dict(), args.export + '.pth')
+        return
+
+    if args.eval:
+        validation(args.start_epoch)
+        return
+
     if args.gpu == 0:
         print('Starting Epoch:', args.start_epoch)
         print('Total Epoches:', args.epochs)
@@ -306,13 +306,13 @@ def main_worker(gpu, ngpus_per_node, args):
     for epoch in range(args.start_epoch, args.epochs):
         tic = time.time()
         training(epoch)
-        if epoch % 10 == 0:
+        if epoch % 10 == 0 or epoch == args.epochs - 1:
             validation(epoch)
         elapsed = time.time() - tic
         if args.gpu == 0:
             print(f'Epoch: {epoch}, Time cost: {elapsed}')
 
-    validation(epoch)
+    #validation(epoch)
 
 
 if __name__ == "__main__":

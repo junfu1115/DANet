@@ -20,14 +20,14 @@ from torch.nn.parallel import DistributedDataParallel
 
 import encoding
 from encoding.nn import LabelSmoothing, NLLMultiLabelSmooth
-from encoding.utils import (accuracy, AverageMeter, MixUpWrapper, LR_Scheduler)
+from encoding.utils import (accuracy, AverageMeter, MixUpWrapper, LR_Scheduler, torch_dist_sum)
 
 class Options():
     def __init__(self):
         # data settings
         parser = argparse.ArgumentParser(description='Deep Encoding')
-        parser.add_argument('--dataset', type=str, default='cifar10',
-                            help='training dataset (default: cifar10)')
+        parser.add_argument('--dataset', type=str, default='imagenet',
+                            help='training dataset (default: imagenet)')
         parser.add_argument('--base-size', type=int, default=None,
                             help='base image size')
         parser.add_argument('--crop-size', type=int, default=224,
@@ -95,6 +95,11 @@ class Options():
                             help='url used to set up distributed training')
         parser.add_argument('--dist-backend', default='nccl', type=str,
                             help='distributed backend')
+        # evaluation option
+        parser.add_argument('--eval', action='store_true', default= False,
+                            help='evaluating')
+        parser.add_argument('--export', type=str, default=None,
+                            help='put the path to resuming file if needed')
         self.parser = parser
 
     def parse(self):
@@ -112,21 +117,6 @@ def main():
 best_pred = 0.0
 acclist_train = []
 acclist_val = []
-
-def torch_dist_sum(gpu, *args):
-    process_group = torch.distributed.group.WORLD
-    tensor_args = []
-    pending_res = []
-    for arg in args:
-        if isinstance(arg, torch.Tensor):
-            tensor_arg = arg.clone().reshape(1).detach().cuda(gpu)
-        else:
-            tensor_arg = torch.tensor(arg).reshape(1).cuda(gpu)
-        tensor_args.append(tensor_arg)
-        pending_res.append(torch.distributed.all_reduce(tensor_arg, group=process_group, async_op=True))
-    for res in pending_res:
-        res.wait()
-    return tensor_args
 
 def main_worker(gpu, ngpus_per_node, args):
     args.gpu = gpu
@@ -296,6 +286,14 @@ def main_worker(gpu, ngpus_per_node, args):
 
         # sum all
         sum1, cnt1, sum5, cnt5 = torch_dist_sum(args.gpu, top1.sum, top1.count, top5.sum, top5.count)
+
+        if args.eval:
+            if args.gpu == 0:
+                top1_acc = sum(sum1) / sum(cnt1)
+                top5_acc = sum(sum5) / sum(cnt5)
+                print('Validation: Top1: %.3f | Top5: %.3f'%(top1_acc, top5_acc))
+            return
+
         if args.gpu == 0:
             top1_acc = sum(sum1) / sum(cnt1)
             top5_acc = sum(sum5) / sum(cnt5)
@@ -315,16 +313,33 @@ def main_worker(gpu, ngpus_per_node, args):
                 'acclist_val':acclist_val,
                 }, args=args, is_best=is_best)
 
+    if args.export:
+        if args.gpu == 0:
+            torch.save(model.module.state_dict(), args.export + '.pth')
+        return
+
+    if args.eval:
+        validate(args.start_epoch)
+        return
+
     for epoch in range(args.start_epoch, args.epochs):
         tic = time.time()
         train(epoch)
-        if epoch % 10 == 0:
+        if epoch % 10 == 0:# or epoch == args.epochs-1:
             validate(epoch)
         elapsed = time.time() - tic
         if args.gpu == 0:
             print(f'Epoch: {epoch}, Time cost: {elapsed}')
 
-    validate(epoch)
+    if args.gpu == 0:
+        encoding.utils.save_checkpoint({
+            'epoch': args.epochs-1,
+            'state_dict': model.module.state_dict(),
+            'optimizer': optimizer.state_dict(),
+            'best_pred': best_pred,
+            'acclist_train':acclist_train,
+            'acclist_val':acclist_val,
+            }, args=args, is_best=False)
 
 if __name__ == "__main__":
     main()

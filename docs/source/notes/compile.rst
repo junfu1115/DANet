@@ -44,7 +44,14 @@ Citations
 ---------
 
     .. note::
-        If using the code in your research, please cite our papers.
+        * Hang Zhang et al. "ResNeSt: Split-Attention Networks" *arXiv 2020*::
+
+            @article{zhang2020resnest,
+            title={ResNeSt: Split-Attention Networks},
+            author={Zhang, Hang and Wu, Chongruo and Zhang, Zhongyue and Zhu, Yi and Zhang, Zhi and Lin, Haibin and Sun, Yue and He, Tong and Muller, Jonas and Manmatha, R. and Li, Mu and Smola, Alexander},
+            journal={arXiv preprint arXiv:2004.08955},
+            year={2020}
+            }
 
         * Hang Zhang, Kristin Dana, Jianping Shi, Zhongyue Zhang, Xiaogang Wang, Ambrish Tyagi, Amit Agrawal. "Context Encoding for Semantic Segmentation"  *The IEEE Conference on Computer Vision and Pattern Recognition (CVPR) 2018*::
 

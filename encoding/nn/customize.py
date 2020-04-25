@@ -13,12 +13,35 @@ import torch
 import torch.nn as nn
 from torch.nn import functional as F
 from torch.autograd import Variable
+from .splat import SplAtConv2d
+from .rectify import RFConv2d
 
 torch_ver = torch.__version__[:3]
 
-__all__ = ['GlobalAvgPool2d', 'GramMatrix',
+__all__ = ['ConvBnAct', 'GlobalAvgPool2d', 'GramMatrix',
            'View', 'Sum', 'Mean', 'Normalize', 'ConcurrentModule',
            'PyramidPooling']
+
+class ConvBnAct(nn.Sequential):
+    def __init__(self, in_channels, out_channels, kernel_size, stride=1,
+                 padding=0, dilation=1, radix=0, groups=1,
+                 bias=True, padding_mode='zeros',
+                 rectify=False, rectify_avg=False, act=True,
+                 norm_layer=nn.BatchNorm2d):
+        super().__init__()
+        if radix > 0:
+            conv_layer = SplAtConv2d
+            conv_kwargs = {'radix': radix, 'rectify': rectify, 'rectify_avg': rectify_avg, 'norm_layer': norm_layer}
+        else:
+            conv_layer = RFConv2d if rectify else nn.Conv2d
+            conv_kwargs = {'average_mode': rectify_avg} if rectify else {}
+        self.add_module("conv", conv_layer(in_channels, out_channels, kernel_size=kernel_size, stride=stride,
+                                           padding=padding, dilation=dilation, groups=groups, bias=bias,
+                                           padding_mode=padding_mode, **conv_kwargs))
+        self.add_module("bn", nn.BatchNorm2d(out_channels))
+        if act:
+            self.add_module("relu", nn.ReLU())
+
 
 class GlobalAvgPool2d(nn.Module):
     def __init__(self):
@@ -27,6 +50,7 @@ class GlobalAvgPool2d(nn.Module):
 
     def forward(self, inputs):
         return F.adaptive_avg_pool2d(inputs, 1).view(inputs.size(0), -1)
+
 
 class GramMatrix(nn.Module):
     r""" Gram Matrix for a 4D convolutional featuremaps as a mini-batch
@@ -40,6 +64,7 @@ class GramMatrix(nn.Module):
         features_t = features.transpose(1, 2)
         gram = features.bmm(features_t) / (ch * h * w)
         return gram
+
 
 class View(nn.Module):
     """Reshape the input into different size, an inplace operator, support

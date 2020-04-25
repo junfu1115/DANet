@@ -84,7 +84,7 @@ class FCFPNHead(nn.Module):
         self.conv5 = nn.Sequential(nn.Conv2d(inter_channels, 512, 3, padding=1, bias=False),
                                    norm_layer(512),
                                    nn.ReLU(),
-                                   nn.Dropout2d(0.1, False),
+                                   nn.Dropout(0.1, False),
                                    nn.Conv2d(512, out_channels, 1))
 
     def forward(self, *inputs):

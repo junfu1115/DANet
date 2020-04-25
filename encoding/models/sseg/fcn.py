@@ -13,7 +13,8 @@ from ...nn import ConcurrentModule, SyncBatchNorm
 
 from .base import BaseNet
 
-__all__ = ['FCN', 'get_fcn', 'get_fcn_resnet50_pcontext', 'get_fcn_resnet50_ade']
+__all__ = ['FCN', 'get_fcn', 'get_fcn_resnet50_pcontext', 'get_fcn_resnet50_ade',
+           'get_fcn_resnest50_ade']
 
 class FCN(BaseNet):
     r"""Fully Convolutional Networks for Semantic Segmentation
@@ -97,13 +98,13 @@ class FCNHead(nn.Module):
                                             GlobalPooling(inter_channels, inter_channels,
                                                           norm_layer, self._up_kwargs),
                                        ]),
-                                       nn.Dropout2d(0.1, False),
+                                       nn.Dropout(0.1, False),
                                        nn.Conv2d(2*inter_channels, out_channels, 1))
         else:
             self.conv5 = nn.Sequential(nn.Conv2d(in_channels, inter_channels, 3, padding=1, bias=False),
                                        norm_layer(inter_channels),
                                        nn.ReLU(),
-                                       nn.Dropout2d(0.1, False),
+                                       nn.Dropout(0.1, False),
                                        nn.Conv2d(inter_channels, out_channels, 1))
 
     def forward(self, x):
@@ -173,3 +174,23 @@ def get_fcn_resnet50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
     >>> print(model)
     """
     return get_fcn('ade20k', 'resnet50s', pretrained, root=root, **kwargs)
+
+def get_fcn_resnest50_ade(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""EncNet-PSP model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = get_fcn_resnet50_ade(pretrained=True)
+    >>> print(model)
+    """
+    kwargs['aux'] = True
+    return get_fcn('ade20k', 'resnest50', pretrained, root=root, **kwargs)

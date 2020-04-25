@@ -44,7 +44,7 @@ class PSPHead(nn.Module):
                                    nn.Conv2d(in_channels * 2, inter_channels, 3, padding=1, bias=False),
                                    norm_layer(inter_channels),
                                    nn.ReLU(True),
-                                   nn.Dropout2d(0.1, False),
+                                   nn.Dropout(0.1, False),
                                    nn.Conv2d(inter_channels, out_channels, 1))
 
     def forward(self, x):
