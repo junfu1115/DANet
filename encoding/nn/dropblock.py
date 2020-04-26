@@ -123,5 +123,4 @@ def reset_dropblock(start_step, nr_steps, start_value, stop_value, m):
         net.apply(apply_drop_prob)
     """
     if isinstance(m, DropBlock2D):
-        print('reseting dropblock')
         m.reset_steps(start_step, nr_steps, start_value, stop_value)

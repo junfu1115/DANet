@@ -34,6 +34,7 @@ _model_sha1 = {name: checksum for checksum, name in [
     ('4aba491aaf8e4866a9c9981b210e3e3266ac1f2a', 'fcn_resnest50_ade'),
     ('2225f09d0f40b9a168d9091652194bc35ec2a5a9', 'deeplab_resnest50_ade'),
     ('06ca799c8cc148fe0fafb5b6d052052935aa3cc8', 'deeplab_resnest101_ade'),
+    ('7b9e7d3e6f0e2c763c7d77cad14d306c0a31fe05', 'deeplab_resnest200_ade'),
     ('0074dd10a6e6696f6f521653fb98224e75955496', 'deeplab_resnest269_ade'),
     ]}
 
