@@ -128,13 +128,8 @@ class ASPP_Module(nn.Module):
 
 def get_deeplab(dataset='pascal_voc', backbone='resnet50s', pretrained=False,
             root='~/.encoding/models', **kwargs):
-    acronyms = {
-        'pascal_voc': 'voc',
-        'pascal_aug': 'voc',
-        'ade20k': 'ade',
-    }
     # infer number of classes
-    from ...datasets import datasets, VOCSegmentation, VOCAugSegmentation, ADE20KSegmentation
+    from ...datasets import datasets, acronyms
     model = DeepLabV3(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root, **kwargs)
     if pretrained:
         from ..model_store import get_model_file
@@ -237,3 +232,43 @@ def get_deeplab_resnest269_ade(pretrained=False, root='~/.encoding/models', **kw
     >>> print(model)
     """
     return get_deeplab('ade20k', 'resnest269', pretrained, aux=True, root=root, **kwargs)
+
+def get_deeplab_resnest101_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = get_deeplab_resnest101_pcontext(pretrained=True)
+    >>> print(model)
+    """
+    return get_deeplab('pcontext', 'resnest101', pretrained, aux=True, root=root, **kwargs)
+
+def get_deeplab_resnest200_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = deeplab_resnest200_pcontext(pretrained=True)
+    >>> print(model)
+    """
+    return get_deeplab('pcontext', 'resnest200', pretrained, aux=True, root=root, **kwargs)
+
+
