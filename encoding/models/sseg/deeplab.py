@@ -233,6 +233,24 @@ def get_deeplab_resnest269_ade(pretrained=False, root='~/.encoding/models', **kw
     """
     return get_deeplab('ade20k', 'resnest269', pretrained, aux=True, root=root, **kwargs)
 
+def get_deeplab_resnest50_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+    Examples
+    --------
+    >>> model = get_deeplab_resnest101_pcontext(pretrained=True)
+    >>> print(model)
+    """
+    return get_deeplab('pcontext', 'resnest50', pretrained, aux=True, root=root, **kwargs)
+
 def get_deeplab_resnest101_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
     r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
     <https://arxiv.org/pdf/1803.08904.pdf>`_
@@ -272,3 +290,21 @@ def get_deeplab_resnest200_pcontext(pretrained=False, root='~/.encoding/models',
     return get_deeplab('pcontext', 'resnest200', pretrained, aux=True, root=root, **kwargs)
 
 
+def get_deeplab_resnest269_pcontext(pretrained=False, root='~/.encoding/models', **kwargs):
+    r"""DeepLabV3 model from the paper `"Context Encoding for Semantic Segmentation"
+    <https://arxiv.org/pdf/1803.08904.pdf>`_
+
+    Parameters
+    ----------
+    pretrained : bool, default False
+        Whether to load the pretrained weights for model.
+    root : str, default '~/.encoding/models'
+        Location for keeping the model parameters.
+
+
+    Examples
+    --------
+    >>> model = get_deeplab_resnest269_pcontext(pretrained=True)
+    >>> print(model)
+    """
+    return get_deeplab('pcontext', 'resnest269', pretrained, aux=True, root=root, **kwargs)

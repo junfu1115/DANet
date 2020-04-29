@@ -78,11 +78,22 @@ Pascal Context Dataset
 ==============================================================================  ====================    ====================    =========================================================================================================
 Model                                                                           pixAcc                  mIoU                    Command                                                                                      
 ==============================================================================  ====================    ====================    =========================================================================================================
+FCN_ResNeSt50_PContext                                                          79.19%                  51.98%                  :raw-html:`<a href="javascript:toggleblock('cmd_fcn_nest50_pcont')" class="toggleblock">cmd</a>`
+DeepLab_ResNeSt50_PContext                                                      80.41%                  53.19%                  :raw-html:`<a href="javascript:toggleblock('cmd_deeplab_nest50_pcont')" class="toggleblock">cmd</a>`
 DeepLab_ResNeSt101_PContext                                                     81.91%                  56.49%                  :raw-html:`<a href="javascript:toggleblock('cmd_deeplab_nest101_pcont')" class="toggleblock">cmd</a>`
 DeepLab_ResNeSt200_PContext                                                     82.50%                  58.37%                  :raw-html:`<a href="javascript:toggleblock('cmd_deeplab_nest200_pcont')" class="toggleblock">cmd</a>`
+DeepLab_ResNeSt269_PContext                                                     83.06%                  58.92%                  :raw-html:`<a href="javascript:toggleblock('cmd_deeplab_nest269_pcont')" class="toggleblock">cmd</a>`
 ==============================================================================  ====================    ====================    =========================================================================================================
 
 .. raw:: html
+
+    <code xml:space="preserve" id="cmd_fcn_nest50_pcont" style="display: none; text-align: left; white-space: pre-wrap">
+    python train.py --dataset pcontext --model fcn --aux --backbone resnest50
+    </code>
+
+    <code xml:space="preserve" id="cmd_deeplab_nest50_pcont" style="display: none; text-align: left; white-space: pre-wrap">
+    python train.py --dataset pcontext --model deeplab --aux --backbone resnest50
+    </code>
 
     <code xml:space="preserve" id="cmd_deeplab_nest101_pcont" style="display: none; text-align: left; white-space: pre-wrap">
     python train.py --dataset pcontext --model deeplab --aux --backbone resnest101
@@ -92,6 +103,9 @@ DeepLab_ResNeSt200_PContext                                                     
     python train.py --dataset pcontext --model deeplab --aux --backbone resnest200
     </code>
 
+    <code xml:space="preserve" id="cmd_deeplab_nest269_pcont" style="display: none; text-align: left; white-space: pre-wrap">
+    python train.py --dataset pcontext --model deeplab --aux --backbone resnest269
+    </code>
 
 
 ResNet Backbone Models
