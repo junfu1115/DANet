@@ -24,5 +24,6 @@ if torch.cuda.is_available():
             os.path.join(gpu_path, 'roi_align_kernel.cu'),
             os.path.join(gpu_path, 'nms_kernel.cu'),
             os.path.join(gpu_path, 'rectify_cuda.cu'),
+            os.path.join(gpu_path, 'lib_ssd.cu'),
         ], extra_cuda_cflags=["--expt-extended-lambda"],
         build_directory=gpu_path, verbose=False)

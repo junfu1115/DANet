@@ -19,4 +19,7 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("leaky_relu_forward", &LeakyRelu_Forward_CUDA, "Learky ReLU forward (CUDA)");
   m.def("leaky_relu_backward", &LeakyRelu_Backward_CUDA, "Learky ReLU backward (CUDA)");
   m.def("conv_rectify", &CONV_RECTIFY_CUDA, "Convolution Rectifier (CUDA)");
+  // batched box encoder
+  m.def("box_encoder", &box_encoder, "box_encoder");
+  m.def("random_horiz_flip", &random_horiz_flip, "random_horiz_flip");
 }

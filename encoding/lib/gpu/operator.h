@@ -2,6 +2,21 @@
 #include <ATen/ATen.h>
 #include <vector>
 
+std::vector<at::Tensor> box_encoder(
+  const int N_img,
+  const at::Tensor& bbox_input,
+  const at::Tensor& bbox_offsets,
+  const at::Tensor& labels_input,
+  const at::Tensor& dbox,
+  const float criteria = 0.5);
+
+std::vector<at::Tensor> random_horiz_flip(
+  at::Tensor& img,
+  at::Tensor& bboxes,
+  const at::Tensor& bbox_offsets,
+  const float p,
+  const bool nhwc);
+
 at::Tensor ROIAlign_Forward_CUDA(
   const at::Tensor input,
   const at::Tensor rois,

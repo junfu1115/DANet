@@ -13,4 +13,6 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("sumsquare_backward", &Sum_Square_Backward_CPU, "SumSqu backward (CPU)");
   m.def("non_max_suppression", &Non_Max_Suppression_CPU, "NMS (CPU)");
   m.def("conv_rectify", &CONV_RECTIFY_CPU, "Convolution Rectifier (CPU)");
+  // Apply fused color jitter
+  m.def("apply_transform", &apply_transform, "apply_transform");
 }
