@@ -93,7 +93,7 @@ py::array_t<float> apply_transform(int H, int W, int C, py::array_t<float> img, 
   auto ctm_buf = ctm.request();
 
   // printf("H: %d, W: %d, C: %d\n", H, W, C);
-  py::array_t<float> result{img_buf.size};
+  py::array_t<float> result{(unsigned long)img_buf.size};
   auto res_buf = result.request();
 
   float *img_ptr = (float *)img_buf.ptr;

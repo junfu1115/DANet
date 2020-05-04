@@ -36,7 +36,7 @@ def get_transform(dataset, base_size=None, crop_size=224, rand_aug=False, etrans
                 CenterCrop(crop_size),
             ])
         train_transforms.extend([
-                RandomHorizontalFlip(),
+            RandomHorizontalFlip(),
             ColorJitter(0.4, 0.4, 0.4),
             ToTensor(),
             Lighting(0.1, _imagenet_pca['eigval'], _imagenet_pca['eigvec']),
@@ -65,16 +65,16 @@ def get_transform(dataset, base_size=None, crop_size=224, rand_aug=False, etrans
             normalize,
         ])
     elif dataset == 'cifar10':
-        transform_train = transforms.Compose([
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), 
-                                 (0.2023, 0.1994, 0.2010)),
+        transform_train = Compose([
+            RandomCrop(32, padding=4),
+            RandomHorizontalFlip(),
+            ToTensor(),
+            Normalize((0.4914, 0.4822, 0.4465), 
+                      (0.2023, 0.1994, 0.2010)),
         ])
-        transform_val = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465), 
+        transform_val = Compose([
+            ToTensor(),
+            Normalize((0.4914, 0.4822, 0.4465), 
                     (0.2023, 0.1994, 0.2010)),
         ])
     return transform_train, transform_val
