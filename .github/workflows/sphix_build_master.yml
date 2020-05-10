@@ -43,7 +43,7 @@ jobs:
       # https://github.com/marketplace/actions/github-pages
       - name: Deploy
         if: success()
-        uses: crazy-max/ghaction-github-pages@master
+        uses: crazy-max/ghaction-github-pages@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
