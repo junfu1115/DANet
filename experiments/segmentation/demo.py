@@ -2,7 +2,7 @@ import torch
 import encoding
 
 # Get the model
-model = encoding.models.get_model('fcn_resnet50_ade', pretrained=True).cuda()
+model = encoding.models.get_model('fcn_resnet50s_ade', pretrained=True).cuda()
 model.eval()
 
 # Prepare the image
