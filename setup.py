@@ -16,7 +16,7 @@ from setuptools import setup, find_packages
 
 cwd = os.path.dirname(os.path.abspath(__file__))
 
-version = '1.2.1'
+version = '1.2.2'
 try:
     if not os.getenv('RELEASE'):
         from datetime import date
