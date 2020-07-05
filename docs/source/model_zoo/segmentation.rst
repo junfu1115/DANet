@@ -245,7 +245,7 @@ Quick Demo
     predict = torch.max(output, 1)[1].cpu().numpy() + 1
 
     # Get color pallete for visualization
-    mask = encoding.utils.get_mask_pallete(predict, 'pcontext')
+    mask = encoding.utils.get_mask_pallete(predict, 'pascal_voc')
     mask.save('output.png')
 
 
