@@ -16,8 +16,10 @@ import torch.utils.data as data
 
 class MINCDataset(data.Dataset):
     NUM_CLASS = 23
-    def __init__(self, root=os.path.expanduser('~/.encoding/data/minc-2500/'),
-                 split='train', transform=None):
+    def __init__(self, root=os.path.expanduser('~/.encoding/data/'),
+                 train=True, transform=None, download=None):
+        split='train' if train == True else 'val'
+        root = os.path.join(root, 'minc-2500')
         self.transform = transform
         classes, class_to_idx = find_classes(root + '/images')
         if split=='train':

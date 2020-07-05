@@ -24,9 +24,10 @@ Test Pre-trained Model
 
 - Test pre-trained model on MINC-2500. The pre-trained weight will be automatic downloaded (pre-trained on train-1 split using single training size of 224, with an error rate of :math:`18.96\%` using single crop on test-1 set)::
 
-    python main.py --dataset minc --model deepten_resnet50_minc --nclass 23  --pretrained --eval
+    python verify.py --dataset minc --model deepten_resnet50_minc 
     # Teriminal Output:
-    # Loss: 0.995 | Err: 18.957% (1090/5750): 100%|████████████████████| 23/23 [00:18<00:00,  1.26it/s]
+    # Top1: 81.043 | Top5: 95.617: 100%|███████████████████████████████████| 45/45 [00:18<00:00,  2.40it/s]
+    # Top1 Acc: 81.043 | Top5 Acc: 95.617
 
 
 Train Your Own Model
@@ -34,7 +35,7 @@ Train Your Own Model
 
 - Example training command for training above model::
 
-   CUDA_VISIBLE_DEVICES=0,1,2,3 python main.py --dataset minc --model deepten_resnet50_minc --batch-size 512 --lr 0.004 --epochs 80 --lr-step 60 --lr-scheduler step --weight-decay 5e-4
+   CUDA_VISIBLE_DEVICES=0,1,2,3 python train_dist.py --dataset minc --model deepten_resnet50_minc --batch-size 512 --lr 0.004 --epochs 80 --lr-step 60 --lr-scheduler step --weight-decay 5e-4
 
 - Detail training options::
 
