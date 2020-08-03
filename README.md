@@ -82,10 +82,11 @@ We train our DANet-101 with only fine annotated data and submit our test results
 ## Citation
 If DANet is useful for your research, please consider citing:
 ```
-@article{fu2018dual,
-  title={Dual Attention Network for Scene Segmentation},
-  author={Jun Fu, Jing Liu, Haijie Tian, Yong Li, Yongjun Bao, Zhiwei Fang,and Hanqing Lu},
-  booktitle={The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+@inproceedings{fu2019dual,
+  title={Dual attention network for scene segmentation},
+  author={Fu, Jun and Liu, Jing and Tian, Haijie and Li, Yong and Bao, Yongjun and Fang, Zhiwei and Lu, Hanqing},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={3146--3154},
   year={2019}
 }
 ```
