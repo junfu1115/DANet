@@ -146,8 +146,7 @@ class ResNet(nn.Module):
                  rectified_conv=False, rectify_avg=False,
                  avd=False, avd_first=False,
                  final_drop=0.0, dropblock_prob=0,
-                 last_gamma=False, norm_layer=nn.BatchNorm2d,
-                 multi_grid=False, multi_dilation=None, os=32):
+                 last_gamma=False, norm_layer=nn.BatchNorm2d):
         self.cardinality = groups
         self.bottleneck_width = bottleneck_width
         # ResNet-D params
@@ -158,6 +157,7 @@ class ResNet(nn.Module):
         self.radix = radix
         self.avd = avd
         self.avd_first = avd_first
+
         super(ResNet, self).__init__()
         self.rectified_conv = rectified_conv
         self.rectify_avg = rectify_avg
@@ -165,12 +165,6 @@ class ResNet(nn.Module):
             conv_layer = RFConv2d
         else:
             conv_layer = nn.Conv2d
-
-        if os ==8:
-            dilation=4
-        elif os==16:
-            dilation=2
-
         conv_kwargs = {'average_mode': rectify_avg} if rectified_conv else {}
         if deep_stem:
             self.conv1 = nn.Sequential(
@@ -190,21 +184,14 @@ class ResNet(nn.Module):
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1 = self._make_layer(block, 64, layers[0], norm_layer=norm_layer, is_first=False)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2, norm_layer=norm_layer)
-
         if dilated or dilation == 4:
             self.layer3 = self._make_layer(block, 256, layers[2], stride=1,
                                            dilation=2, norm_layer=norm_layer,
                                            dropblock_prob=dropblock_prob)
-            if not multi_grid:
-                self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
-                                               dilation=4, norm_layer=norm_layer,
-                                               dropblock_prob=dropblock_prob)
-            else:
-                self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
-                               dilation=4, norm_layer=norm_layer,
-                               dropblock_prob=dropblock_prob, multi_grid=True, multi_dilation=multi_dilation)
+            self.layer4 = self._make_layer(block, 512, layers[3], stride=1,
+                                           dilation=4, norm_layer=norm_layer,
+                                           dropblock_prob=dropblock_prob)
         elif dilation==2:
-            assert multi_grid is not True, "multi_grid implement when os 8"
             self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
                                            dilation=1, norm_layer=norm_layer,
                                            dropblock_prob=dropblock_prob)
@@ -212,7 +199,6 @@ class ResNet(nn.Module):
                                            dilation=2, norm_layer=norm_layer,
                                            dropblock_prob=dropblock_prob)
         else:
-            assert multi_grid is not True, "multi_grid implement when os 8"
             self.layer3 = self._make_layer(block, 256, layers[2], stride=2,
                                            norm_layer=norm_layer,
                                            dropblock_prob=dropblock_prob)
@@ -232,7 +218,7 @@ class ResNet(nn.Module):
                 m.bias.data.zero_()
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1, norm_layer=None,
-                    dropblock_prob=0.0, is_first=True, multi_grid=False, multi_dilation=None):
+                    dropblock_prob=0.0, is_first=True):
         downsample = None
         if stride != 1 or self.inplanes != planes * block.expansion:
             down_layers = []
@@ -252,67 +238,37 @@ class ResNet(nn.Module):
             downsample = nn.Sequential(*down_layers)
 
         layers = []
-
-        ## for multi_grid
-        if not multi_grid:
-            if dilation == 1 or dilation == 2:
-                layers.append(block(self.inplanes, planes, stride, downsample=downsample,
-                                    radix=self.radix, cardinality=self.cardinality,
-                                    bottleneck_width=self.bottleneck_width,
-                                    avd=self.avd, avd_first=self.avd_first,
-                                    dilation=1, is_first=is_first, rectified_conv=self.rectified_conv,
-                                    rectify_avg=self.rectify_avg,
-                                    norm_layer=norm_layer, dropblock_prob=dropblock_prob,
-                                    last_gamma=self.last_gamma))
-            elif dilation == 4:
-                layers.append(block(self.inplanes, planes, stride, downsample=downsample,
-                                    radix=self.radix, cardinality=self.cardinality,
-                                    bottleneck_width=self.bottleneck_width,
-                                    avd=self.avd, avd_first=self.avd_first,
-                                    dilation=2, is_first=is_first, rectified_conv=self.rectified_conv,
-                                    rectify_avg=self.rectify_avg,
-                                    norm_layer=norm_layer, dropblock_prob=dropblock_prob,
-                                    last_gamma=self.last_gamma))
-            else:
-                raise RuntimeError("=> unknown dilation size: {}".format(dilation))
-
-        else:
-            assert multi_dilation is not None, "please set the multi_dilation correctly"
+        if dilation == 1 or dilation == 2:
             layers.append(block(self.inplanes, planes, stride, downsample=downsample,
-                    radix=self.radix, cardinality=self.cardinality,
-                    bottleneck_width=self.bottleneck_width,
-                    avd=self.avd, avd_first=self.avd_first,
-                    dilation=multi_dilation[0], is_first=is_first, rectified_conv=self.rectified_conv,
-                    rectify_avg=self.rectify_avg,
-                    norm_layer=norm_layer, dropblock_prob=dropblock_prob,
-                    last_gamma=self.last_gamma))
+                                radix=self.radix, cardinality=self.cardinality,
+                                bottleneck_width=self.bottleneck_width,
+                                avd=self.avd, avd_first=self.avd_first,
+                                dilation=1, is_first=is_first, rectified_conv=self.rectified_conv,
+                                rectify_avg=self.rectify_avg,
+                                norm_layer=norm_layer, dropblock_prob=dropblock_prob,
+                                last_gamma=self.last_gamma))
+        elif dilation == 4:
+            layers.append(block(self.inplanes, planes, stride, downsample=downsample,
+                                radix=self.radix, cardinality=self.cardinality,
+                                bottleneck_width=self.bottleneck_width,
+                                avd=self.avd, avd_first=self.avd_first,
+                                dilation=2, is_first=is_first, rectified_conv=self.rectified_conv,
+                                rectify_avg=self.rectify_avg,
+                                norm_layer=norm_layer, dropblock_prob=dropblock_prob,
+                                last_gamma=self.last_gamma))
+        else:
+            raise RuntimeError("=> unknown dilation size: {}".format(dilation))
 
         self.inplanes = planes * block.expansion
-
-        ## for multi_grid
-        if not multi_grid:
-            for i in range(1, blocks):
-                layers.append(block(self.inplanes, planes,
-                                    radix=self.radix, cardinality=self.cardinality,
-                                    bottleneck_width=self.bottleneck_width,
-                                    avd=self.avd, avd_first=self.avd_first,
-                                    dilation=dilation, rectified_conv=self.rectified_conv,
-                                    rectify_avg=self.rectify_avg,
-                                    norm_layer=norm_layer, dropblock_prob=dropblock_prob,
-                                    last_gamma=self.last_gamma))
-        else:
-            assert multi_dilation is not None, "please set the multi_dilation correctly"
-            div = len(multi_dilation)
-            for i in range(1, blocks):
-                layers.append(block(self.inplanes, planes,
-                                    radix=self.radix, cardinality=self.cardinality,
-                                    bottleneck_width=self.bottleneck_width,
-                                    avd=self.avd, avd_first=self.avd_first,
-                                    dilation=multi_dilation[i%div], rectified_conv=self.rectified_conv,
-                                    rectify_avg=self.rectify_avg,
-                                    norm_layer=norm_layer, dropblock_prob=dropblock_prob,
-                                    last_gamma=self.last_gamma))
-
+        for i in range(1, blocks):
+            layers.append(block(self.inplanes, planes,
+                                radix=self.radix, cardinality=self.cardinality,
+                                bottleneck_width=self.bottleneck_width,
+                                avd=self.avd, avd_first=self.avd_first,
+                                dilation=dilation, rectified_conv=self.rectified_conv,
+                                rectify_avg=self.rectify_avg,
+                                norm_layer=norm_layer, dropblock_prob=dropblock_prob,
+                                last_gamma=self.last_gamma))
 
         return nn.Sequential(*layers)
 
@@ -355,7 +311,6 @@ def resnet101(pretrained=False, root='~/.encoding/models', **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    pretrained=False
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
         model.load_state_dict(torch.load(

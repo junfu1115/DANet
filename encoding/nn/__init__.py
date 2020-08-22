@@ -17,3 +17,5 @@ from .loss import *
 from .rectify import *
 from .splat import SplAtConv2d
 from .dropblock import *
+from .dran_att import *
+from .da_att import *

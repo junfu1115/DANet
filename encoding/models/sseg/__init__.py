@@ -6,6 +6,8 @@ from .atten import *
 from .encnet import *
 from .deeplab import *
 from .upernet import *
+from .dran import *
+from .danet import *
 
 def get_segmentation_model(name, **kwargs):
     models = {
@@ -16,5 +18,7 @@ def get_segmentation_model(name, **kwargs):
         'encnet': get_encnet,
         'upernet': get_upernet,
         'deeplab': get_deeplab,
+        'dran':get_dran,
+        'danet': get_danet
     }
     return models[name.lower()](**kwargs)

@@ -1,59 +1,56 @@
-[![PyPI](https://img.shields.io/pypi/v/torch-encoding.svg)](https://pypi.python.org/pypi/torch-encoding)
-[![PyPI Pre-release](https://img.shields.io/badge/pypi--prerelease-v1.2.2-ff69b4.svg)](https://pypi.org/project/torch-encoding/#history)
-[![Upload Python Package](https://github.com/zhanghang1989/PyTorch-Encoding/workflows/Upload%20Python%20Package/badge.svg)](https://github.com/zhanghang1989/PyTorch-Encoding/actions)
-[![Downloads](http://pepy.tech/badge/torch-encoding)](http://pepy.tech/project/torch-encoding)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Docs](https://github.com/zhanghang1989/PyTorch-Encoding/workflows/Build%20Docs/badge.svg)](https://github.com/zhanghang1989/PyTorch-Encoding/actions)
-[![Unit Test](https://github.com/zhanghang1989/PyTorch-Encoding/workflows/Unit%20Test/badge.svg)](https://github.com/zhanghang1989/PyTorch-Encoding/actions)
+# Scene Segmentation with Dual Relation-aware Attention Network (TNNLS2020)
 
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/resnest-split-attention-networks/semantic-segmentation-on-ade20k)](https://paperswithcode.com/sota/semantic-segmentation-on-ade20k?p=resnest-split-attention-networks)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/resnest-split-attention-networks/semantic-segmentation-on-pascal-context)](https://paperswithcode.com/sota/semantic-segmentation-on-pascal-context?p=resnest-split-attention-networks)
+[Jun Fu](https://github.com/junfu1115/), [Jing Liu](http://www.nlpr.ia.ac.cn/iva/liujing/index.html), Jie jiang, [Yong Li](http://www.foreverlee.net), Yongjun Bao, and Hanqing Lu 
 
-# PyTorch-Encoding
+## Introduction
 
-created by [Hang Zhang](http://hangzh.com/)
+In this paper, we present a Dual Relation-aware Attention Network (DRANet) for scene segmentation, which adaptively integrates contextual information via an attention mechanism. Our proposed DRANet achieves outstanding performance consistently on four scene segmentation datasets, i.e. Cityscapes, ADE20K, PASCAL Context, and COCO Stuff.
 
-## [Documentation](http://hangzh.com/PyTorch-Encoding/)
+![image](img/overview.jpg)
 
-- Please visit the [**Docs**](http://hangzh.com/PyTorch-Encoding/) for detail instructions of installation and usage. 
+## Cityscapes testing set result
 
-- Please visit the [link](http://hangzh.com/PyTorch-Encoding/model_zoo/imagenet.html) to image classification models.
+We train our DRANet-101 with only fine annotated data and submit our test results to the official evaluation server.
 
-- Please visit the [link](http://hangzh.com/PyTorch-Encoding/model_zoo/segmentation.html) to semantic segmentation models.
+![image](img/tab3.jpg)
 
-## Citations
+## Usage
 
-**ResNeSt: Split-Attention Networks** [[arXiv]]()  
-  [Hang Zhang](http://hangzh.com/), Chongruo Wu, Zhongyue Zhang, Yi Zhu, Zhi Zhang, Haibin Lin, Yue Sun, Tong He, Jonas Muller, R. Manmatha, Mu Li and Alex Smola
-```
-@article{zhang2020resnest,
-title={ResNeSt: Split-Attention Networks},
-author={Zhang, Hang and Wu, Chongruo and Zhang, Zhongyue and Zhu, Yi and Zhang, Zhi and Lin, Haibin and Sun, Yue and He, Tong and Muller, Jonas and Manmatha, R. and Li, Mu and Smola, Alexander},
-journal={arXiv preprint},
-year={2020}
-}
-```
+1. Install pytorch 
 
-**Context Encoding for Semantic Segmentation** [[arXiv]](https://arxiv.org/pdf/1803.08904.pdf)  
- [Hang Zhang](http://hangzh.com/), [Kristin Dana](http://eceweb1.rutgers.edu/vision/dana.html), [Jianping Shi](http://shijianping.me/), [Zhongyue Zhang](http://zhongyuezhang.com/), [Xiaogang Wang](http://www.ee.cuhk.edu.hk/~xgwang/), [Ambrish Tyagi](https://scholar.google.com/citations?user=GaSWCoUAAAAJ&hl=en), [Amit Agrawal](http://www.amitkagrawal.com/)
-```
-@InProceedings{Zhang_2018_CVPR,
-author = {Zhang, Hang and Dana, Kristin and Shi, Jianping and Zhang, Zhongyue and Wang, Xiaogang and Tyagi, Ambrish and Agrawal, Amit},
-title = {Context Encoding for Semantic Segmentation},
-booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-month = {June},
-year = {2018}
-}
-```
+   - The code is tested on python3.6 and torch 1.4.0.
+   - The code is modified from [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding). 
 
-**Deep TEN: Texture Encoding Network** [[arXiv]](https://arxiv.org/pdf/1612.02844.pdf)  
-  [Hang Zhang](http://hangzh.com/), [Jia Xue](http://jiaxueweb.com/), [Kristin Dana](http://eceweb1.rutgers.edu/vision/dana.html)
-```
-@InProceedings{Zhang_2017_CVPR,
-author = {Zhang, Hang and Xue, Jia and Dana, Kristin},
-title = {Deep TEN: Texture Encoding Network},
-booktitle = {The IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-month = {July},
-year = {2017}
-}
-```
+2. Clone the resposity
+
+   ```shell
+   git clone https://github.com/junfu1115/DRANet.git 
+   cd DRANet 
+   python setup.py install
+   ```
+
+3. Dataset
+   - Download the [Cityscapes](https://www.cityscapes-dataset.com/) dataset and convert the dataset to [19 categories](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/helpers/labels.py). 
+   - Please put dataset in folder `./datasets`
+
+4. Evaluation
+
+   - Download trained model [DRANet101](https://drive.google.com/open?id=1XmpFEF-tbPH0Rmv4eKRxYJngr3pTbj6p) and put it in folder `./experiments/segmentation/models/`
+
+   - Evaluation code is in folder `./experiments/segmentation/`
+
+   - `cd ./experiments/segmentation/`
+
+   - For single scale testing, please run:
+
+   - ```shell
+     CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset citys --model dran --backbone resnet101 --resume  models/dran101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 
+     ```
+
+5. Evaluation Result
+
+   The expected scores will show as follows: DRANet101 on cityscapes val set (mIoU/pAcc): **81.63/96.62** (ss) 
+
+## Acknowledgement
+
+Thanks [PyTorch-Encoding](https://github.com/zhanghang1989/PyTorch-Encoding), especially the Synchronized BN!

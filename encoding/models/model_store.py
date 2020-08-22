@@ -10,7 +10,7 @@ from ..utils import download, check_sha1
 _model_sha1 = {name: checksum for checksum, name in [
     # resnest
     ('fb9de5b360976e3e8bd3679d3e93c5409a5eff3c', 'resnest50'),
-    ('966fb78c22323b0c68097c5c1242bd16d3e07fd5', 'resnest101'),
+    ('2a57e44de9c853fa015b172309a1ee7e2d0e4e2a', 'resnet101'),
     ('d7fd712f5a1fcee5b3ce176026fbb6d0d278454a', 'resnest200'),
     ('51ae5f19032e22af4ec08e695496547acdba5ce5', 'resnest269'),
     # rectified	
@@ -44,6 +44,7 @@ _model_sha1 = {name: checksum for checksum, name in [
     ]}
 
 encoding_repo_url = 'https://s3.us-west-1.wasabisys.com/encoding'
+#encoding_repo_url = 'https://hangzh.s3.amazonaws.com/'
 _url_format = '{repo_url}models/{file_name}.zip'
 
 def short_hash(name):

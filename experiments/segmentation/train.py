@@ -93,6 +93,13 @@ class Options():
         # test option
         parser.add_argument('--test-folder', type=str, default=None,
                             help='path to test image folder')
+        # multi grid dilation option
+        parser.add_argument("--multi-grid", action="store_true", default=False,
+                            help="use multi grid dilation policy")
+        parser.add_argument('--multi-dilation', nargs='+', type=int, default=None,
+                            help="multi grid dilation list")
+        parser.add_argument('--os', type=int, default=8,
+                            help='output stride default:8')
         # the parser
         self.parser = parser
 
@@ -148,7 +155,10 @@ class Trainer():
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone = args.backbone, aux = args.aux,
                                        se_loss = args.se_loss, norm_layer = SyncBatchNorm,
-                                       base_size=args.base_size, crop_size=args.crop_size)
+                                       base_size=args.base_size, crop_size=args.crop_size,
+                                       multi_grid=args.multi_grid,
+                                       multi_dilation=args.multi_dilation,
+                                       os=args.os)
         print(model)
         # optimizer using different LR
         params_list = [{'params': model.pretrained.parameters(), 'lr': args.lr},]

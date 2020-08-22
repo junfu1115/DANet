@@ -19,7 +19,7 @@ from encoding.nn import SegmentationLosses, SyncBatchNorm
 from encoding.parallel import DataParallelModel, DataParallelCriterion
 from encoding.datasets import get_dataset, test_batchify_fn
 from encoding.models import get_model, get_segmentation_model, MultiEvalModule
-
+from model_mapping import rename_weight_for_head
 
 class Options():
     def __init__(self):
@@ -78,6 +78,13 @@ class Options():
         # test option
         parser.add_argument('--test-folder', type=str, default=None,
                             help='path to test image folder')
+        # multi grid dilation option
+        parser.add_argument("--multi-grid", action="store_true", default=False,
+                            help="use multi grid dilation policy")
+        parser.add_argument('--multi-dilation', nargs='+', type=int, default=None,
+                            help="multi grid dilation list")
+        parser.add_argument('--os', type=int, default=8,
+                            help='output stride default:8')
         # the parser
         self.parser = parser
 
@@ -123,17 +130,24 @@ def test(args):
                                        backbone=args.backbone, aux = args.aux,
                                        se_loss=args.se_loss,
                                        norm_layer=torch.nn.BatchNorm2d if args.acc_bn else SyncBatchNorm,
-                                       base_size=args.base_size, crop_size=args.crop_size)
+                                       base_size=args.base_size, crop_size=args.crop_size,
+                                       multi_grid=args.multi_grid,
+                                       multi_dilation=args.multi_dilation,
+                                       os=args.os)
 
     # resuming checkpoint
+    print("=={}".format(os.path.isfile(args.resume)))
     if args.verify is not None and os.path.isfile(args.verify):
         print("=> loading checkpoint '{}'".format(args.verify))
         model.load_state_dict(torch.load(args.verify))
     elif args.resume is not None and os.path.isfile(args.resume):
+        print("===========================")
         checkpoint = torch.load(args.resume)
+        weights = checkpoint['state_dict']
+        model.load_state_dict(weights)
         # strict=False, so that it is compatible with old pytorch saved models
-        model.load_state_dict(checkpoint['state_dict'])
-        print("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
+        #model.load_state_dict(checkpoint['state_dict'])
+        # print("=> loaded checkpoint '{}' (epoch {})".format(args.resume, checkpoint['epoch']))
     elif not pretrained:
         raise RuntimeError ("=> no checkpoint found")
 
@@ -154,7 +168,8 @@ def test(args):
         torch.save(model.state_dict(), args.export + '.pth')
         return
 
-    scales = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25] if args.dataset == 'citys' else \
+    #scales = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.25] if args.dataset == 'citys' else \
+    scales = [1.0] if args.dataset == 'citys' else \
             [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]#, 2.0
     evaluator = MultiEvalModule(model, testset.num_class, scales=scales).cuda()
     evaluator.eval()
