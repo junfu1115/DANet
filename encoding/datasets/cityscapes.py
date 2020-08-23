@@ -20,7 +20,7 @@ from .base import BaseDataset
 class CitySegmentation(BaseDataset):
     NUM_CLASS = 19
     BASE_DIR = 'cityscapes'
-    def __init__(self, root=os.path.expanduser('../dataset'), split='train',
+    def __init__(self, root=os.path.expanduser('../datasets'), split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
         super(CitySegmentation, self).__init__(
             root, split, mode, transform, target_transform, **kwargs)
