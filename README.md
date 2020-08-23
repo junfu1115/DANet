@@ -35,7 +35,7 @@ We train our DRANet-101 with only fine annotated data and submit our test result
 
 4. Evaluation
 
-   - Download trained model [DRANet101](https://drive.google.com/open?id=1XmpFEF-tbPH0Rmv4eKRxYJngr3pTbj6p) and put it in folder `./experiments/segmentation/models/`
+   - Download trained model [DRANet101](https://drive.google.com/file/d/1xCl2N0b0rVFH4y30HCGfy7RY3-ars7Ce/view?usp=sharing) and put it in folder `./experiments/segmentation/models/`
 
    - Evaluation code is in folder `./experiments/segmentation/`
 
