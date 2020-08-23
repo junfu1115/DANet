@@ -20,7 +20,7 @@ from .base import BaseDataset
 class CitySegmentation(BaseDataset):
     NUM_CLASS = 19
     BASE_DIR = 'cityscapes'
-    def __init__(self, root=os.path.expanduser('../datasets'), split='train',
+    def __init__(self, root=os.path.expanduser('../../datasets'), split='train',
                  mode=None, transform=None, target_transform=None, **kwargs):
         super(CitySegmentation, self).__init__(
             root, split, mode, transform, target_transform, **kwargs)
@@ -29,7 +29,7 @@ class CitySegmentation(BaseDataset):
          #   "encoding/scripts/cityscapes.py"
         root = os.path.join(root, self.BASE_DIR)
         assert os.path.exists(root), "Please download the dataset!!"
-        self.images, self.masks = get_city_pairs(self.root, self.split)
+        self.images, self.masks = get_city_pairs(root, self.split)
         if split != 'test':
             assert (len(self.images) == len(self.masks))
         if len(self.images) == 0:

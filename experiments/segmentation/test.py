@@ -85,6 +85,8 @@ class Options():
                             help="multi grid dilation list")
         parser.add_argument('--os', type=int, default=8,
                             help='output stride default:8')
+        parser.add_argument('--no-deepstem', type="store_true", default=False,
+                    help='backbone without deepstem')
         # the parser
         self.parser = parser
 
@@ -133,7 +135,8 @@ def test(args):
                                        base_size=args.base_size, crop_size=args.crop_size,
                                        multi_grid=args.multi_grid,
                                        multi_dilation=args.multi_dilation,
-                                       os=args.os)
+                                       os=args.os,
+                                       no_deepstem=args.no_deepstem)
 
     # resuming checkpoint
     print("=={}".format(os.path.isfile(args.resume)))
@@ -141,7 +144,6 @@ def test(args):
         print("=> loading checkpoint '{}'".format(args.verify))
         model.load_state_dict(torch.load(args.verify))
     elif args.resume is not None and os.path.isfile(args.resume):
-        print("===========================")
         checkpoint = torch.load(args.resume)
         weights = checkpoint['state_dict']
         model.load_state_dict(weights)

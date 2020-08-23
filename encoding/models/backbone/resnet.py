@@ -147,7 +147,9 @@ class ResNet(nn.Module):
                  avd=False, avd_first=False,
                  final_drop=0.0, dropblock_prob=0,
                  last_gamma=False, norm_layer=nn.BatchNorm2d,
-                 multi_grid=False, multi_dilation=None, os=32):
+                 multi_grid=False, multi_dilation=None, os=32, no_deepstem=False):
+        if no_deepstem:
+            deep_stem=False
         self.cardinality = groups
         self.bottleneck_width = bottleneck_width
         # ResNet-D params
