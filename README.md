@@ -44,7 +44,7 @@ We train our DRANet-101 with only fine annotated data and submit our test result
    - For single scale testing, please run:
 
    - ```shell
-     CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset citys --model dran --backbone resnet101 --resume  models/dran101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 
+     CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset citys --model dran --backbone resnet101 --resume  models/dran101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 --aux 
      ```
 
 5. Evaluation Result
