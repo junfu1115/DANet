@@ -27,7 +27,8 @@ class CitySegmentation(BaseDataset):
         # assert exists and prepare dataset automatically
         #assert os.path.exists(root), "Please setup the dataset using" + \
          #   "encoding/scripts/cityscapes.py"
-
+        root = os.path.join(root, self.BASE_DIR)
+        assert os.path.exists(root), "Please download the dataset!!"
         self.images, self.masks = get_city_pairs(self.root, self.split)
         if split != 'test':
             assert (len(self.images) == len(self.masks))
