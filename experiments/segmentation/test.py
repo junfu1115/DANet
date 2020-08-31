@@ -19,7 +19,7 @@ from encoding.nn import SegmentationLosses, SyncBatchNorm
 from encoding.parallel import DataParallelModel, DataParallelCriterion
 from encoding.datasets import get_dataset, test_batchify_fn
 from encoding.models import get_model, get_segmentation_model, MultiEvalModule
-from model_mapping import rename_weight_for_head
+#from model_mapping import rename_weight_for_head
 
 class Options():
     def __init__(self):
@@ -85,7 +85,7 @@ class Options():
                             help="multi grid dilation list")
         parser.add_argument('--os', type=int, default=8,
                             help='output stride default:8')
-        parser.add_argument('--no-deepstem', type="store_true", default=False,
+        parser.add_argument('--no-deepstem', action="store_true", default=False,
                     help='backbone without deepstem')
         # the parser
         self.parser = parser
@@ -139,7 +139,7 @@ def test(args):
                                        no_deepstem=args.no_deepstem)
 
     # resuming checkpoint
-    print("=={}".format(os.path.isfile(args.resume)))
+    #print("=={}".format(os.path.isfile(args.resume)))
     if args.verify is not None and os.path.isfile(args.verify):
         print("=> loading checkpoint '{}'".format(args.verify))
         model.load_state_dict(torch.load(args.verify))
