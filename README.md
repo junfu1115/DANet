@@ -1,18 +1,18 @@
-# Scene Segmentation with Dual Relation-aware Attention Network (TNNLS2020)
+# [Dual Attention Network for Scene Segmentation(CVPR2019)](https://arxiv.org/pdf/1809.02983.pdf)
 
-[Jun Fu](https://github.com/junfu1115/), [Jing Liu](http://www.nlpr.ia.ac.cn/iva/liujing/index.html), Jie jiang, [Yong Li](http://www.foreverlee.net), Yongjun Bao, and Hanqing Lu 
+[Jun Fu](https://github.com/junfu1115/), [Jing Liu](http://www.nlpr.ia.ac.cn/iva/liujing/index.html), [Haijie Tian](https://github.com/tianhaijie), [Yong Li](http://www.foreverlee.net/), Yongjun Bao, Zhiwei Fang,and Hanqing Lu
 
 ## Introduction
 
-In this paper, we present a Dual Relation-aware Attention Network (DRANet) for scene segmentation, which adaptively integrates contextual information via an attention mechanism. Our proposed DRANet achieves outstanding performance consistently on four scene segmentation datasets, i.e. Cityscapes, ADE20K, PASCAL Context, and COCO Stuff.
+We propose a Dual Attention Network (DANet) to adaptively integrate local features with their global dependencies based on the self-attention mechanism. And we achieve new state-of-the-art segmentation performance on three challenging scene segmentation datasets, i.e., Cityscapes, PASCAL Context and COCO Stuff-10k dataset.
 
-![image](img/overview.jpg)
+![image](img/overview.png)
 
 ## Cityscapes testing set result
 
-We train our DRANet-101 with only fine annotated data and submit our test results to the official evaluation server.
+We train our DANet-101 with only fine annotated data and submit our test results to the official evaluation server.
 
-![image](img/tab3.jpg)
+![image](img/tab3.png)
 
 ## Usage
 
@@ -24,8 +24,8 @@ We train our DRANet-101 with only fine annotated data and submit our test result
 2. Clone the resposity
 
    ```shell
-   git clone https://github.com/junfu1115/DRANet.git 
-   cd DRANet 
+   git clone https://github.com/junfu1115/DANet.git 
+   cd DANet 
    python setup.py install
    ```
 
@@ -33,7 +33,23 @@ We train our DRANet-101 with only fine annotated data and submit our test result
    - Download the [Cityscapes](https://www.cityscapes-dataset.com/) dataset and convert the dataset to [19 categories](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/helpers/labels.py). 
    - Please put dataset in folder `./datasets`
 
-4. Evaluation for DRANet
+4. Evaluation for DANet
+
+   - Download trained model [DANet101](https://drive.google.com/open?id=1XmpFEF-tbPH0Rmv4eKRxYJngr3pTbj6p) and put it in folder `./experiments/segmentation/models/`
+
+   - `cd ./experiments/segmentation/`
+
+   - For single scale testing, please run:
+
+   - ```shell
+     CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset citys --model danet --backbone resnet101 --resume  models/DANet101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 --aux --no-deepstem
+     ```
+
+   - Evaluation Result
+
+     The expected scores will show as follows: DANet101 on cityscapes val set (mIoU/pAcc): **79.93/95.97**(ss) 
+
+5. Evaluation for DRANet
 
    - Download trained model [DRANet101](https://drive.google.com/file/d/1xCl2N0b0rVFH4y30HCGfy7RY3-ars7Ce/view?usp=sharing) and put it in folder `./experiments/segmentation/models/`
 
@@ -50,22 +66,6 @@ We train our DRANet-101 with only fine annotated data and submit our test result
    - Evaluation Result
 
      The expected scores will show as follows: DRANet101 on cityscapes val set (mIoU/pAcc): **81.63/96.62** (ss) 
-
-5. Evaluation for DANet
-
-   - Download trained model [DANet101](https://drive.google.com/open?id=1XmpFEF-tbPH0Rmv4eKRxYJngr3pTbj6p) and put it in folder `./experiments/segmentation/models/`
-
-   - `cd ./experiments/segmentation/`
-
-   - For single scale testing, please run:
-
-   - ```shell
-     CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset citys --model danet --backbone resnet101 --resume  models/DANet101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 --aux --no-deepstem
-     ```
-
-   - Evaluation Result
-
-     The expected scores will show as follows: DANet101 on cityscapes val set (mIoU/pAcc): **79.93/95.97**(ss) 
 
 ## Acknowledgement
 
