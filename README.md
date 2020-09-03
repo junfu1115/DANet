@@ -14,6 +14,16 @@ We train our DANet-101 with only fine annotated data and submit our test results
 
 ![image](img/tab3.png)
 
+## Updates
+
+2020/9：Renew the code, which supports Pytorch 1.4.0 or later.
+
+2020/8：The new TNNLS version DRANet achieves 82.9% on Cityscapes test set, which a new state-of-the-arts performance with only fine annotated dataset. The code will be released in [DRANet](<https://github.com/junfu1115/DRAN>).
+
+2020/7：DANet is supported on MMSegmentation, in which DANet achieves 80.47% with single scale testing and 82.02 with multi-scale testing on Cityscapes val set.
+
+2018/9：DANet released. The trained model with ResNet101 achieves 81.5% on Cityscapes test set.
+
 ## Usage
 
 1. Install pytorch 
@@ -66,6 +76,32 @@ We train our DANet-101 with only fine annotated data and submit our test results
    - Evaluation Result
 
      The expected scores will show as follows: DRANet101 on cityscapes val set (mIoU/pAcc): **81.63/96.62** (ss) 
+
+## citing DANet
+
+if you find DANet useful in your research, please consider citing:
+
+```
+@article{fu2020scene,
+  title={Scene Segmentation With Dual Relation-Aware Attention Network},
+  author={Fu, Jun and Liu, Jing and Jiang, Jie and Li, Yong and Bao, Yongjun and Lu, Hanqing},
+  journal={IEEE Transactions on Neural Networks and Learning Systems},
+  year={2020},
+  publisher={IEEE}
+}
+```
+
+```
+@inproceedings{fu2019dual,
+  title={Dual attention network for scene segmentation},
+  author={Fu, Jun and Liu, Jing and Tian, Haijie and Li, Yong and Bao, Yongjun and Fang, Zhiwei and Lu, Hanqing},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={3146--3154},
+  year={2019}
+}
+```
+
+
 
 ## Acknowledgement
 
