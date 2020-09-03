@@ -77,7 +77,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
 
      The expected scores will show as follows: DRANet101 on cityscapes val set (mIoU/pAcc): **81.63/96.62** (ss) 
 
-## Cition
+## Citation
 
 if you find DANet and DRANet useful in your research, please consider citing:
 
