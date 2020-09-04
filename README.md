@@ -18,7 +18,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
 
 <font color="#dd0000">**2020/9**：</font>**Renew the code**, which supports **Pytorch 1.4.0** or later!
 
-2020/8：The new TNNLS version DRANet achieves **82.9%** on Cityscapes test set (submit the result on August, 2019), which a new state-of-the-arts performance with only fine annotated dataset. The code will be released in [DRANet](<https://github.com/junfu1115/DRAN>).
+2020/8：The new TNNLS version DRANet achieves [**82.9%**](https://www.cityscapes-dataset.com/method-details/?submissionID=4792) on Cityscapes test set (submit the result on August, 2019), which a new state-of-the-arts performance with only fine annotated dataset. The code will be released in [DRANet](<https://github.com/junfu1115/DRAN>).
 
 2020/7：DANet is supported on [MMSegmentation](https://github.com/open-mmlab/mmsegmentation/tree/master/configs/danet), in which DANet achieves **80.47%** with single scale testing and **82.02%** with multi-scale testing on Cityscapes val set.
 
