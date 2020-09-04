@@ -1,6 +1,6 @@
 # [Dual Attention Network for Scene Segmentation(CVPR2019)](https://arxiv.org/pdf/1809.02983.pdf)
 
-[Jun Fu](https://github.com/junfu1115/), [Jing Liu](http://www.nlpr.ia.ac.cn/iva/liujing/index.html), [Haijie Tian](https://github.com/tianhaijie), [Yong Li](http://www.foreverlee.net/), Yongjun Bao, Zhiwei Fang,and Hanqing Lu
+[Jun Fu](https://scholar.google.com/citations?user=h3vzrgkAAAAJ&hl=zh-CN), [Jing Liu](http://www.nlpr.ia.ac.cn/iva/liujing/index.html), [Haijie Tian](https://github.com/tianhaijie), [Yong Li](http://www.foreverlee.net/), Yongjun Bao, Zhiwei Fang,and Hanqing Lu
 
 ## Introduction
 
@@ -16,11 +16,11 @@ We train our DANet-101 with only fine annotated data and submit our test results
 
 ## Updates
 
-<font color="#dd0000">**2020/9**：</font>**Renew the code**, which supports **Pytorch 1.4.0** or later.
+<font color="#dd0000">**2020/9**：</font>**Renew the code**, which supports **Pytorch 1.4.0** or later!
 
-2020/8：The new TNNLS version DRANet achieves **82.9%** on Cityscapes test set, which a new state-of-the-arts performance with only fine annotated dataset. The code will be released in [DRANet](<https://github.com/junfu1115/DRAN>).
+2020/8：The new TNNLS version DRANet achieves **82.9%** on Cityscapes test set (submit the result on August, 2019), which a new state-of-the-arts performance with only fine annotated dataset. The code will be released in [DRANet](<https://github.com/junfu1115/DRAN>).
 
-2020/7：DANet is supported on MMSegmentation, in which DANet achieves **80.47%** with single scale testing and **82.02%** with multi-scale testing on Cityscapes val set.
+2020/7：DANet is supported on [MMSegmentation](https://github.com/open-mmlab/mmsegmentation/tree/master/configs/danet), in which DANet achieves **80.47%** with single scale testing and **82.02%** with multi-scale testing on Cityscapes val set.
 
 2018/9：DANet released. The trained model with ResNet101 achieves 81.5% on Cityscapes test set.
 
@@ -52,7 +52,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
    - For single scale testing, please run:
 
    - ```shell
-     CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset citys --model danet --backbone resnet101 --resume  models/DANet101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 --aux --no-deepstem
+     CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset citys --model danet --backbone resnet101 --resume  models/DANet101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 --aux --no-deepstem
      ```
 
    - Evaluation Result
@@ -70,7 +70,7 @@ We train our DANet-101 with only fine annotated data and submit our test results
    - For single scale testing, please run:
 
    - ```shell
-     CUDA_VISIBLE_DEVICES=4,5,6,7 python test.py --dataset citys --model dran --backbone resnet101 --resume  models/dran101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 --aux
+     CUDA_VISIBLE_DEVICES=0,1,2,3 python test.py --dataset citys --model dran --backbone resnet101 --resume  models/dran101.pth.tar --eval --base-size 2048 --crop-size 768 --workers 1 --multi-grid --multi-dilation 4 8 16 --os 8 --aux
      ```
 
    - Evaluation Result
