@@ -44,7 +44,6 @@ class CitySegmentation(BaseDataset):
             return img, os.path.basename(self.images[index])
         
         mask = Image.open(self.masks[index])
-        
         # synchrosized transform
         if self.mode == 'train':
             img, mask = self._sync_transform(img, mask)
@@ -64,8 +63,49 @@ class CitySegmentation(BaseDataset):
 
     def _mask_transform(self, mask):
         target = np.array(mask).astype('int32')
-        target[target == 255] = -1
-        return torch.from_numpy(target).long()
+        mapping_20 = {
+            0: 255,
+            1: 255,
+            2: 255,
+            3: 255,
+            4: 255,
+            5: 255,
+            6: 255,
+            7: 0,
+            8: 1,
+            9: 255,
+            10: 255,
+            11: 2,
+            12: 3,
+            13: 4,
+            14: 255,
+            15: 255,
+            16: 255,
+            17: 5,
+            18: 255,
+            19: 6,
+            20: 7,
+            21: 8,
+            22: 9,
+            23: 10,
+            24: 11,
+            25: 12,
+            26: 13,
+            27: 14,
+            28: 15,
+            29: 255,
+            30: 255,
+            31: 16,
+            32: 17,
+            33: 18,
+            -1: 255,
+        }
+
+        label_mask = np.zeros_like(target)
+        for k in mapping_20:
+            label_mask[target == k] = mapping_20[k]
+        label_mask[label_mask == 255] = -1
+        return torch.from_numpy(label_mask).long()
 
     def __len__(self):
         return len(self.images)
@@ -81,9 +121,9 @@ def get_city_pairs(folder, split='train'):
         mask_paths = []
         with open(split_f, 'r') as lines:
             for line in tqdm(lines):
-                ll_str = re.split('\t', line)
-                imgpath = os.path.join(folder,ll_str[0].rstrip())
-                maskpath = os.path.join(folder,ll_str[1].rstrip())
+                ll_str = line.rstrip()
+                imgpath = os.path.join(folder,'leftImg8bit/val', ll_str+'_leftImg8bit.png')
+                maskpath = os.path.join(folder,'gtFine/val', ll_str+'_gtFine_labelIds.png')
                 if os.path.isfile(maskpath):
                     img_paths.append(imgpath)
                     mask_paths.append(maskpath)
@@ -94,7 +134,7 @@ def get_city_pairs(folder, split='train'):
         split_f = os.path.join(folder, 'train_fine.txt')
         img_paths, mask_paths = get_path_pairs(folder, split_f)
     elif split == 'val':
-        split_f = os.path.join(folder, 'val_fine.txt')
+        split_f = os.path.join(folder, 'val.txt')
         img_paths, mask_paths = get_path_pairs(folder, split_f)
     elif split == 'test':
         split_f = os.path.join(folder, 'test.txt')

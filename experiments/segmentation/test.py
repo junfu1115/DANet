@@ -18,7 +18,7 @@ import encoding.utils as utils
 from encoding.nn import SegmentationLosses, SyncBatchNorm
 from encoding.parallel import DataParallelModel, DataParallelCriterion
 from encoding.datasets import get_dataset, test_batchify_fn
-from encoding.models import get_model, get_segmentation_model, MultiEvalModule
+from encoding.models import  get_segmentation_model, MultiEvalModule
 #from model_mapping import rename_weight_for_head
 
 class Options():
@@ -113,7 +113,7 @@ def test(args):
         testset = get_dataset(args.dataset, split='val', mode='test',
                               transform=input_transform)
     else:
-        testset = get_dataset(args.dataset, split='test', mode='test',
+        testset = get_dataset(args.dataset, split='val', mode='testval',
                               transform=input_transform)
     # dataloader
     loader_kwargs = {'num_workers': args.workers, 'pin_memory': True} \
@@ -124,9 +124,10 @@ def test(args):
     # model
     pretrained = args.resume is None and args.verify is None
     if args.model_zoo is not None:
-        model = get_model(args.model_zoo, pretrained=pretrained)
-        model.base_size = args.base_size
-        model.crop_size = args.crop_size
+        pass
+        # model = get_model(args.model_zoo, pretrained=pretrained)
+        # model.base_size = args.base_size
+        # model.crop_size = args.crop_size
     else:
         model = get_segmentation_model(args.model, dataset=args.dataset,
                                        backbone=args.backbone, aux = args.aux,
